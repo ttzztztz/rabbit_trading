@@ -6,3 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = "0.4.20"
+serde = { version = "1.0.193", features = ["derive"] }
+serde_yaml = "0.9.27"
+tokio = { version = "1.35.0", features = ["full"] }
+yahoo_finance_api = "2.1.0"
+
+[dev-dependencies]
+tokio-test = "0.4.3"
