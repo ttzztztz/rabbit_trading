@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 log = "0.4.20"
+longbridge = "0.2.77"
+rust_decimal = "1.33.1"
+rust_decimal_macros = "1.33.1"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_yaml = "0.9.27"
 simple_logger = "4.3.0"

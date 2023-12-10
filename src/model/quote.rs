@@ -1,4 +1,5 @@
-use std::iter::Map;
+use rust_decimal::Decimal;
+use std::{any::Any, collections::HashMap};
 
 #[derive(Clone, Debug)]
 pub enum QuoteKind {
@@ -29,11 +30,17 @@ impl std::string::ToString for Quote {
     }
 }
 
+// todo: prev_close, trading_session, is_trading
 #[derive(Debug)]
 pub struct QuoteInfo {
     pub quote: Quote,
+    pub sequence: u64,
     pub timestamp: u64,
-    pub price: f64,
+    pub current_price: Decimal,
+    pub low_price: Option<Decimal>,
+    pub high_price: Option<Decimal>,
+    pub open_price: Option<Decimal>,
     pub volume: u64,
-    pub extra: Option<Map<String, String>>,
+    pub turnover: Option<Decimal>,
+    pub extra: Option<HashMap<String, Box<dyn Any>>>,
 }
