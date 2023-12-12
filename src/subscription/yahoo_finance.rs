@@ -1,11 +1,11 @@
 use std::cell::RefCell;
-use std::sync::mpsc::{Receiver, Sender};
-use tokio::sync::mpsc;
+use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::time::{sleep, Duration};
 
 use super::subscription_trait::Subscription;
 use crate::info::info_trait::{Info, InfoContext};
 use crate::info::yahoo_finance::YahooFinanceInfo;
+use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
 
 struct YahooFinanceSubscription {
@@ -20,7 +20,7 @@ impl YahooFinanceSubscription {
                 return;
             }
 
-            if let Some(quote_info) = self.query_quote_info().await {
+            if let Result::Ok(quote_info) = self.info.query_quote_info().await {
                 if let Err(send_result_err) = sender.send(quote_info).await {
                     log::error!("error when sending into mpsc {}", send_result_err);
                 }
@@ -39,13 +39,13 @@ impl Subscription for YahooFinanceSubscription {
         }
     }
 
-    fn subscribe(&self) -> Result<Receiver<QuoteInfo>> {
+    fn subscribe(&self) -> Result<Receiver<QuoteInfo>, Error> {
         let (sender, receiver) = mpsc::channel(64);
         self.start_loop(sender);
         Result::Ok(receiver)
     }
 
-    fn unsubscribe(&self) -> Result<()> {
+    fn unsubscribe(&self) -> Result<(), Error> {
         *self.stop_flag.borrow_mut() = false;
         Result::Ok(())
     }

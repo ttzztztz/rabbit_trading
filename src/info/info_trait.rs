@@ -2,7 +2,10 @@ use std::iter::Map;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 
-use crate::model::quote::{Quote, QuoteInfo};
+use crate::model::{
+    error::Error,
+    quote::{Quote, QuoteInfo},
+};
 
 pub struct InfoContext {
     pub quote: Quote,
@@ -12,5 +15,5 @@ pub struct InfoContext {
 
 pub trait Info {
     fn new(context: InfoContext) -> Self;
-    fn query_real_time(&self) -> QuoteInfo;
+    fn query_real_time(&self) -> Result<QuoteInfo, Error>;
 }

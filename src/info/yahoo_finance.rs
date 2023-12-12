@@ -1,20 +1,21 @@
 use rust_decimal::Decimal;
 use std::result::Result;
-use tokio::time::{sleep, Duration};
-use yahoo_finance_api::{YahooConnector, YahooError};
+use yahoo_finance_api::YahooConnector;
 
+use crate::broker::yahoo_finance::YahooFinanceBroker;
 use crate::info::info_trait::{Info, InfoContext};
+use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
 
 pub struct YahooFinanceInfo {
     provider: YahooConnector,
-    context: InfoContext,
+    pub(crate) context: InfoContext,
 }
 
 impl YahooFinanceInfo {
     const YAHOO_LAST_QUOTES_INTERVAL: &'static str = "1d";
 
-    async fn query_quote_info(&self) -> Result<QuoteInfo, YahooError> {
+    pub(crate) async fn query_quote_info(&self) -> Result<QuoteInfo, Error> {
         let quote = &self.context.quote;
         match self
             .provider
@@ -43,23 +44,8 @@ impl YahooFinanceInfo {
             }
             Result::Err(err) => {
                 log::error!("error {}", err);
-                Result::Err(err)
+                Result::Err(YahooFinanceBroker::to_rabbit_trading_err(err))
             }
-        }
-    }
-
-    async fn start_loop(&self) {
-        loop {
-            if self.stop_flag.take() == true {
-                return;
-            }
-
-            if let Some(quote_info) = self.query_quote_info().await {
-                if let Err(send_result_err) = self.context.sender.send(quote_info).await {
-                    log::error!("error when sending into mpsc {}", send_result_err);
-                }
-            }
-            sleep(Duration::from_millis(500)).await;
         }
     }
 }
@@ -70,7 +56,7 @@ impl Info for YahooFinanceInfo {
         YahooFinanceInfo { provider, context }
     }
 
-    fn query_real_time(&self) -> QuoteInfo {
+    fn query_real_time(&self) -> Result<QuoteInfo, Error> {
         self.context.runtime.block_on(self.query_quote_info())
     }
 }
@@ -104,10 +90,10 @@ mod test_yahoo_finance_info {
             extra: Option::None,
         });
 
-        let quote_info_optional = runtime.block_on(yahoo_finance_info.query_quote_info());
-        log::warn!("quote_info: {quote_info_optional:?}");
-        assert!(quote_info_optional.is_some());
-        let quote_info = quote_info_optional.unwrap();
+        let quote_info_result = runtime.block_on(yahoo_finance_info.query_quote_info());
+        assert!(quote_info_result.is_ok());
+        let quote_info = quote_info_result.unwrap();
+        log::warn!("quote_info: {quote_info:?}");
         assert_eq!("Stock:ABNB", quote_info.quote.to_string());
         assert!(quote_info.current_price > decimal!(0.0));
         assert!(quote_info.volume > 0);

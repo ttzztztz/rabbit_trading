@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 
+mod broker;
 mod info;
 mod model;
 mod subscription;
