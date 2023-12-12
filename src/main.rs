@@ -3,6 +3,7 @@ use tokio::runtime::Runtime;
 
 mod info;
 mod model;
+mod subscription;
 
 fn main() {
     let runtime = Arc::new(Runtime::new().unwrap());

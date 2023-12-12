@@ -1,21 +1,20 @@
 use rust_decimal::Decimal;
-use std::cell::RefCell;
+use std::result::Result;
 use tokio::time::{sleep, Duration};
-use yahoo_finance_api::YahooConnector;
+use yahoo_finance_api::{YahooConnector, YahooError};
 
-use crate::info::info_trait::{InfoContext, InfoWorker};
+use crate::info::info_trait::{Info, InfoContext};
 use crate::model::quote::QuoteInfo;
 
-struct YahooFinanceInfo {
+pub struct YahooFinanceInfo {
     provider: YahooConnector,
     context: InfoContext,
-    stop_flag: RefCell<bool>,
 }
 
 impl YahooFinanceInfo {
     const YAHOO_LAST_QUOTES_INTERVAL: &'static str = "1d";
 
-    async fn query_quote_info(&self) -> Option<QuoteInfo> {
+    async fn query_quote_info(&self) -> Result<QuoteInfo, YahooError> {
         let quote = &self.context.quote;
         match self
             .provider
@@ -23,10 +22,10 @@ impl YahooFinanceInfo {
             .await
             .and_then(|y_response| y_response.last_quote())
         {
-            std::result::Result::Ok(yahoo_quote) => {
+            Result::Ok(yahoo_quote) => {
                 log::info!("Received yahoo_quote = {yahoo_quote:?} successfully");
 
-                Option::Some(QuoteInfo {
+                Result::Ok(QuoteInfo {
                     quote: quote.clone(),
                     sequence: yahoo_quote.timestamp,
                     timestamp: yahoo_quote.timestamp,
@@ -42,9 +41,9 @@ impl YahooFinanceInfo {
                     extra: Option::None,
                 })
             }
-            std::result::Result::Err(err) => {
+            Result::Err(err) => {
                 log::error!("error {}", err);
-                Option::None
+                Result::Err(err)
             }
         }
     }
@@ -65,22 +64,14 @@ impl YahooFinanceInfo {
     }
 }
 
-impl InfoWorker for YahooFinanceInfo {
+impl Info for YahooFinanceInfo {
     fn new(context: InfoContext) -> Self {
         let provider = YahooConnector::new();
-        YahooFinanceInfo {
-            provider,
-            context,
-            stop_flag: false.into(),
-        }
+        YahooFinanceInfo { provider, context }
     }
 
-    fn start(&self) {
-        self.context.runtime.block_on(self.start_loop());
-    }
-
-    fn stop(&self) {
-        *self.stop_flag.borrow_mut() = true.into();
+    fn query_real_time(&self) -> QuoteInfo {
+        self.context.runtime.block_on(self.query_quote_info())
     }
 }
 
@@ -91,10 +82,9 @@ mod test_yahoo_finance_info {
     use simple_logger::SimpleLogger;
     use std::sync::Arc;
     use tokio::runtime::Runtime;
-    use tokio::sync::mpsc;
 
     use super::YahooFinanceInfo;
-    use crate::info::info_trait::{InfoContext, InfoWorker};
+    use crate::info::info_trait::{Info, InfoContext};
     use crate::model::quote::Quote;
 
     #[test]
@@ -105,15 +95,12 @@ mod test_yahoo_finance_info {
             .unwrap();
 
         let runtime = Arc::new(Runtime::new().unwrap());
-        let (sender, _) = mpsc::channel(64);
-        let sender_arc = Arc::new(sender);
         let yahoo_finance_info = YahooFinanceInfo::new(InfoContext {
             quote: Quote {
                 kind: crate::model::quote::QuoteKind::Stock,
                 identifier: "ABNB".to_owned(),
             },
             runtime: runtime.clone(),
-            sender: sender_arc,
             extra: Option::None,
         });
 
