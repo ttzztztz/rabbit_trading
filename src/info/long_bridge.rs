@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use longbridge::QuoteContext;
 use std::result::Result;
 
@@ -11,8 +12,18 @@ pub struct LongBridgeInfo {
     longbridge_context: QuoteContext,
 }
 
-impl LongBridgeInfo {
-    async fn query_quote_info(&self) -> Result<QuoteInfo, Error> {
+#[async_trait]
+impl Info for LongBridgeInfo {
+    async fn new(context: InfoContext) -> Self {
+        let (ctx, _) = LongBridgeBroker::create_context().await.unwrap();
+
+        LongBridgeInfo {
+            context,
+            longbridge_context: ctx,
+        }
+    }
+
+    async fn query_real_time_info(&self) -> Result<QuoteInfo, Error> {
         let quote_result = self
             .longbridge_context
             .quote([self.context.quote.identifier.clone()])
@@ -38,49 +49,28 @@ impl LongBridgeInfo {
     }
 }
 
-impl Info for LongBridgeInfo {
-    fn new(context: InfoContext) -> Self {
-        let (ctx, _) = context
-            .runtime
-            .block_on(LongBridgeBroker::create_context())
-            .unwrap();
-
-        LongBridgeInfo {
-            context,
-            longbridge_context: ctx,
-        }
-    }
-
-    fn query_real_time(&self) -> Result<QuoteInfo, Error> {
-        self.context.runtime.block_on(self.query_quote_info())
-    }
-}
-
 #[cfg(test)]
 mod test_long_bridge_info {
     use log;
     use longbridge::decimal;
-    use std::sync::Arc;
-    use tokio::runtime::Runtime;
 
     use super::LongBridgeInfo;
     use crate::info::info_trait::{Info, InfoContext};
     use crate::model::quote::Quote;
 
-    #[test]
+    #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
-    fn test_query_quote_info() {
-        let runtime = Arc::new(Runtime::new().unwrap());
+    async fn test_query_real_time_info() {
         let long_bridge_info = LongBridgeInfo::new(InfoContext {
             quote: Quote {
                 kind: crate::model::quote::QuoteKind::Stock,
                 identifier: "0700.HK".to_owned(),
             },
-            runtime: runtime.clone(),
             extra: Option::None,
-        });
+        })
+        .await;
 
-        let quote_info_result = runtime.block_on(long_bridge_info.query_quote_info());
+        let quote_info_result = long_bridge_info.query_real_time_info().await;
         let quote_info = quote_info_result.unwrap();
         log::warn!("quote_info: {quote_info:?}");
         assert_eq!("Stock:0700.HK", quote_info.quote.to_string());

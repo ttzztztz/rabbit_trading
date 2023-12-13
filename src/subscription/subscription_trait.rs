@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use tokio::sync::mpsc::Receiver;
 
 use crate::{
@@ -5,8 +6,9 @@ use crate::{
     model::{error::Error, quote::QuoteInfo},
 };
 
+#[async_trait]
 pub trait Subscription {
-    fn new(context: InfoContext) -> Self;
-    fn subscribe(&self) -> Result<Receiver<QuoteInfo>, Error>;
-    fn unsubscribe(&self) -> Result<(), Error>;
+    async fn new(context: InfoContext) -> Self;
+    async fn subscribe(&self) -> Result<Receiver<QuoteInfo>, Error>;
+    async fn unsubscribe(&self) -> Result<(), Error>;
 }

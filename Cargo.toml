@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1.74"
 log = "0.4.20"
 longbridge = "0.2.77"
 rust_decimal = "1.33.1"

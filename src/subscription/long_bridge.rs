@@ -1,9 +1,13 @@
+use async_trait::async_trait;
 use longbridge::{
     quote::{PushEvent, SubFlags},
     QuoteContext,
 };
-use std::cell::RefCell;
-use tokio::sync::mpsc::{self, Sender};
+use std::sync::Arc;
+use tokio::sync::{
+    mpsc::{self, Sender},
+    Mutex,
+};
 
 use super::subscription_trait::Subscription;
 use crate::{
@@ -12,22 +16,22 @@ use crate::{
 
 // https://crates.io/crates/longbridge
 struct LongBridgeSubscription {
-    context: InfoContext,
-    longbridge_context: QuoteContext,
-    longbridge_receiver: RefCell<mpsc::UnboundedReceiver<PushEvent>>,
+    context: Arc<Mutex<InfoContext>>,
+    longbridge_context: Arc<Mutex<QuoteContext>>,
+    longbridge_receiver: Arc<Mutex<mpsc::UnboundedReceiver<PushEvent>>>,
 }
 
 impl LongBridgeSubscription {
     async fn start_loop(&self, sender: Sender<QuoteInfo>) {
-        let identifier = self.get_identifier();
-        self.longbridge_context
+        let identifier = self.get_identifier().await;
+        let quote = self.context.lock().await.quote.clone();
+
+        (*self.longbridge_context.lock().await)
             .subscribe([identifier], SubFlags::QUOTE, true)
             .await
             .unwrap();
 
-        while let Some(event_detail) = self
-            .longbridge_receiver
-            .borrow_mut()
+        while let Some(event_detail) = (*self.longbridge_receiver.lock().await)
             .recv()
             .await
             .map(|event| event.detail)
@@ -36,7 +40,7 @@ impl LongBridgeSubscription {
                 longbridge::quote::PushEventDetail::Quote(longbridge_quote) => {
                     let timestamp = longbridge_quote.timestamp.unix_timestamp() as u64;
                     let quote_info = QuoteInfo {
-                        quote: self.context.quote.clone(),
+                        quote: quote.clone(),
                         sequence: timestamp,
                         timestamp: timestamp as i64,
                         current_price: longbridge_quote.last_done,
@@ -60,39 +64,36 @@ impl LongBridgeSubscription {
         }
     }
 
-    fn get_identifier(&self) -> String {
-        self.context.quote.identifier.clone()
+    async fn get_identifier(&self) -> String {
+        self.context.lock().await.quote.identifier.clone()
     }
 }
 
+#[async_trait]
 impl Subscription for LongBridgeSubscription {
-    fn new(context: InfoContext) -> Self {
-        let (ctx, receiver) = context
-            .runtime
-            .block_on(LongBridgeBroker::create_context())
-            .unwrap();
+    async fn new(context: InfoContext) -> Self {
+        let (longbridge_context, receiver) = LongBridgeBroker::create_context().await.unwrap();
 
         LongBridgeSubscription {
-            context,
-            longbridge_context: ctx,
-            longbridge_receiver: RefCell::new(receiver),
+            context: Arc::new(Mutex::new(context)),
+            longbridge_context: Arc::new(Mutex::new(longbridge_context)),
+            longbridge_receiver: Arc::new(Mutex::new(receiver)),
         }
     }
 
-    fn subscribe(&self) -> Result<mpsc::Receiver<QuoteInfo>, crate::model::error::Error> {
+    async fn subscribe(&self) -> Result<mpsc::Receiver<QuoteInfo>, crate::model::error::Error> {
         let (sender, receiver) = mpsc::channel(64);
         self.start_loop(sender); // todo: handle multi threading issue
         Result::Ok(receiver)
     }
 
-    fn unsubscribe(&self) -> Result<(), crate::model::error::Error> {
-        let identifier = self.get_identifier();
-        self.context
-            .runtime
-            .block_on(
-                self.longbridge_context
-                    .unsubscribe([identifier], SubFlags::QUOTE),
-            )
+    async fn unsubscribe(&self) -> Result<(), crate::model::error::Error> {
+        let identifier = self.get_identifier().await;
+        self.longbridge_context
+            .lock()
+            .await
+            .unsubscribe([identifier], SubFlags::QUOTE)
+            .await
             .unwrap();
 
         Result::Ok(())

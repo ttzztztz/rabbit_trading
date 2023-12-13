@@ -1,6 +1,5 @@
+use async_trait::async_trait;
 use std::iter::Map;
-use std::sync::Arc;
-use tokio::runtime::Runtime;
 
 use crate::model::{
     error::Error,
@@ -9,11 +8,11 @@ use crate::model::{
 
 pub struct InfoContext {
     pub quote: Quote,
-    pub runtime: Arc<Runtime>,
     pub extra: Option<Map<String, String>>,
 }
 
+#[async_trait]
 pub trait Info {
-    fn new(context: InfoContext) -> Self;
-    fn query_real_time(&self) -> Result<QuoteInfo, Error>;
+    async fn new(context: InfoContext) -> Self;
+    async fn query_real_time_info(&self) -> Result<QuoteInfo, Error>;
 }

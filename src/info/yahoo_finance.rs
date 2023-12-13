@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use rust_decimal::Decimal;
 use std::result::Result;
 use yahoo_finance_api::YahooConnector;
@@ -14,8 +15,16 @@ pub struct YahooFinanceInfo {
 
 impl YahooFinanceInfo {
     const YAHOO_LAST_QUOTES_INTERVAL: &'static str = "1d";
+}
 
-    pub(crate) async fn query_quote_info(&self) -> Result<QuoteInfo, Error> {
+#[async_trait]
+impl Info for YahooFinanceInfo {
+    async fn new(context: InfoContext) -> Self {
+        let provider = YahooConnector::new();
+        YahooFinanceInfo { provider, context }
+    }
+
+    async fn query_real_time_info(&self) -> Result<QuoteInfo, Error> {
         let quote = &self.context.quote;
 
         match self
@@ -52,41 +61,27 @@ impl YahooFinanceInfo {
     }
 }
 
-impl Info for YahooFinanceInfo {
-    fn new(context: InfoContext) -> Self {
-        let provider = YahooConnector::new();
-        YahooFinanceInfo { provider, context }
-    }
-
-    fn query_real_time(&self) -> Result<QuoteInfo, Error> {
-        self.context.runtime.block_on(self.query_quote_info())
-    }
-}
-
 #[cfg(test)]
 mod test_yahoo_finance_info {
     use log;
     use longbridge::decimal;
-    use std::sync::Arc;
-    use tokio::runtime::Runtime;
 
     use super::YahooFinanceInfo;
     use crate::info::info_trait::{Info, InfoContext};
     use crate::model::quote::Quote;
 
-    #[test]
-    fn test_query_quote_info() {
-        let runtime = Arc::new(Runtime::new().unwrap());
+    #[tokio::test]
+    async fn test_query_quote_info() {
         let yahoo_finance_info = YahooFinanceInfo::new(InfoContext {
             quote: Quote {
                 kind: crate::model::quote::QuoteKind::Stock,
                 identifier: "ABNB".to_owned(),
             },
-            runtime: runtime.clone(),
             extra: Option::None,
-        });
+        })
+        .await;
 
-        let quote_info_result = runtime.block_on(yahoo_finance_info.query_quote_info());
+        let quote_info_result = yahoo_finance_info.query_real_time_info().await;
         assert!(quote_info_result.is_ok());
         let quote_info = quote_info_result.unwrap();
         log::warn!("quote_info: {quote_info:?}");
