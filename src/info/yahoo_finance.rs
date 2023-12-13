@@ -17,6 +17,7 @@ impl YahooFinanceInfo {
 
     pub(crate) async fn query_quote_info(&self) -> Result<QuoteInfo, Error> {
         let quote = &self.context.quote;
+
         match self
             .provider
             .get_latest_quotes(quote.identifier.as_str(), Self::YAHOO_LAST_QUOTES_INTERVAL)
@@ -29,7 +30,7 @@ impl YahooFinanceInfo {
                 Result::Ok(QuoteInfo {
                     quote: quote.clone(),
                     sequence: yahoo_quote.timestamp,
-                    timestamp: yahoo_quote.timestamp,
+                    timestamp: yahoo_quote.timestamp as i64,
                     current_price: Decimal::from_str_exact(
                         format!("{:.2}", yahoo_quote.close).as_str(),
                     )
@@ -37,6 +38,7 @@ impl YahooFinanceInfo {
                     low_price: Option::None,
                     high_price: Option::None,
                     open_price: Option::None,
+                    prev_close: Option::None,
                     volume: yahoo_quote.volume,
                     turnover: Option::None,
                     extra: Option::None,
@@ -63,9 +65,8 @@ impl Info for YahooFinanceInfo {
 
 #[cfg(test)]
 mod test_yahoo_finance_info {
-    use log::{self, LevelFilter};
+    use log;
     use longbridge::decimal;
-    use simple_logger::SimpleLogger;
     use std::sync::Arc;
     use tokio::runtime::Runtime;
 
@@ -75,11 +76,6 @@ mod test_yahoo_finance_info {
 
     #[test]
     fn test_query_quote_info() {
-        SimpleLogger::new()
-            .with_level(LevelFilter::Info)
-            .init()
-            .unwrap();
-
         let runtime = Arc::new(Runtime::new().unwrap());
         let yahoo_finance_info = YahooFinanceInfo::new(InfoContext {
             quote: Quote {
@@ -96,7 +92,7 @@ mod test_yahoo_finance_info {
         log::warn!("quote_info: {quote_info:?}");
         assert_eq!("Stock:ABNB", quote_info.quote.to_string());
         assert!(quote_info.current_price > decimal!(0.0));
-        assert!(quote_info.volume > 0);
-        assert!(quote_info.timestamp > 0);
+        assert!(quote_info.volume > 0u64);
+        assert!(quote_info.timestamp > 0i64);
     }
 }

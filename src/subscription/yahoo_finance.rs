@@ -41,7 +41,7 @@ impl Subscription for YahooFinanceSubscription {
 
     fn subscribe(&self) -> Result<Receiver<QuoteInfo>, Error> {
         let (sender, receiver) = mpsc::channel(64);
-        self.start_loop(sender);
+        self.start_loop(sender); // todo: handle multi threading issue
         Result::Ok(receiver)
     }
 
