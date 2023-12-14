@@ -52,7 +52,7 @@ impl Info for LongBridgeInfo {
 #[cfg(test)]
 mod test_long_bridge_info {
     use log;
-    use longbridge::decimal;
+    use rust_decimal_macros::dec;
 
     use super::LongBridgeInfo;
     use crate::info::info_trait::{Info, InfoContext};
@@ -74,13 +74,13 @@ mod test_long_bridge_info {
         let quote_info = quote_info_result.unwrap();
         log::warn!("quote_info: {quote_info:?}");
         assert_eq!("Stock:0700.HK", quote_info.quote.to_string());
-        assert!(quote_info.current_price > decimal!(0.0));
+        assert!(quote_info.current_price > dec!(0.0));
         assert!(quote_info.volume > 0u64);
-        assert!(quote_info.high_price.unwrap() > decimal!(0.0));
-        assert!(quote_info.low_price.unwrap() > decimal!(0.0));
-        assert!(quote_info.open_price.unwrap() > decimal!(0.0));
-        assert!(quote_info.prev_close.unwrap() > decimal!(0.0));
-        assert!(quote_info.turnover.unwrap() > decimal!(0.0));
+        assert!(quote_info.high_price.unwrap() > dec!(0.0));
+        assert!(quote_info.low_price.unwrap() > dec!(0.0));
+        assert!(quote_info.open_price.unwrap() > dec!(0.0));
+        assert!(quote_info.prev_close.unwrap() > dec!(0.0));
+        assert!(quote_info.turnover.unwrap() > dec!(0.0));
         assert!(quote_info.volume > 0u64);
         assert!(quote_info.timestamp > 0);
     }

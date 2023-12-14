@@ -43,5 +43,5 @@ pub struct QuoteInfo {
     pub prev_close: Option<Decimal>,
     pub volume: u64,
     pub turnover: Option<Decimal>,
-    pub extra: Option<HashMap<String, Box<dyn Any>>>,
+    pub extra: Option<HashMap<String, Box<dyn Any + Send>>>,
 }

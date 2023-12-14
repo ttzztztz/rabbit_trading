@@ -6,6 +6,7 @@ use crate::model::{
     quote::{Quote, QuoteInfo},
 };
 
+#[derive(Clone)]
 pub struct InfoContext {
     pub quote: Quote,
     pub extra: Option<Map<String, String>>,
