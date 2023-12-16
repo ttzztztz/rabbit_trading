@@ -87,7 +87,6 @@ mod test_yahoo_finance_subscription {
         .await;
 
         let mut receiver = yahoo_finance_subscription.subscribe().await.unwrap();
-
         tokio::select! {
             quote_info = receiver.recv() => {
                 assert!(quote_info.is_some());

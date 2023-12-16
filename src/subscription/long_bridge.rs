@@ -104,3 +104,44 @@ impl Subscription for LongBridgeSubscription {
         Result::Ok(())
     }
 }
+
+#[cfg(test)]
+mod test_long_bridge_subscription {
+    use log;
+    use rust_decimal_macros::dec;
+    use tokio::time::{sleep, Duration};
+
+    use super::LongBridgeSubscription;
+    use crate::info::info_trait::InfoContext;
+    use crate::model::quote::Quote;
+    use crate::subscription::subscription_trait::Subscription;
+
+    #[tokio::test]
+    #[cfg_attr(feature = "ci", ignore)]
+    async fn test_query_quote_info() {
+        let long_bridge_subscription = LongBridgeSubscription::create(InfoContext {
+            quote: Quote {
+                kind: crate::model::quote::QuoteKind::Stock,
+                identifier: "0700.HK".to_owned(),
+            },
+            extra: Option::None,
+        })
+        .await;
+
+        let mut receiver = long_bridge_subscription.subscribe().await.unwrap();
+        tokio::select! {
+            quote_info = receiver.recv() => {
+                assert!(quote_info.is_some());
+                let quote_info = quote_info.unwrap();
+                log::warn!("quote_info: {quote_info:?}");
+                assert_eq!("Stock:0700.HK", quote_info.quote.to_string());
+                assert!(quote_info.current_price > dec!(0.0));
+                assert!(quote_info.volume > 0u64);
+                assert!(quote_info.timestamp > 0i64);
+            },
+            _ = sleep(Duration::from_millis(3000))=> {
+                panic!("loop not working!");
+            },
+        };
+    }
+}
