@@ -8,7 +8,9 @@ use crate::{
 
 #[async_trait]
 pub trait Subscription {
-    async fn create(context: InfoContext) -> Self;
+    async fn create(context: InfoContext) -> Self
+    where
+        Self: Sized;
     async fn subscribe(&self) -> Result<Receiver<QuoteInfo>, Error>;
     async fn unsubscribe(&self) -> Result<(), Error>;
 }

@@ -14,6 +14,8 @@ pub struct InfoContext {
 
 #[async_trait]
 pub trait Info {
-    async fn new(context: InfoContext) -> Self;
+    async fn new(context: InfoContext) -> Self
+    where
+        Self: Sized;
     async fn query_real_time_info(&self) -> Result<QuoteInfo, Error>;
 }
