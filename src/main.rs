@@ -5,6 +5,7 @@ mod broker;
 mod control_plane;
 mod info;
 mod model;
+mod persistent_kv;
 mod position;
 mod strategy;
 mod subscription;
