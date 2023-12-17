@@ -7,9 +7,7 @@ mod log;
 mod metrics;
 mod model;
 mod persistent_kv;
-mod position;
 mod strategy;
-mod transaction;
 mod utils;
 
 fn main() {

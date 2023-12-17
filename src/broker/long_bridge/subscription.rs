@@ -12,7 +12,7 @@ use tokio::sync::{
 use super::broker::LongBridgeBroker;
 use crate::{
     broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
-    model::quote::QuoteInfo,
+    model::{error::Error, quote::QuoteInfo},
 };
 
 // https://crates.io/crates/longbridge
@@ -24,18 +24,13 @@ pub(super) struct LongBridgeSubscription {
 impl LongBridgeSubscription {
     async fn start_loop(
         info_context: InfoContext,
-        longbridge_context: Arc<Mutex<Option<QuoteContext>>>,
+        longbridge_context: QuoteContext,
         sender: Sender<QuoteInfo>,
         mut long_bridge_receiver: mpsc::UnboundedReceiver<PushEvent>,
     ) {
         let identifier = info_context.quote.identifier.clone();
         let quote = info_context.quote.clone();
-
         longbridge_context
-            .lock()
-            .await
-            .as_ref()
-            .unwrap()
             .subscribe([identifier], SubFlags::QUOTE, true)
             .await
             .unwrap();
@@ -74,27 +69,28 @@ impl LongBridgeSubscription {
 impl Subscription for LongBridgeSubscription {
     async fn new(context: InfoContext) -> Self {
         LongBridgeSubscription {
-            context: context,
+            context,
             longbridge_context: Arc::new(Mutex::new(Option::None)),
         }
     }
 
-    async fn subscribe(&self) -> Result<mpsc::Receiver<QuoteInfo>, crate::model::error::Error> {
+    async fn subscribe(&self) -> Result<mpsc::Receiver<QuoteInfo>, Error> {
         let (sender, receiver) = mpsc::channel(64);
         let (longbridge_context, long_bridge_receiver) =
             LongBridgeBroker::create_context().await.unwrap();
+        let ctx = longbridge_context.clone();
         *self.longbridge_context.lock().await = Option::Some(longbridge_context);
 
         tokio::task::spawn(Self::start_loop(
             self.context.clone(),
-            self.longbridge_context.clone(),
+            ctx.clone(),
             sender,
             long_bridge_receiver,
         ));
         Result::Ok(receiver)
     }
 
-    async fn unsubscribe(&self) -> Result<(), crate::model::error::Error> {
+    async fn unsubscribe(&self) -> Result<(), Error> {
         let identifier = self.context.quote.identifier.clone();
         let longbridge_context_lock = self.longbridge_context.lock().await;
         if let Some(ctx) = longbridge_context_lock.as_ref() {
