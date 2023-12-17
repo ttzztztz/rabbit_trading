@@ -21,4 +21,9 @@ yahoo_finance_api = "2.1.0"
 tokio-test = "0.4.3"
 
 [features]
-ci = []
+full = ["long_bridge", "yahoo_finance", "interactive_brokers"]
+default = ["full"]
+ci = ["full"]
+long_bridge = []
+yahoo_finance = []
+interactive_brokers = []
