@@ -1,15 +1,12 @@
 use async_trait::async_trait;
+use std::collections::HashMap;
 
 use crate::{
-    info::info_trait::Info, persistent_kv::persistent_kv_trait::PersistentKVStore,
-    subscription::subscription_trait::Subscription,
+    broker::common::broker_trait::Broker, persistent_kv::persistent_kv_trait::PersistentKVStore,
 };
 
 pub struct StrategyContext<V: Send + Sync + Clone = String> {
-    pub info: Box<dyn Info>,
-    // pub position: Position, # todo
-    pub subscription: Box<dyn Subscription>,
-    // pub tarnsaction: Transaction, # todo
+    pub brokers: HashMap<String, Box<dyn Broker>>,
     pub persistent_kv_store: Box<dyn PersistentKVStore<V>>,
 }
 

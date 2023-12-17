@@ -3,12 +3,12 @@ use tokio::runtime::Runtime;
 
 mod broker;
 mod control_plane;
-mod info;
+mod log;
+mod metrics;
 mod model;
 mod persistent_kv;
 mod position;
 mod strategy;
-mod subscription;
 mod transaction;
 mod utils;
 

@@ -4,13 +4,15 @@ use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::sync::Mutex;
 use tokio::time::{sleep, Duration};
 
-use super::subscription_trait::Subscription;
-use crate::info::info_trait::{Info, InfoContext};
-use crate::info::yahoo_finance::YahooFinanceInfo;
+use super::info::YahooFinanceInfo;
+use crate::broker::common::{
+    info_trait::{Info, InfoContext},
+    subscription_trait::Subscription,
+};
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
 
-struct YahooFinanceSubscription {
+pub(super) struct YahooFinanceSubscription {
     context: InfoContext,
     stop_flag: Arc<Mutex<bool>>,
 }
@@ -41,7 +43,7 @@ impl YahooFinanceSubscription {
 
 #[async_trait]
 impl Subscription for YahooFinanceSubscription {
-    async fn create(context: InfoContext) -> Self {
+    async fn new(context: InfoContext) -> Self {
         YahooFinanceSubscription {
             context,
             stop_flag: Arc::new(Mutex::new(false)),
@@ -71,13 +73,14 @@ mod test_yahoo_finance_subscription {
     use tokio::time::{sleep, Duration};
 
     use super::YahooFinanceSubscription;
-    use crate::info::info_trait::InfoContext;
-    use crate::model::quote::Quote;
-    use crate::subscription::subscription_trait::Subscription;
+    use crate::{
+        broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
+        model::quote::Quote,
+    };
 
     #[tokio::test]
     async fn test_query_quote_info() {
-        let yahoo_finance_subscription = YahooFinanceSubscription::create(InfoContext {
+        let yahoo_finance_subscription = YahooFinanceSubscription::new(InfoContext {
             quote: Quote {
                 kind: crate::model::quote::QuoteKind::Stock,
                 identifier: "ABNB".to_owned(),

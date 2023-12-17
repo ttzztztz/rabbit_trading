@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use longbridge::QuoteContext;
 use std::result::Result;
 
-use crate::broker::long_bridge::LongBridgeBroker;
-use crate::info::info_trait::{Info, InfoContext};
+use super::broker::LongBridgeBroker;
+use crate::broker::common::info_trait::{Info, InfoContext};
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
 
@@ -55,7 +55,7 @@ mod test_long_bridge_info {
     use rust_decimal_macros::dec;
 
     use super::LongBridgeInfo;
-    use crate::info::info_trait::{Info, InfoContext};
+    use crate::broker::common::info_trait::{Info, InfoContext};
     use crate::model::quote::Quote;
 
     #[tokio::test]

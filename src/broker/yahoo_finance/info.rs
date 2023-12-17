@@ -3,14 +3,14 @@ use rust_decimal::Decimal;
 use std::result::Result;
 use yahoo_finance_api::YahooConnector;
 
-use crate::broker::yahoo_finance::YahooFinanceBroker;
-use crate::info::info_trait::{Info, InfoContext};
+use crate::broker::common::info_trait::{Info, InfoContext};
+use crate::broker::yahoo_finance::broker::YahooFinanceBroker;
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
 
 pub struct YahooFinanceInfo {
     provider: YahooConnector,
-    pub(crate) context: InfoContext,
+    pub(super) context: InfoContext,
 }
 
 impl YahooFinanceInfo {
@@ -67,8 +67,7 @@ mod test_yahoo_finance_info {
     use rust_decimal_macros::dec;
 
     use super::YahooFinanceInfo;
-    use crate::info::info_trait::{Info, InfoContext};
-    use crate::model::quote::Quote;
+    use crate::{broker::common::info_trait::{InfoContext, Info}, model::quote::Quote};
 
     #[tokio::test]
     async fn test_query_quote_info() {

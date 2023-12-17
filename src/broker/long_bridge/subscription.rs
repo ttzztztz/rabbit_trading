@@ -9,13 +9,14 @@ use tokio::sync::{
     Mutex,
 };
 
-use super::subscription_trait::Subscription;
+use super::broker::LongBridgeBroker;
 use crate::{
-    broker::long_bridge::LongBridgeBroker, info::info_trait::InfoContext, model::quote::QuoteInfo,
+    broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
+    model::quote::QuoteInfo,
 };
 
 // https://crates.io/crates/longbridge
-struct LongBridgeSubscription {
+pub(super) struct LongBridgeSubscription {
     context: InfoContext,
     longbridge_context: Arc<Mutex<Option<QuoteContext>>>,
 }
@@ -71,7 +72,7 @@ impl LongBridgeSubscription {
 
 #[async_trait]
 impl Subscription for LongBridgeSubscription {
-    async fn create(context: InfoContext) -> Self {
+    async fn new(context: InfoContext) -> Self {
         LongBridgeSubscription {
             context: context,
             longbridge_context: Arc::new(Mutex::new(Option::None)),
@@ -112,14 +113,15 @@ mod test_long_bridge_subscription {
     use tokio::time::{sleep, Duration};
 
     use super::LongBridgeSubscription;
-    use crate::info::info_trait::InfoContext;
-    use crate::model::quote::Quote;
-    use crate::subscription::subscription_trait::Subscription;
+    use crate::{
+        broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
+        model::quote::Quote,
+    };
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_quote_info() {
-        let long_bridge_subscription = LongBridgeSubscription::create(InfoContext {
+        let long_bridge_subscription = LongBridgeSubscription::new(InfoContext {
             quote: Quote {
                 kind: crate::model::quote::QuoteKind::Stock,
                 identifier: "0700.HK".to_owned(),

@@ -2,9 +2,8 @@ use longbridge::{quote::PushEvent, Config, QuoteContext, Result};
 use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedReceiver;
 
+use super::broker::LongBridgeBroker;
 use crate::model::error::Error;
-
-pub struct LongBridgeBroker {}
 
 impl LongBridgeBroker {
     const OTHER_ERROR_CODE: &'static str = "other";
