@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 
-use super::persistent_kv_trait::{PersistentKVStore, PersistentKVStoreInitializationContext};
+use super::persistent_kv_trait::{PersistentKVStore, PersistentKVStoreParameters};
 use crate::model::error::Error;
 
 pub struct MemoryKVStore<V: Send + Sync + Clone> {
@@ -22,7 +22,7 @@ impl<V: Send + Sync + Clone> MemoryKVStore<V> {
 
 #[async_trait]
 impl<V: Send + Sync + Clone> PersistentKVStore<V> for MemoryKVStore<V> {
-    async fn new(_: PersistentKVStoreInitializationContext<V>) -> Self {
+    async fn new(_: PersistentKVStoreParameters<V>) -> Self {
         MemoryKVStore::<V> {
             data: Arc::new(RwLock::new(HashMap::new())),
         }
@@ -45,7 +45,7 @@ impl<V: Send + Sync + Clone> PersistentKVStore<V> for MemoryKVStore<V> {
 mod test_memory_kv_store {
     use std::collections::HashMap;
 
-    use super::{MemoryKVStore, PersistentKVStore, PersistentKVStoreInitializationContext};
+    use super::{MemoryKVStore, PersistentKVStore, PersistentKVStoreParameters};
 
     const MAP_KEY_1: &'static str = "key_1";
     const MAP_VALUE_1: &'static str = "114514";
@@ -54,7 +54,7 @@ mod test_memory_kv_store {
     #[tokio::test]
     async fn test_operations_on_memory_kv_store() {
         let kv_store: Box<dyn PersistentKVStore<String>> = Box::new(
-            MemoryKVStore::new(PersistentKVStoreInitializationContext {
+            MemoryKVStore::new(PersistentKVStoreParameters {
                 configuration: HashMap::new(),
             })
             .await,

@@ -5,7 +5,7 @@ use crate::{
     subscription::subscription_trait::Subscription,
 };
 
-pub struct StrategyContext<V = String> {
+pub struct StrategyContext<V: Send + Sync + Clone = String> {
     pub info: Box<dyn Info>,
     // pub position: Position, # todo
     pub subscription: Box<dyn Subscription>,
@@ -14,7 +14,7 @@ pub struct StrategyContext<V = String> {
 }
 
 #[async_trait]
-pub trait Strategy<V> {
+pub trait Strategy<V: Send + Sync + Clone = String> {
     async fn new() -> Self
     where
         Self: Sized;

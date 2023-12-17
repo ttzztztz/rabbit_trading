@@ -10,6 +10,7 @@ mod position;
 mod strategy;
 mod subscription;
 mod transaction;
+mod utils;
 
 fn main() {
     let runtime = Arc::new(Runtime::new().unwrap());
