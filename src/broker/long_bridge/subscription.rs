@@ -77,7 +77,7 @@ impl Subscription for LongBridgeSubscription {
     async fn subscribe(&self) -> Result<mpsc::Receiver<QuoteInfo>, Error> {
         let (sender, receiver) = mpsc::channel(64);
         let (longbridge_context, long_bridge_receiver) =
-            LongBridgeBroker::create_context().await.unwrap();
+            LongBridgeBroker::create_quote_context().await.unwrap();
         let ctx = longbridge_context.clone();
         *self.longbridge_context.lock().await = Option::Some(longbridge_context);
 

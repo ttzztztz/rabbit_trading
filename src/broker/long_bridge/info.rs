@@ -15,7 +15,7 @@ pub struct LongBridgeInfo {
 #[async_trait]
 impl Info for LongBridgeInfo {
     async fn new(context: InfoContext) -> Self {
-        let (ctx, _) = LongBridgeBroker::create_context().await.unwrap();
+        let (ctx, _) = LongBridgeBroker::create_quote_context().await.unwrap();
 
         LongBridgeInfo {
             context,
