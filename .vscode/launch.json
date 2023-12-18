@@ -1,0 +1,42 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'rabbit_trading'",
+      "cargo": {
+        "args": ["build", "--bin=rabbit_trading", "--package=rabbit_trading", "--features=full"],
+        "filter": {
+          "name": "rabbit_trading",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'rabbit_trading'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=rabbit_trading",
+          "--package=rabbit_trading",
+          "--features=full"
+        ],
+        "filter": {
+          "name": "rabbit_trading",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
