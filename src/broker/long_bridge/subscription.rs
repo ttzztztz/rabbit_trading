@@ -111,7 +111,7 @@ mod test_long_bridge_subscription {
     use super::LongBridgeSubscription;
     use crate::{
         broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
-        model::{region::Region, symbol::Symbol},
+        model::{market::Market, symbol::Symbol},
     };
 
     #[tokio::test]
@@ -120,7 +120,7 @@ mod test_long_bridge_subscription {
         let long_bridge_subscription = LongBridgeSubscription::new(InfoContext {
             symbol: Symbol {
                 identifier: "0700".to_owned(),
-                region: Region::HK,
+                market: Market::HK,
             },
             extra: Option::None,
         })

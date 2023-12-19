@@ -57,7 +57,7 @@ mod test_long_bridge_info {
 
     use super::LongBridgeInfo;
     use crate::broker::common::info_trait::{Info, InfoContext};
-    use crate::model::{region::Region, symbol::Symbol};
+    use crate::model::{market::Market, symbol::Symbol};
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
@@ -65,7 +65,7 @@ mod test_long_bridge_info {
         let long_bridge_info = LongBridgeInfo::new(InfoContext {
             symbol: Symbol {
                 identifier: "0700".to_owned(),
-                region: Region::HK,
+                market: Market::HK,
             },
             extra: Option::None,
         })

@@ -69,7 +69,7 @@ mod test_yahoo_finance_info {
     use super::YahooFinanceInfo;
     use crate::{
         broker::common::info_trait::{Info, InfoContext},
-        model::{region::Region, symbol::Symbol},
+        model::{market::Market, symbol::Symbol},
     };
 
     #[tokio::test]
@@ -77,7 +77,7 @@ mod test_yahoo_finance_info {
         let yahoo_finance_info = YahooFinanceInfo::new(InfoContext {
             symbol: Symbol {
                 identifier: "ABNB".to_owned(),
-                region: Region::US,
+                market: Market::US,
             },
             extra: Option::None,
         })

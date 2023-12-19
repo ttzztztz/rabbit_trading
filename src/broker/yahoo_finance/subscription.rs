@@ -75,7 +75,7 @@ mod test_yahoo_finance_subscription {
     use super::YahooFinanceSubscription;
     use crate::{
         broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
-        model::{region::Region, symbol::Symbol},
+        model::{market::Market, symbol::Symbol},
     };
 
     #[tokio::test]
@@ -83,7 +83,7 @@ mod test_yahoo_finance_subscription {
         let yahoo_finance_subscription = YahooFinanceSubscription::new(InfoContext {
             symbol: Symbol {
                 identifier: "ABNB".to_owned(),
-                region: Region::US,
+                market: Market::US,
             },
             extra: Option::None,
         })
