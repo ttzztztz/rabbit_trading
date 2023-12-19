@@ -57,7 +57,7 @@ mod test_long_bridge_info {
 
     use super::LongBridgeInfo;
     use crate::broker::common::info_trait::{Info, InfoContext};
-    use crate::model::quote::{Region, Symbol};
+    use crate::model::{region::Region, symbol::Symbol};
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]

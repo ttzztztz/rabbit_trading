@@ -69,7 +69,7 @@ mod test_yahoo_finance_info {
     use super::YahooFinanceInfo;
     use crate::{
         broker::common::info_trait::{Info, InfoContext},
-        model::quote::{Region, Symbol},
+        model::{region::Region, symbol::Symbol},
     };
 
     #[tokio::test]

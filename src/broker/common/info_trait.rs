@@ -1,10 +1,7 @@
 use async_trait::async_trait;
 use std::iter::Map;
 
-use crate::model::{
-    error::Error,
-    quote::{Symbol, QuoteInfo},
-};
+use crate::model::{error::Error, quote::QuoteInfo, symbol::Symbol};
 
 #[derive(Clone)]
 pub struct InfoContext {

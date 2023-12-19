@@ -111,7 +111,7 @@ mod test_long_bridge_subscription {
     use super::LongBridgeSubscription;
     use crate::{
         broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
-        model::quote::{Region, Symbol},
+        model::{region::Region, symbol::Symbol},
     };
 
     #[tokio::test]

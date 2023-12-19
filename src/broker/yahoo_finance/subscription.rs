@@ -75,7 +75,7 @@ mod test_yahoo_finance_subscription {
     use super::YahooFinanceSubscription;
     use crate::{
         broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
-        model::quote::{Region, Symbol},
+        model::{region::Region, symbol::Symbol},
     };
 
     #[tokio::test]
