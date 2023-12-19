@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::model::{balance::BalanceHashMap, error::Error};
+use crate::model::{balance::BalanceHashMap, error::Error, position::PositionList};
 
 #[async_trait]
 pub trait Position {
@@ -8,4 +8,5 @@ pub trait Position {
     where
         Self: Sized;
     async fn account_balance(&self) -> Result<BalanceHashMap, Error>;
+    async fn positions(&self) -> Result<PositionList, Error>;
 }
