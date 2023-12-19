@@ -75,15 +75,15 @@ mod test_yahoo_finance_subscription {
     use super::YahooFinanceSubscription;
     use crate::{
         broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
-        model::quote::Quote,
+        model::quote::{Region, Symbol},
     };
 
     #[tokio::test]
     async fn test_query_quote_info() {
         let yahoo_finance_subscription = YahooFinanceSubscription::new(InfoContext {
-            quote: Quote {
-                kind: crate::model::quote::QuoteKind::Stock,
+            symbol: Symbol {
                 identifier: "ABNB".to_owned(),
+                region: Region::US,
             },
             extra: Option::None,
         })
@@ -95,7 +95,7 @@ mod test_yahoo_finance_subscription {
                 assert!(quote_info.is_some());
                 let quote_info = quote_info.unwrap();
                 log::warn!("quote_info: {quote_info:?}");
-                assert_eq!("Stock:ABNB", quote_info.quote.to_string());
+                assert_eq!("ABNB.US", quote_info.symbol.to_string());
                 assert!(quote_info.current_price > dec!(0.0));
                 assert!(quote_info.volume > 0u64);
                 assert!(quote_info.timestamp > 0i64);

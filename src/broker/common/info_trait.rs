@@ -3,12 +3,12 @@ use std::iter::Map;
 
 use crate::model::{
     error::Error,
-    quote::{Quote, QuoteInfo},
+    quote::{Symbol, QuoteInfo},
 };
 
 #[derive(Clone)]
 pub struct InfoContext {
-    pub quote: Quote,
+    pub symbol: Symbol,
     pub extra: Option<Map<String, String>>,
 }
 

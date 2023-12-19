@@ -2,38 +2,38 @@ use rust_decimal::Decimal;
 use std::{any::Any, collections::HashMap};
 
 #[derive(Clone, Debug)]
-pub enum QuoteKind {
-    Stock,
-    Option,
-    Future,
+pub enum Region {
+    CN,
+    HK,
+    US,
 }
 
-impl std::string::ToString for QuoteKind {
+impl std::string::ToString for Region {
     fn to_string(&self) -> String {
         match self {
-            QuoteKind::Stock => String::from("Stock"),
-            QuoteKind::Option => String::from("Option"),
-            QuoteKind::Future => String::from("Future"),
+            Region::CN => String::from("CN"),
+            Region::HK => String::from("HK"),
+            Region::US => String::from("US"),
         }
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct Quote {
-    pub kind: QuoteKind,
+pub struct Symbol {
+    pub region: Region,
     pub identifier: String,
 }
 
-impl std::string::ToString for Quote {
+impl std::string::ToString for Symbol {
     fn to_string(&self) -> String {
-        format!("{}:{}", self.kind.to_string(), self.identifier)
+        format!("{}.{}", self.identifier, self.region.to_string())
     }
 }
 
 // todo: prev_close, trading_session, is_trading
 #[derive(Debug)]
 pub struct QuoteInfo {
-    pub quote: Quote,
+    pub symbol: Symbol,
     pub sequence: u64,
     pub timestamp: i64,
     pub current_price: Decimal,

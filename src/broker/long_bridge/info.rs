@@ -24,15 +24,16 @@ impl Info for LongBridgeInfo {
     }
 
     async fn query_real_time_info(&self) -> Result<QuoteInfo, Error> {
+        let symbol_identifier = self.context.symbol.to_string();
         let quote_result = self
             .longbridge_context
-            .quote([self.context.quote.identifier.clone()])
+            .quote([symbol_identifier])
             .await
             .map(|result_vec| result_vec[0].clone());
 
         match quote_result {
             Ok(quote_info) => Result::Ok(QuoteInfo {
-                quote: self.context.quote.clone(),
+                symbol: self.context.symbol.clone(),
                 sequence: quote_info.timestamp.unix_timestamp() as u64,
                 timestamp: quote_info.timestamp.unix_timestamp(),
                 current_price: quote_info.last_done,
@@ -56,15 +57,15 @@ mod test_long_bridge_info {
 
     use super::LongBridgeInfo;
     use crate::broker::common::info_trait::{Info, InfoContext};
-    use crate::model::quote::Quote;
+    use crate::model::quote::{Region, Symbol};
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_real_time_info() {
         let long_bridge_info = LongBridgeInfo::new(InfoContext {
-            quote: Quote {
-                kind: crate::model::quote::QuoteKind::Stock,
-                identifier: "0700.HK".to_owned(),
+            symbol: Symbol {
+                identifier: "0700".to_owned(),
+                region: Region::HK,
             },
             extra: Option::None,
         })
@@ -73,7 +74,7 @@ mod test_long_bridge_info {
         let quote_info_result = long_bridge_info.query_real_time_info().await;
         let quote_info = quote_info_result.unwrap();
         log::warn!("quote_info: {quote_info:?}");
-        assert_eq!("Stock:0700.HK", quote_info.quote.to_string());
+        assert_eq!("0700.HK", quote_info.symbol.to_string());
         assert!(quote_info.current_price > dec!(0.0));
         assert!(quote_info.volume > 0u64);
         assert!(quote_info.high_price.unwrap() > dec!(0.0));

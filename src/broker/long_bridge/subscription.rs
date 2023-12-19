@@ -28,10 +28,10 @@ impl LongBridgeSubscription {
         sender: Sender<QuoteInfo>,
         mut long_bridge_receiver: mpsc::UnboundedReceiver<PushEvent>,
     ) {
-        let identifier = info_context.quote.identifier.clone();
-        let quote = info_context.quote.clone();
+        let symbol = info_context.symbol.clone();
+        let symbol_identifier = info_context.symbol.to_string();
         longbridge_context
-            .subscribe([identifier], SubFlags::QUOTE, true)
+            .subscribe([symbol_identifier], SubFlags::QUOTE, true)
             .await
             .unwrap();
 
@@ -40,7 +40,7 @@ impl LongBridgeSubscription {
                 longbridge::quote::PushEventDetail::Quote(longbridge_quote) => {
                     let timestamp = longbridge_quote.timestamp.unix_timestamp() as u64;
                     let quote_info = QuoteInfo {
-                        quote: quote.clone(),
+                        symbol: symbol.clone(),
                         sequence: timestamp,
                         timestamp: timestamp as i64,
                         current_price: longbridge_quote.last_done,
@@ -91,10 +91,10 @@ impl Subscription for LongBridgeSubscription {
     }
 
     async fn unsubscribe(&self) -> Result<(), Error> {
-        let identifier = self.context.quote.identifier.clone();
+        let symbol_identifier = self.context.symbol.to_string();
         let longbridge_context_lock = self.longbridge_context.lock().await;
         if let Some(ctx) = longbridge_context_lock.as_ref() {
-            ctx.unsubscribe([identifier], SubFlags::QUOTE)
+            ctx.unsubscribe([symbol_identifier], SubFlags::QUOTE)
                 .await
                 .unwrap();
         }
@@ -111,16 +111,16 @@ mod test_long_bridge_subscription {
     use super::LongBridgeSubscription;
     use crate::{
         broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
-        model::quote::Quote,
+        model::quote::{Region, Symbol},
     };
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_quote_info() {
         let long_bridge_subscription = LongBridgeSubscription::new(InfoContext {
-            quote: Quote {
-                kind: crate::model::quote::QuoteKind::Stock,
-                identifier: "0700.HK".to_owned(),
+            symbol: Symbol {
+                identifier: "0700".to_owned(),
+                region: Region::HK,
             },
             extra: Option::None,
         })
@@ -132,7 +132,7 @@ mod test_long_bridge_subscription {
                 assert!(quote_info.is_some());
                 let quote_info = quote_info.unwrap();
                 log::warn!("quote_info: {quote_info:?}");
-                assert_eq!("Stock:0700.HK", quote_info.quote.to_string());
+                assert_eq!("0700.HK", quote_info.symbol.to_string());
                 assert!(quote_info.current_price > dec!(0.0));
                 assert!(quote_info.volume > 0u64);
                 assert!(quote_info.timestamp > 0i64);

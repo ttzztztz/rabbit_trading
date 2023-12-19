@@ -25,11 +25,11 @@ impl Info for YahooFinanceInfo {
     }
 
     async fn query_real_time_info(&self) -> Result<QuoteInfo, Error> {
-        let quote = &self.context.quote;
+        let symbol = &self.context.symbol;
 
         match self
             .provider
-            .get_latest_quotes(quote.identifier.as_str(), Self::YAHOO_LAST_QUOTES_INTERVAL)
+            .get_latest_quotes(symbol.identifier.as_str(), Self::YAHOO_LAST_QUOTES_INTERVAL)
             .await
             .and_then(|y_response| y_response.last_quote())
         {
@@ -37,7 +37,7 @@ impl Info for YahooFinanceInfo {
                 log::info!("Received yahoo_quote = {yahoo_quote:?} successfully");
 
                 Result::Ok(QuoteInfo {
-                    quote: quote.clone(),
+                    symbol: symbol.clone(),
                     sequence: yahoo_quote.timestamp,
                     timestamp: yahoo_quote.timestamp as i64,
                     current_price: Decimal::from_str_exact(
@@ -67,14 +67,17 @@ mod test_yahoo_finance_info {
     use rust_decimal_macros::dec;
 
     use super::YahooFinanceInfo;
-    use crate::{broker::common::info_trait::{InfoContext, Info}, model::quote::Quote};
+    use crate::{
+        broker::common::info_trait::{Info, InfoContext},
+        model::quote::{Region, Symbol},
+    };
 
     #[tokio::test]
     async fn test_query_quote_info() {
         let yahoo_finance_info = YahooFinanceInfo::new(InfoContext {
-            quote: Quote {
-                kind: crate::model::quote::QuoteKind::Stock,
+            symbol: Symbol {
                 identifier: "ABNB".to_owned(),
+                region: Region::US,
             },
             extra: Option::None,
         })
@@ -84,7 +87,7 @@ mod test_yahoo_finance_info {
         assert!(quote_info_result.is_ok());
         let quote_info = quote_info_result.unwrap();
         log::warn!("quote_info: {quote_info:?}");
-        assert_eq!("Stock:ABNB", quote_info.quote.to_string());
+        assert_eq!("ABNB.US", quote_info.symbol.to_string());
         assert!(quote_info.current_price > dec!(0.0));
         assert!(quote_info.volume > 0u64);
         assert!(quote_info.timestamp > 0i64);
