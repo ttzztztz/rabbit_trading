@@ -63,20 +63,18 @@ impl PositionTrait for LongBridgePosition {
                     .into_iter()
                     .map(|account_balance| {
                         (
-                            LongBridgeBroker::to_currency(&account_balance.currency.as_str()),
+                            LongBridgeBroker::to_currency(account_balance.currency.as_str()),
                             Self::to_balance_detail(&account_balance),
                         )
                     })
                     .filter_map(|entry| {
                         let (key, value) = entry;
-                        if key.is_none() {
-                            return Option::None;
-                        }
+                        key.as_ref()?;
                         Option::Some((key.unwrap(), value))
                     })
                     .collect()
             })
-            .map_err(|long_bridge_err| LongBridgeBroker::to_rabbit_trading_err(long_bridge_err))
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)
     }
 
     async fn positions(&self) -> Result<PositionList, Error> {
@@ -91,7 +89,7 @@ impl PositionTrait for LongBridgePosition {
                     .filter_map(Self::to_stock_position)
                     .collect()
             })
-            .map_err(|long_bridge_err| LongBridgeBroker::to_rabbit_trading_err(long_bridge_err))
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)
     }
 }
 

@@ -26,7 +26,7 @@ impl YahooFinanceSubscription {
         let info = YahooFinanceInfo::new(context).await;
 
         loop {
-            if *stop_flag.lock().await == true {
+            if *stop_flag.lock().await {
                 return;
             }
 
