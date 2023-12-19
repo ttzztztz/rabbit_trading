@@ -11,7 +11,7 @@ use tokio::sync::{
 
 use super::broker::LongBridgeBroker;
 use crate::{
-    broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
+    broker::common::{info::InfoContext, subscription::SubscriptionTrait},
     model::{error::Error, quote::QuoteInfo},
 };
 
@@ -66,7 +66,7 @@ impl LongBridgeSubscription {
 }
 
 #[async_trait]
-impl Subscription for LongBridgeSubscription {
+impl SubscriptionTrait for LongBridgeSubscription {
     async fn new(context: InfoContext) -> Self {
         LongBridgeSubscription {
             context,
@@ -110,7 +110,7 @@ mod test_long_bridge_subscription {
 
     use super::LongBridgeSubscription;
     use crate::{
-        broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
+        broker::common::{info::InfoContext, subscription::SubscriptionTrait},
         model::{market::Market, symbol::Symbol},
     };
 

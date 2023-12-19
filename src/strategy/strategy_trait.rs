@@ -2,11 +2,11 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 
 use crate::{
-    broker::common::broker_trait::Broker, persistent_kv::persistent_kv_trait::PersistentKVStore,
+    broker::common::broker::BrokerTrait, persistent_kv::persistent_kv_trait::PersistentKVStore,
 };
 
 pub struct StrategyContext<V: Send + Sync + Clone = String> {
-    pub brokers: HashMap<String, Box<dyn Broker>>,
+    pub brokers: HashMap<String, Box<dyn BrokerTrait>>,
     pub persistent_kv_store: Box<dyn PersistentKVStore<V>>,
 }
 

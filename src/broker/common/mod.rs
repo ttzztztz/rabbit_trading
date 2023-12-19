@@ -1,4 +1,4 @@
-pub mod broker_trait;
-pub mod info_trait;
-pub mod position_trait;
-pub mod subscription_trait;
+pub mod broker;
+pub mod info;
+pub mod position;
+pub mod subscription;

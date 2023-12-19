@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use crate::model::{balance::BalanceHashMap, error::Error, position::PositionList};
 
 #[async_trait]
-pub trait Position {
+pub trait PositionTrait {
     async fn new() -> Self
     where
         Self: Sized;

@@ -6,8 +6,8 @@ use tokio::time::{sleep, Duration};
 
 use super::info::YahooFinanceInfo;
 use crate::broker::common::{
-    info_trait::{Info, InfoContext},
-    subscription_trait::Subscription,
+    info::{InfoContext, InfoTrait},
+    subscription::SubscriptionTrait,
 };
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
@@ -42,7 +42,7 @@ impl YahooFinanceSubscription {
 }
 
 #[async_trait]
-impl Subscription for YahooFinanceSubscription {
+impl SubscriptionTrait for YahooFinanceSubscription {
     async fn new(context: InfoContext) -> Self {
         YahooFinanceSubscription {
             context,
@@ -74,7 +74,7 @@ mod test_yahoo_finance_subscription {
 
     use super::YahooFinanceSubscription;
     use crate::{
-        broker::common::{info_trait::InfoContext, subscription_trait::Subscription},
+        broker::common::{info::InfoContext, subscription::SubscriptionTrait},
         model::{market::Market, symbol::Symbol},
     };
 

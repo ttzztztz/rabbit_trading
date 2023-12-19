@@ -1,11 +1,11 @@
 use async_trait::async_trait;
 use tokio::sync::mpsc::Receiver;
 
-use super::info_trait::InfoContext;
+use super::info::InfoContext;
 use crate::model::{error::Error, quote::QuoteInfo};
 
 #[async_trait]
-pub trait Subscription {
+pub trait SubscriptionTrait {
     async fn new(context: InfoContext) -> Self
     where
         Self: Sized;

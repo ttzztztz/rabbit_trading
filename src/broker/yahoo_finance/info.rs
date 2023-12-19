@@ -3,7 +3,7 @@ use rust_decimal::Decimal;
 use std::result::Result;
 use yahoo_finance_api::YahooConnector;
 
-use crate::broker::common::info_trait::{Info, InfoContext};
+use crate::broker::common::info::{InfoContext, InfoTrait};
 use crate::broker::yahoo_finance::broker::YahooFinanceBroker;
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
@@ -18,7 +18,7 @@ impl YahooFinanceInfo {
 }
 
 #[async_trait]
-impl Info for YahooFinanceInfo {
+impl InfoTrait for YahooFinanceInfo {
     async fn new(context: InfoContext) -> Self {
         let provider = YahooConnector::new();
         YahooFinanceInfo { provider, context }
@@ -68,7 +68,7 @@ mod test_yahoo_finance_info {
 
     use super::YahooFinanceInfo;
     use crate::{
-        broker::common::info_trait::{Info, InfoContext},
+        broker::common::info::{InfoContext, InfoTrait},
         model::{market::Market, symbol::Symbol},
     };
 

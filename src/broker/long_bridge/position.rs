@@ -6,7 +6,7 @@ use longbridge::{
 
 use super::broker::LongBridgeBroker;
 use crate::{
-    broker::common::position_trait::Position,
+    broker::common::position::PositionTrait,
     model::{
         balance::{BalanceDetail, BalanceHashMap},
         error::Error,
@@ -45,7 +45,7 @@ impl LongBridgePosition {
 }
 
 #[async_trait]
-impl Position for LongBridgePosition {
+impl PositionTrait for LongBridgePosition {
     async fn new() -> Self {
         let (ctx, _) = LongBridgeBroker::create_trade_context().await.unwrap();
 
@@ -100,7 +100,7 @@ mod test_long_bridge_position {
     use rust_decimal_macros::dec;
 
     use super::LongBridgePosition;
-    use crate::{broker::common::position_trait::Position, model::currency::Currency};
+    use crate::{broker::common::position::PositionTrait, model::currency::Currency};
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]

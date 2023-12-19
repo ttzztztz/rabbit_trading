@@ -3,7 +3,7 @@ use longbridge::QuoteContext;
 use std::result::Result;
 
 use super::broker::LongBridgeBroker;
-use crate::broker::common::info_trait::{Info, InfoContext};
+use crate::broker::common::info::{InfoContext, InfoTrait};
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
 
@@ -13,7 +13,7 @@ pub struct LongBridgeInfo {
 }
 
 #[async_trait]
-impl Info for LongBridgeInfo {
+impl InfoTrait for LongBridgeInfo {
     async fn new(context: InfoContext) -> Self {
         let (ctx, _) = LongBridgeBroker::create_quote_context().await.unwrap();
 
@@ -56,7 +56,7 @@ mod test_long_bridge_info {
     use rust_decimal_macros::dec;
 
     use super::LongBridgeInfo;
-    use crate::broker::common::info_trait::{Info, InfoContext};
+    use crate::broker::common::info::{InfoContext, InfoTrait};
     use crate::model::{market::Market, symbol::Symbol};
 
     #[tokio::test]

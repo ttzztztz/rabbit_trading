@@ -10,7 +10,7 @@ pub struct InfoContext {
 }
 
 #[async_trait]
-pub trait Info {
+pub trait InfoTrait {
     async fn new(context: InfoContext) -> Self
     where
         Self: Sized;
