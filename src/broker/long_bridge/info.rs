@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use longbridge::quote::SecurityQuote;
 use longbridge::QuoteContext;
 use std::result::Result;
 
@@ -6,10 +7,29 @@ use super::broker::LongBridgeBroker;
 use crate::broker::common::info::{InfoContext, InfoTrait};
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
+use crate::model::symbol::Symbol;
 
 pub struct LongBridgeInfo {
     context: InfoContext,
     longbridge_context: QuoteContext,
+}
+
+impl LongBridgeInfo {
+    fn to_quote_info(symbol: Symbol, security_quote: SecurityQuote) -> QuoteInfo {
+        QuoteInfo {
+            symbol,
+            sequence: security_quote.timestamp.unix_timestamp() as u64,
+            timestamp: security_quote.timestamp.unix_timestamp(),
+            current_price: security_quote.last_done,
+            low_price: Option::Some(security_quote.low),
+            high_price: Option::Some(security_quote.high),
+            open_price: Option::Some(security_quote.open),
+            prev_close: Option::Some(security_quote.prev_close),
+            volume: security_quote.volume as u64,
+            turnover: Option::Some(security_quote.turnover),
+            extra: Option::None,
+        }
+    }
 }
 
 #[async_trait]
@@ -32,19 +52,9 @@ impl InfoTrait for LongBridgeInfo {
             .map(|result_vec| result_vec[0].clone());
 
         match quote_result {
-            Ok(quote_info) => Result::Ok(QuoteInfo {
-                symbol: self.context.symbol.clone(),
-                sequence: quote_info.timestamp.unix_timestamp() as u64,
-                timestamp: quote_info.timestamp.unix_timestamp(),
-                current_price: quote_info.last_done,
-                low_price: Option::Some(quote_info.low),
-                high_price: Option::Some(quote_info.high),
-                open_price: Option::Some(quote_info.open),
-                prev_close: Option::Some(quote_info.prev_close),
-                volume: quote_info.volume as u64,
-                turnover: Option::Some(quote_info.turnover),
-                extra: Option::None,
-            }),
+            Ok(quote_info) => {
+                Result::Ok(Self::to_quote_info(self.context.symbol.clone(), quote_info))
+            }
             Err(err) => Result::Err(LongBridgeBroker::to_rabbit_trading_err(err)),
         }
     }

@@ -7,6 +7,7 @@ use crate::broker::common::info::{InfoContext, InfoTrait};
 use crate::broker::yahoo_finance::broker::YahooFinanceBroker;
 use crate::model::error::Error;
 use crate::model::quote::QuoteInfo;
+use crate::model::symbol::Symbol;
 
 pub struct YahooFinanceInfo {
     provider: YahooConnector,
@@ -15,6 +16,23 @@ pub struct YahooFinanceInfo {
 
 impl YahooFinanceInfo {
     const YAHOO_LAST_QUOTES_INTERVAL: &'static str = "1d";
+
+    fn to_quote_info(symbol: Symbol, yahoo_quote: yahoo_finance_api::Quote) -> QuoteInfo {
+        QuoteInfo {
+            symbol,
+            sequence: yahoo_quote.timestamp,
+            timestamp: yahoo_quote.timestamp as i64,
+            current_price: Decimal::from_str_exact(format!("{:.2}", yahoo_quote.close).as_str())
+                .unwrap(),
+            low_price: Option::None,
+            high_price: Option::None,
+            open_price: Option::None,
+            prev_close: Option::None,
+            volume: yahoo_quote.volume,
+            turnover: Option::None,
+            extra: Option::None,
+        }
+    }
 }
 
 #[async_trait]
@@ -35,23 +53,7 @@ impl InfoTrait for YahooFinanceInfo {
         {
             Result::Ok(yahoo_quote) => {
                 log::info!("Received yahoo_quote = {yahoo_quote:?} successfully");
-
-                Result::Ok(QuoteInfo {
-                    symbol: symbol.clone(),
-                    sequence: yahoo_quote.timestamp,
-                    timestamp: yahoo_quote.timestamp as i64,
-                    current_price: Decimal::from_str_exact(
-                        format!("{:.2}", yahoo_quote.close).as_str(),
-                    )
-                    .unwrap(),
-                    low_price: Option::None,
-                    high_price: Option::None,
-                    open_price: Option::None,
-                    prev_close: Option::None,
-                    volume: yahoo_quote.volume,
-                    turnover: Option::None,
-                    extra: Option::None,
-                })
+                Result::Ok(Self::to_quote_info(symbol.clone(), yahoo_quote))
             }
             Result::Err(err) => {
                 log::error!("error {}", err);

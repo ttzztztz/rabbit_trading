@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use longbridge::{
-    quote::{PushEvent, SubFlags},
+    quote::{PushEvent, PushQuote, SubFlags},
     QuoteContext,
 };
 use std::sync::Arc;
@@ -12,7 +12,7 @@ use tokio::sync::{
 use super::broker::LongBridgeBroker;
 use crate::{
     broker::common::{info::InfoContext, subscription::SubscriptionTrait},
-    model::{error::Error, quote::QuoteInfo},
+    model::{error::Error, quote::QuoteInfo, symbol::Symbol},
 };
 
 // https://crates.io/crates/longbridge
@@ -22,6 +22,23 @@ pub(super) struct LongBridgeSubscription {
 }
 
 impl LongBridgeSubscription {
+    fn to_quote_info(symbol: Symbol, longbridge_quote: PushQuote) -> QuoteInfo {
+        let timestamp = longbridge_quote.timestamp.unix_timestamp() as u64;
+        QuoteInfo {
+            symbol,
+            sequence: timestamp,
+            timestamp: timestamp as i64,
+            current_price: longbridge_quote.last_done,
+            low_price: Option::Some(longbridge_quote.low),
+            high_price: Option::Some(longbridge_quote.high),
+            open_price: Option::Some(longbridge_quote.open),
+            prev_close: Option::None,
+            volume: longbridge_quote.volume as u64,
+            turnover: Option::Some(longbridge_quote.turnover),
+            extra: Option::None,
+        }
+    }
+
     async fn start_loop(
         info_context: InfoContext,
         longbridge_context: QuoteContext,
@@ -38,21 +55,7 @@ impl LongBridgeSubscription {
         while let Some(event_detail) = long_bridge_receiver.recv().await.map(|event| event.detail) {
             match event_detail {
                 longbridge::quote::PushEventDetail::Quote(longbridge_quote) => {
-                    let timestamp = longbridge_quote.timestamp.unix_timestamp() as u64;
-                    let quote_info = QuoteInfo {
-                        symbol: symbol.clone(),
-                        sequence: timestamp,
-                        timestamp: timestamp as i64,
-                        current_price: longbridge_quote.last_done,
-                        low_price: Option::Some(longbridge_quote.low),
-                        high_price: Option::Some(longbridge_quote.high),
-                        open_price: Option::Some(longbridge_quote.open),
-                        prev_close: Option::None,
-                        volume: longbridge_quote.volume as u64,
-                        turnover: Option::Some(longbridge_quote.turnover),
-                        extra: Option::None,
-                    };
-
+                    let quote_info = Self::to_quote_info(symbol.clone(), longbridge_quote);
                     if let Err(send_result_err) = sender.send(quote_info).await {
                         log::error!("error when sending into mpsc {}", send_result_err);
                     }
