@@ -1,6 +1,3 @@
-use std::sync::Arc;
-use tokio::runtime::Runtime;
-
 mod broker;
 mod control_plane;
 mod log;
@@ -10,7 +7,7 @@ mod persistent_kv;
 mod strategy;
 mod utils;
 
-fn main() {
-    let _runtime = Arc::new(Runtime::new().unwrap());
+#[tokio::main]
+async fn main() {
     println!("Hello, world!");
 }
