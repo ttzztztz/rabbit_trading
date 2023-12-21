@@ -8,13 +8,10 @@ use super::{
 
 #[async_trait]
 pub trait BrokerTrait {
-    async fn create_info(context: InfoContext) -> Box<dyn InfoTrait>
-    where
-        Self: Sized;
-    async fn create_subscription(context: InfoContext) -> Box<dyn SubscriptionTrait>
-    where
-        Self: Sized;
-    async fn create_transaction() -> Box<dyn TransactionTrait>
-    where
-        Self: Sized;
+    async fn create_info(&self, context: InfoContext) -> Box<dyn InfoTrait + Send + Sync>;
+    async fn create_subscription(
+        &self,
+        context: InfoContext,
+    ) -> Box<dyn SubscriptionTrait + Send + Sync>;
+    async fn create_transaction(&self) -> Box<dyn TransactionTrait + Send + Sync>;
 }

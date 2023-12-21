@@ -1,1 +1,2 @@
-pub mod strategy_trait;
+pub mod common;
+pub mod example;
