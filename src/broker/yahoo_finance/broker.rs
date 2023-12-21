@@ -5,6 +5,7 @@ use crate::broker::common::{
     broker::BrokerTrait,
     info::{InfoContext, InfoTrait},
     subscription::SubscriptionTrait,
+    transaction::TransactionTrait,
 };
 
 pub struct YahooFinanceBroker {}
@@ -17,5 +18,9 @@ impl BrokerTrait for YahooFinanceBroker {
 
     async fn create_subscription(context: InfoContext) -> Box<dyn SubscriptionTrait> {
         Box::new(YahooFinanceSubscription::new(context).await)
+    }
+
+    async fn create_transaction() -> Box<dyn TransactionTrait> {
+        todo!("Yahoo Finance cannot be used for trading")
     }
 }

@@ -1,8 +1,9 @@
 use async_trait::async_trait;
 
 use super::{
-    info::{InfoTrait, InfoContext},
+    info::{InfoContext, InfoTrait},
     subscription::SubscriptionTrait,
+    transaction::TransactionTrait,
 };
 
 #[async_trait]
@@ -11,6 +12,9 @@ pub trait BrokerTrait {
     where
         Self: Sized;
     async fn create_subscription(context: InfoContext) -> Box<dyn SubscriptionTrait>
+    where
+        Self: Sized;
+    async fn create_transaction() -> Box<dyn TransactionTrait>
     where
         Self: Sized;
 }
