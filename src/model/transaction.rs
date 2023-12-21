@@ -68,3 +68,14 @@ pub struct SubmitOrderRequest {
 pub struct SubmitOrderResponse {
     pub order_id: String,
 }
+
+pub struct EstimateMaxBuyingPowerRequest {
+    pub symbol: Symbol,
+    pub direction: Direction,
+    pub price: Price,
+}
+
+pub struct BuyingPower {
+    pub cash_max_quantity: i64,
+    pub margin_max_quantity: i64,
+}

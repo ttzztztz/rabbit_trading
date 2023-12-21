@@ -1,6 +1,9 @@
 use async_trait::async_trait;
 use longbridge::{
-    trade::{OrderSide, OrderType, SubmitOrderOptions, TimeInForceType},
+    trade::{
+        EstimateMaxPurchaseQuantityOptions, EstimateMaxPurchaseQuantityResponse, OrderSide,
+        OrderType, SubmitOrderOptions, TimeInForceType,
+    },
     TradeContext,
 };
 use time::Date;
@@ -11,8 +14,8 @@ use crate::{
     model::{
         error::Error,
         transaction::{
-            Direction, Expire, Price, SubmitOrderRequest, SubmitOrderResponse, TrailingLimitPrice,
-            TrailingMarketPrice,
+            BuyingPower, Direction, EstimateMaxBuyingPowerRequest, Expire, Price,
+            SubmitOrderRequest, SubmitOrderResponse, TrailingLimitPrice, TrailingMarketPrice,
         },
     },
 };
@@ -22,27 +25,35 @@ pub struct LongBridgeTransaction {
 }
 
 impl LongBridgeTransaction {
+    fn to_order_side(direction: &Direction) -> OrderSide {
+        match direction {
+            Direction::Buy => OrderSide::Buy,
+            Direction::Sell => OrderSide::Sell,
+        }
+    }
+
+    fn to_order_type(price: &Price) -> OrderType {
+        match price {
+            Price::LimitOrder { .. } => OrderType::LO,
+            Price::MarketOrder { .. } => OrderType::MO,
+            Price::LimitIfTouched { .. } => OrderType::LIT,
+            Price::MarketIfTouched { .. } => OrderType::MIT,
+            Price::TrailingLimitIfTouched { trailing } => match trailing {
+                TrailingLimitPrice::Amount { .. } => OrderType::TSLPAMT,
+                TrailingLimitPrice::Percent { .. } => OrderType::TSLPPCT,
+            },
+            Price::TrailingMarketIfTouched { trailing } => match trailing {
+                TrailingMarketPrice::Amount { .. } => OrderType::TSMAMT,
+                TrailingMarketPrice::Percent { .. } => OrderType::TSMPCT,
+            },
+        }
+    }
+
     fn to_submit_order_options(request: SubmitOrderRequest) -> SubmitOrderOptions {
         let mut submit_order_options_builder = SubmitOrderOptions::new(
             request.symbol.to_string(),
-            match request.price {
-                Price::LimitOrder { .. } => OrderType::LO,
-                Price::MarketOrder { .. } => OrderType::MO,
-                Price::LimitIfTouched { .. } => OrderType::LIT,
-                Price::MarketIfTouched { .. } => OrderType::MIT,
-                Price::TrailingLimitIfTouched { trailing } => match trailing {
-                    TrailingLimitPrice::Amount { .. } => OrderType::TSLPAMT,
-                    TrailingLimitPrice::Percent { .. } => OrderType::TSLPPCT,
-                },
-                Price::TrailingMarketIfTouched { trailing } => match trailing {
-                    TrailingMarketPrice::Amount { .. } => OrderType::TSMAMT,
-                    TrailingMarketPrice::Percent { .. } => OrderType::TSMPCT,
-                },
-            },
-            match request.direction {
-                Direction::Buy => OrderSide::Buy,
-                Direction::Sell => OrderSide::Sell,
-            },
+            Self::to_order_type(&request.price),
+            Self::to_order_side(&request.direction),
             request.quantity,
             match request.expire {
                 Expire::Day => TimeInForceType::Day,
@@ -112,6 +123,33 @@ impl LongBridgeTransaction {
             order_id: long_bridge_response.order_id,
         }
     }
+
+    fn to_buying_power(response: EstimateMaxPurchaseQuantityResponse) -> BuyingPower {
+        BuyingPower {
+            cash_max_quantity: response.cash_max_qty,
+            margin_max_quantity: response.margin_max_qty,
+        }
+    }
+
+    fn to_estimate_max_purchase_quantity_options(
+        request: EstimateMaxBuyingPowerRequest,
+    ) -> EstimateMaxPurchaseQuantityOptions {
+        let mut builder = EstimateMaxPurchaseQuantityOptions::new(
+            request.symbol.to_string(),
+            Self::to_order_type(&request.price),
+            Self::to_order_side(&request.direction),
+        );
+
+        builder = match request.price {
+            Price::LimitOrder { price } => builder.price(price),
+            Price::LimitIfTouched { submit_price, .. } => builder.price(submit_price),
+            Price::MarketIfTouched { trigger_price } => builder.price(trigger_price),
+            Price::MarketOrder
+            | Price::TrailingLimitIfTouched { .. }
+            | Price::TrailingMarketIfTouched { .. } => builder,
+        };
+        builder
+    }
 }
 
 #[async_trait]
@@ -132,6 +170,19 @@ impl TransactionTrait for LongBridgeTransaction {
             .submit_order(Self::to_submit_order_options(request))
             .await
             .map(Self::to_submit_order_response)
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+    }
+
+    async fn estimate_max_buying_power(
+        &self,
+        request: EstimateMaxBuyingPowerRequest,
+    ) -> Result<BuyingPower, Error> {
+        self.longbridge_context
+            .estimate_max_purchase_quantity(Self::to_estimate_max_purchase_quantity_options(
+                request,
+            ))
+            .await
+            .map(Self::to_buying_power)
             .map_err(LongBridgeBroker::to_rabbit_trading_err)
     }
 }
