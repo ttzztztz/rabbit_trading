@@ -33,7 +33,7 @@ pub trait TransactionTrait {
 }
 
 #[async_trait]
-pub trait TransactionInteceptorTrait {
+pub trait TransactionInterceptorTrait {
     async fn before_account_balance(&self) -> Result<(), Error>;
     async fn after_account_balance(
         &self,
@@ -83,17 +83,20 @@ pub trait TransactionInteceptorTrait {
 
 pub struct TransactionReflection {
     pub shadowed_transaction: Box<dyn TransactionTrait + Send + Sync>,
-    pub inteceptor: Box<dyn TransactionInteceptorTrait + Send + Sync>,
+    pub interceptor: Box<dyn TransactionInterceptorTrait + Send + Sync>,
 }
 
 impl TransactionReflection {
     pub fn new(
         shadowed_transaction: Box<dyn TransactionTrait + Send + Sync>,
-        inteceptor: Option<Box<dyn TransactionInteceptorTrait + Send + Sync>>,
+        interceptor: Option<Box<dyn TransactionInterceptorTrait + Send + Sync>>,
     ) -> Self {
         TransactionReflection {
             shadowed_transaction,
-            inteceptor: inteceptor.unwrap(), // todo: add an empty inteceptor
+            interceptor: match interceptor {
+                Some(interceptor) => interceptor,
+                None => Box::new(EmptyTransactionInterceptor {}),
+            },
         }
     }
 }
@@ -105,19 +108,19 @@ impl TransactionTrait for TransactionReflection {
     }
 
     async fn account_balance(&self) -> Result<BalanceHashMap, Error> {
-        if let Err(err) = self.inteceptor.before_account_balance().await {
+        if let Err(err) = self.interceptor.before_account_balance().await {
             return Err(err);
         }
         let result = self.shadowed_transaction.account_balance().await;
-        self.inteceptor.after_account_balance(result).await
+        self.interceptor.after_account_balance(result).await
     }
 
     async fn positions(&self) -> Result<PositionList, Error> {
-        if let Err(err) = self.inteceptor.before_positions().await {
+        if let Err(err) = self.interceptor.before_positions().await {
             return Err(err);
         }
         let result = self.shadowed_transaction.positions().await;
-        self.inteceptor.after_positions(result).await
+        self.interceptor.after_positions(result).await
     }
 
     async fn estimate_max_buying_power(
@@ -125,7 +128,7 @@ impl TransactionTrait for TransactionReflection {
         request: EstimateMaxBuyingPowerRequest,
     ) -> Result<BuyingPower, Error> {
         match self
-            .inteceptor
+            .interceptor
             .befoer_estimate_max_buying_power(request)
             .await
         {
@@ -135,7 +138,7 @@ impl TransactionTrait for TransactionReflection {
                     .estimate_max_buying_power(request)
                     .await;
 
-                self.inteceptor
+                self.interceptor
                     .after_estimate_max_buying_power(result)
                     .await
             }
@@ -147,20 +150,20 @@ impl TransactionTrait for TransactionReflection {
         &self,
         request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
-        match self.inteceptor.before_submit_order(request).await {
+        match self.interceptor.before_submit_order(request).await {
             Ok(request) => {
                 let result = self.shadowed_transaction.submit_order(request).await;
-                self.inteceptor.after_submit_order(result).await
+                self.interceptor.after_submit_order(result).await
             }
             Err(err) => Result::Err(err),
         }
     }
 
     async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
-        match self.inteceptor.before_edit_order(request).await {
+        match self.interceptor.before_edit_order(request).await {
             Ok(request) => {
                 let result = self.shadowed_transaction.edit_order(request).await;
-                self.inteceptor.after_edit_order(result).await
+                self.interceptor.after_edit_order(result).await
             }
             Err(err) => Result::Err(err),
         }
@@ -170,20 +173,20 @@ impl TransactionTrait for TransactionReflection {
         &self,
         request: CancelOrderRequest,
     ) -> Result<CancelOrderResponse, Error> {
-        match self.inteceptor.before_cancel_order(request).await {
+        match self.interceptor.before_cancel_order(request).await {
             Ok(request) => {
                 let result = self.shadowed_transaction.cancel_order(request).await;
-                self.inteceptor.after_cancel_order(result).await
+                self.interceptor.after_cancel_order(result).await
             }
             Err(err) => Result::Err(err),
         }
     }
 }
 
-pub struct EmptyTransactionInteceptor {}
+pub struct EmptyTransactionInterceptor {}
 
 #[async_trait]
-impl TransactionInteceptorTrait for EmptyTransactionInteceptor {
+impl TransactionInterceptorTrait for EmptyTransactionInterceptor {
     async fn before_account_balance(&self) -> Result<(), Error> {
         Result::Ok(())
     }
