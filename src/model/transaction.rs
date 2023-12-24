@@ -79,3 +79,17 @@ pub struct BuyingPower {
     pub cash_max_quantity: i64,
     pub margin_max_quantity: i64,
 }
+
+pub struct CancelOrderRequest {
+    pub order_id: String,
+}
+
+pub struct CancelOrderResponse {}
+
+pub struct EditOrderRequest {
+    pub order_id: String,
+    pub quantity: i64,
+    pub price: Price,
+}
+
+pub struct EditOrderResponse {}

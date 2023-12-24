@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use time::format_description;
+use time::{format_description, OffsetDateTime};
 
 use crate::{
     broker::common::{info::InfoContext, subscription::SubscriptionTrait},
@@ -34,9 +34,9 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
         let format = format_description::parse("[year]-[month]-[day] [hour]:[minute]:[second] [offset_hour sign:mandatory]:[offset_minute]:[offset_second]").unwrap();
         while let Some(quote_info) = receiver.recv().await {
             log::info!(
-                "[{}] ({}), Price: {}, Vol: {}", // todo: parse timestamp
+                "[{}] ({}), Price: {}, Vol: {}",
                 quote_info.symbol.to_string(),
-                time::OffsetDateTime::from_unix_timestamp(quote_info.timestamp)
+                OffsetDateTime::from_unix_timestamp(quote_info.timestamp)
                     .unwrap()
                     .format(&format)
                     .unwrap(),
@@ -46,5 +46,7 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
         }
     }
 
-    async fn stop(&self) {}
+    async fn stop(&self) {
+        self.subscription.unsubscribe().await.unwrap();
+    }
 }

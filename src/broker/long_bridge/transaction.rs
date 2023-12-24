@@ -2,7 +2,8 @@ use async_trait::async_trait;
 use longbridge::{
     trade::{
         AccountBalance, EstimateMaxPurchaseQuantityOptions, EstimateMaxPurchaseQuantityResponse,
-        OrderSide, OrderType, StockPosition, SubmitOrderOptions, TimeInForceType,
+        OrderSide, OrderType, ReplaceOrderOptions, StockPosition, SubmitOrderOptions,
+        TimeInForceType,
     },
     TradeContext,
 };
@@ -16,8 +17,9 @@ use crate::{
         error::Error,
         position::PositionList,
         transaction::{
-            BuyingPower, Direction, EstimateMaxBuyingPowerRequest, Expire, Price,
-            SubmitOrderRequest, SubmitOrderResponse, TrailingLimitPrice, TrailingMarketPrice,
+            BuyingPower, CancelOrderRequest, CancelOrderResponse, Direction, EditOrderRequest,
+            EditOrderResponse, EstimateMaxBuyingPowerRequest, Expire, Price, SubmitOrderRequest,
+            SubmitOrderResponse, TrailingLimitPrice, TrailingMarketPrice,
         },
     },
 };
@@ -118,6 +120,53 @@ impl LongBridgeTransaction {
         submit_order_options_builder
     }
 
+    fn to_replce_order_options(request: EditOrderRequest) -> ReplaceOrderOptions {
+        let mut replace_order_options_builder = ReplaceOrderOptions::new(
+            request.order_id,
+            request.quantity,
+        );
+
+        replace_order_options_builder = match request.price {
+            Price::LimitOrder { price } => replace_order_options_builder.price(price),
+
+            Price::MarketOrder => replace_order_options_builder,
+            Price::LimitIfTouched {
+                submit_price,
+                trigger_price,
+            } => replace_order_options_builder
+                .price(submit_price)
+                .trigger_price(trigger_price),
+
+            Price::MarketIfTouched { trigger_price } => {
+                replace_order_options_builder.trigger_price(trigger_price)
+            }
+            Price::TrailingLimitIfTouched { trailing } => match trailing {
+                TrailingLimitPrice::Amount {
+                    limit_offset,
+                    trailing_amount,
+                } => replace_order_options_builder
+                    .limit_offset(limit_offset)
+                    .trailing_amount(trailing_amount),
+                TrailingLimitPrice::Percent {
+                    limit_offset,
+                    trailing_percent,
+                } => replace_order_options_builder
+                    .limit_offset(limit_offset)
+                    .trailing_percent(trailing_percent),
+            },
+            Price::TrailingMarketIfTouched { trailing } => match trailing {
+                TrailingMarketPrice::Amount { trailing_amount } => {
+                    replace_order_options_builder.trailing_amount(trailing_amount)
+                }
+                TrailingMarketPrice::Percent { trailing_percent } => {
+                    replace_order_options_builder.trailing_percent(trailing_percent)
+                }
+            },
+        };
+
+        replace_order_options_builder
+    }
+
     fn to_submit_order_response(
         long_bridge_response: longbridge::trade::SubmitOrderResponse,
     ) -> SubmitOrderResponse {
@@ -196,6 +245,25 @@ impl TransactionTrait for LongBridgeTransaction {
             .submit_order(Self::to_submit_order_options(request))
             .await
             .map(Self::to_submit_order_response)
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+    }
+
+    async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
+        self.longbridge_context
+            .replace_order(Self::to_replce_order_options(request))
+            .await
+            .map(|_| EditOrderResponse {})
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+    }
+
+    async fn cancel_order(
+        &self,
+        request: CancelOrderRequest,
+    ) -> Result<CancelOrderResponse, Error> {
+        self.longbridge_context
+            .cancel_order(request.order_id)
+            .await
+            .map(|_| CancelOrderResponse {})
             .map_err(LongBridgeBroker::to_rabbit_trading_err)
     }
 
