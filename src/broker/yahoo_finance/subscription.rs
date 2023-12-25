@@ -66,7 +66,7 @@ impl YahooFinanceQuoteRealTimeInfoSubscriptionController {
 
 #[async_trait]
 impl SubscriptionController for YahooFinanceQuoteRealTimeInfoSubscriptionController {
-    async fn stop(&self) -> Result<(), Error> {
+    async fn stop(self) -> Result<(), Error> {
         *self.working_flag.lock().await = false;
         Result::Ok(())
     }
@@ -101,7 +101,7 @@ impl SubscriptionTrait for YahooFinanceSubscription {
 
     async fn quote_depth_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         todo!()
     }
@@ -136,7 +136,7 @@ mod test_yahoo_finance_subscription {
             })
             .await;
         assert!(subscription_instance_result.is_ok());
-        let (mut receiver, controller) = subscription_instance_result.unwrap();
+        let (mut receiver, _) = subscription_instance_result.unwrap();
         tokio::select! {
             quote_info = receiver.recv() => {
                 assert!(quote_info.is_some());

@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
 use std::{any::Any, collections::HashMap};
 
-use super::symbol::Symbol;
+use super::{currency::Currency, symbol::Symbol};
 
 // todo: prev_close, trading_session, is_trading
 #[derive(Debug)]
@@ -22,15 +22,29 @@ pub struct QuoteRealTimeInfo {
 #[derive(Debug)]
 pub struct QuoteBasicInfo {
     pub symbol: Symbol,
-    pub sequence: u64,
-    pub timestamp: i64,
+    pub currency: Option<Currency>,
+    pub lot_size: i32,
+    pub total_shares: i64,
+    pub circulating_shares: i64,
+    pub eps: Decimal,
+    pub eps_ttm: Decimal,
+    pub bps: Decimal,
+    pub dividend_yield: Decimal,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Depth {
+    pub position: i32,
+    pub price: Decimal,
+    pub volume: i64,
+    pub order_count: i64,
 }
 
 #[derive(Debug)]
 pub struct QuoteDepthInfo {
     pub symbol: Symbol,
-    pub sequence: u64,
-    pub timestamp: i64,
+    pub ask_list: Vec<Depth>,
+    pub bid_list: Vec<Depth>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]

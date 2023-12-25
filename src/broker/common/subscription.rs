@@ -23,7 +23,7 @@ pub trait SubscriptionTrait {
 
 #[async_trait]
 pub trait SubscriptionController {
-    async fn stop(&self) -> Result<(), Error>;
+    async fn stop(self) -> Result<(), Error>;
 }
 
 #[async_trait]

@@ -115,7 +115,7 @@ impl LongBridgeQuoteRealTimeInfoSubscriptionController {
 
 #[async_trait]
 impl SubscriptionController for LongBridgeQuoteRealTimeInfoSubscriptionController {
-    async fn stop(&self) -> Result<(), Error> {
+    async fn stop(self) -> Result<(), Error> {
         let symbol_identifier = self.symbol.to_string();
         self.longbridge_context
             .lock()

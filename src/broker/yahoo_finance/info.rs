@@ -16,7 +16,10 @@ pub struct YahooFinanceInfo {
 impl YahooFinanceInfo {
     const YAHOO_LAST_QUOTES_INTERVAL: &'static str = "1d";
 
-    fn to_quote_real_time_info(symbol: Symbol, yahoo_quote: yahoo_finance_api::Quote) -> QuoteRealTimeInfo {
+    fn to_quote_real_time_info(
+        symbol: Symbol,
+        yahoo_quote: yahoo_finance_api::Quote,
+    ) -> QuoteRealTimeInfo {
         QuoteRealTimeInfo {
             symbol,
             sequence: yahoo_quote.timestamp,
@@ -68,10 +71,7 @@ impl InfoTrait for YahooFinanceInfo {
         }
     }
 
-    async fn query_real_time_depth(
-        &self,
-        request: QueryInfoRequest,
-    ) -> Result<QuoteDepthInfo, Error> {
+    async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
         todo!()
     }
 }
