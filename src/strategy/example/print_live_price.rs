@@ -1,9 +1,6 @@
 use async_trait::async_trait;
 use time::{format_description, OffsetDateTime};
-use tokio::{
-    select,
-    sync::mpsc::{self, Receiver, Sender},
-};
+use tokio::select;
 
 use crate::{
     broker::common::subscription::SubscriptionTrait,
@@ -17,7 +14,6 @@ use crate::{
 
 pub struct PrintLivePriceStrategy {
     subscription: Box<dyn SubscriptionTrait + Send + Sync>,
-
 }
 
 #[async_trait]
@@ -25,13 +21,11 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
     async fn new(context: StrategyContext<()>) -> Self {
         let broker = &context.broker_list[0];
         let subscription = broker.create_subscription().await;
-        PrintLivePriceStrategy {
-            subscription,
-        }
+        PrintLivePriceStrategy { subscription }
     }
 
     async fn start(&self) {
-        let (mut receiver, controller) = self
+        let (mut receiver, _) = self
             .subscription
             .quote_real_time_info(QueryInfoRequest {
                 symbol: Symbol {
