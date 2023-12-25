@@ -1,68 +1,109 @@
 use async_trait::async_trait;
 use std::sync::Arc;
-use tokio::sync::mpsc::{self, Receiver, Sender};
+use tokio::sync::mpsc::{self, Sender};
 use tokio::sync::Mutex;
 use tokio::time::{sleep, Duration};
 
 use super::info::YahooFinanceInfo;
-use crate::broker::common::{
-    info::{InfoContext, InfoTrait},
-    subscription::SubscriptionTrait,
+use crate::broker::common::subscription::{
+    SubscriptionController, SubscriptionData, SubscriptionWorker,
 };
+use crate::broker::common::{info::InfoTrait, subscription::SubscriptionTrait};
 use crate::model::error::Error;
-use crate::model::quote::QuoteInfo;
+use crate::model::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo};
 
-pub(super) struct YahooFinanceSubscription {
-    context: InfoContext,
-    stop_flag: Arc<Mutex<bool>>,
+pub struct YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
+    request: QueryInfoRequest,
+    sender: Sender<QuoteRealTimeInfo>,
+
+    working_flag: Arc<Mutex<bool>>,
 }
 
-impl YahooFinanceSubscription {
-    async fn start_loop(
-        context: InfoContext,
-        stop_flag: Arc<Mutex<bool>>,
-        sender: Sender<QuoteInfo>,
-    ) {
-        let info = YahooFinanceInfo::new(context).await;
-
-        loop {
-            if *stop_flag.lock().await {
-                return;
-            }
-
-            let real_time_info_result = info.query_real_time_info().await;
-            if let Result::Ok(quote_info) = real_time_info_result {
-                if let Err(send_result_err) = sender.send(quote_info).await {
-                    log::error!("error when sending into mpsc {}", send_result_err);
-                }
-            }
-            sleep(Duration::from_millis(500)).await;
+impl YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
+    pub fn new(
+        request: QueryInfoRequest,
+        sender: Sender<QuoteRealTimeInfo>,
+        working_flag: Arc<Mutex<bool>>,
+    ) -> Self {
+        YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
+            request,
+            sender,
+            working_flag,
         }
     }
 }
 
 #[async_trait]
-impl SubscriptionTrait for YahooFinanceSubscription {
-    async fn new(context: InfoContext) -> Self {
-        YahooFinanceSubscription {
-            context,
-            stop_flag: Arc::new(Mutex::new(false)),
+impl SubscriptionWorker for YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
+    async fn start(self) {
+        let info = YahooFinanceInfo::new().await;
+
+        loop {
+            if *self.working_flag.lock().await == false {
+                return;
+            }
+
+            let real_time_info_result = info.query_real_time_info(self.request.clone()).await;
+            if let Result::Ok(quote_info) = real_time_info_result {
+                if let Err(send_result_err) = self.sender.send(quote_info).await {
+                    log::error!("error when sending into mpsc {}", send_result_err);
+                }
+            }
+            sleep(Duration::from_millis(1000)).await;
         }
     }
+}
 
-    async fn subscribe(&self) -> Result<Receiver<QuoteInfo>, Error> {
-        let (sender, receiver) = mpsc::channel(64);
-        tokio::task::spawn(Self::start_loop(
-            self.context.clone(),
-            self.stop_flag.clone(),
-            sender,
-        ));
-        Result::Ok(receiver)
+pub struct YahooFinanceQuoteRealTimeInfoSubscriptionController {
+    working_flag: Arc<Mutex<bool>>,
+}
+
+impl YahooFinanceQuoteRealTimeInfoSubscriptionController {
+    pub fn new(working_flag: Arc<Mutex<bool>>) -> Self {
+        YahooFinanceQuoteRealTimeInfoSubscriptionController { working_flag }
+    }
+}
+
+#[async_trait]
+impl SubscriptionController for YahooFinanceQuoteRealTimeInfoSubscriptionController {
+    async fn stop(&self) -> Result<(), Error> {
+        *self.working_flag.lock().await = false;
+        Result::Ok(())
+    }
+}
+
+pub struct YahooFinanceSubscription {}
+
+#[async_trait]
+impl SubscriptionTrait for YahooFinanceSubscription {
+    async fn new() -> Self {
+        YahooFinanceSubscription {}
     }
 
-    async fn unsubscribe(&self) -> Result<(), Error> {
-        *self.stop_flag.lock().await = false;
-        Result::Ok(())
+    async fn quote_real_time_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
+        let (sender, receiver) = mpsc::channel(64);
+
+        let working_flag = Arc::new(Mutex::new(true));
+        let worker = YahooFinanceQuoteRealTimeInfoSubscriptionWorker::new(
+            request,
+            sender,
+            working_flag.clone(),
+        );
+        let controller =
+            YahooFinanceQuoteRealTimeInfoSubscriptionController::new(working_flag.clone());
+
+        tokio::task::spawn(worker.start());
+        Result::Ok((receiver, Box::new(controller)))
+    }
+
+    async fn quote_depth_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
+        todo!()
     }
 }
 
@@ -74,22 +115,28 @@ mod test_yahoo_finance_subscription {
 
     use super::YahooFinanceSubscription;
     use crate::{
-        broker::common::{info::InfoContext, subscription::SubscriptionTrait},
-        model::{market::Market, symbol::Symbol},
+        broker::common::subscription::SubscriptionTrait,
+        model::{
+            market::Market,
+            quote::{QueryInfoRequest, QuoteKind},
+            symbol::Symbol,
+        },
     };
 
     #[tokio::test]
-    async fn test_query_quote_info() {
-        let yahoo_finance_subscription = YahooFinanceSubscription::new(InfoContext {
-            symbol: Symbol {
-                identifier: "ABNB".to_owned(),
-                market: Market::US,
-            },
-            extra: Option::None,
-        })
-        .await;
-
-        let mut receiver = yahoo_finance_subscription.subscribe().await.unwrap();
+    async fn test_subscribe_quote_real_time_info() {
+        let yahoo_finance_subscription = YahooFinanceSubscription::new().await;
+        let subscription_instance_result = yahoo_finance_subscription
+            .quote_real_time_info(QueryInfoRequest {
+                symbol: Symbol {
+                    market: Market::US,
+                    identifier: "ABNB".to_owned(),
+                },
+                kind: QuoteKind::Stock,
+            })
+            .await;
+        assert!(subscription_instance_result.is_ok());
+        let (mut receiver, controller) = subscription_instance_result.unwrap();
         tokio::select! {
             quote_info = receiver.recv() => {
                 assert!(quote_info.is_some());

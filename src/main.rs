@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use broker::long_bridge::broker::LongBridgeBroker;
+use broker::longbridge::broker::LongBridgeBroker;
 use persistent_kv::{
     memory_kv::MemoryKVStore,
     persistent_kv_trait::{PersistentKVStore, PersistentKVStoreParameters},

@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use super::common::broker::BrokerTrait;
 
-#[cfg(feature = "long_bridge")]
-use super::long_bridge::broker::LongBridgeBroker;
+#[cfg(feature = "longbridge")]
+use super::longbridge::broker::LongBridgeBroker;
 #[cfg(feature = "yahoo_finance")]
 use super::yahoo_finance::broker::YahooFinanceBroker;
 
@@ -14,7 +14,7 @@ pub struct BrokerInitializer {
 impl BrokerInitializer {
     pub fn new() -> Self {
         let brokers: Vec<Box<dyn BrokerTrait + Send + Sync>> = vec![
-            #[cfg(feature = "long_bridge")]
+            #[cfg(feature = "longbridge")]
             Box::new(LongBridgeBroker {}),
             #[cfg(feature = "yahoo_finance")]
             Box::new(YahooFinanceBroker {}),
@@ -40,7 +40,7 @@ impl BrokerInitializer {
 mod test_broker_initializer {
     use super::BrokerInitializer;
 
-    const LONG_BRIDGE_IDENTIFIER: &'static str = "long_bridge";
+    const longbridge_IDENTIFIER: &'static str = "longbridge";
     const YAHOO_FINANCE_IDENTIFIER: &'static str = "yahoo_finance";
 
     #[test]
@@ -48,9 +48,9 @@ mod test_broker_initializer {
         let initializer = BrokerInitializer::new();
 
         assert_eq!(
-            cfg!(feature = "long_bridge"),
+            cfg!(feature = "longbridge"),
             initializer
-                .get_broker_instance(LONG_BRIDGE_IDENTIFIER.to_owned())
+                .get_broker_instance(longbridge_IDENTIFIER.to_owned())
                 .is_some()
         );
         assert_eq!(

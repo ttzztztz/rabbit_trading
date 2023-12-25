@@ -4,19 +4,18 @@ use longbridge::QuoteContext;
 use std::result::Result;
 
 use super::broker::LongBridgeBroker;
-use crate::broker::common::info::{InfoContext, InfoTrait};
+use crate::broker::common::info::InfoTrait;
 use crate::model::error::Error;
-use crate::model::quote::QuoteInfo;
+use crate::model::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo};
 use crate::model::symbol::Symbol;
 
 pub struct LongBridgeInfo {
-    context: InfoContext,
     longbridge_context: QuoteContext,
 }
 
 impl LongBridgeInfo {
-    fn to_quote_info(symbol: Symbol, security_quote: SecurityQuote) -> QuoteInfo {
-        QuoteInfo {
+    fn to_quote_real_time_info(symbol: Symbol, security_quote: SecurityQuote) -> QuoteRealTimeInfo {
+        QuoteRealTimeInfo {
             symbol,
             sequence: security_quote.timestamp.unix_timestamp() as u64,
             timestamp: security_quote.timestamp.unix_timestamp(),
@@ -34,17 +33,22 @@ impl LongBridgeInfo {
 
 #[async_trait]
 impl InfoTrait for LongBridgeInfo {
-    async fn new(context: InfoContext) -> Self {
-        let (ctx, _) = LongBridgeBroker::create_quote_context().await.unwrap();
-
+    async fn new() -> Self {
+        let (longbridge_context, _) = LongBridgeBroker::create_quote_context().await.unwrap();
         LongBridgeInfo {
-            context,
-            longbridge_context: ctx,
+            longbridge_context,
         }
     }
 
-    async fn query_real_time_info(&self) -> Result<QuoteInfo, Error> {
-        let symbol_identifier = self.context.symbol.to_string();
+    async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
+        todo!()
+    }
+
+    async fn query_real_time_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QuoteRealTimeInfo, Error> {
+        let symbol_identifier = request.symbol.to_string();
         let quote_result = self
             .longbridge_context
             .quote([symbol_identifier])
@@ -52,36 +56,43 @@ impl InfoTrait for LongBridgeInfo {
             .map(|result_vec| result_vec[0].clone());
 
         match quote_result {
-            Ok(quote_info) => {
-                Result::Ok(Self::to_quote_info(self.context.symbol.clone(), quote_info))
-            }
+            Ok(quote_info) => Result::Ok(Self::to_quote_real_time_info(request.symbol, quote_info)),
             Err(err) => Result::Err(LongBridgeBroker::to_rabbit_trading_err(err)),
         }
+    }
+
+    async fn query_real_time_depth(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QuoteDepthInfo, Error> {
+        todo!()
     }
 }
 
 #[cfg(test)]
-mod test_long_bridge_info {
+mod test_longbridge_info {
     use log;
     use rust_decimal_macros::dec;
 
     use super::LongBridgeInfo;
-    use crate::broker::common::info::{InfoContext, InfoTrait};
+    use crate::broker::common::info::InfoTrait;
+    use crate::model::quote::{QueryInfoRequest, QuoteKind};
     use crate::model::{market::Market, symbol::Symbol};
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_real_time_info() {
-        let long_bridge_info = LongBridgeInfo::new(InfoContext {
-            symbol: Symbol {
-                identifier: "0700".to_owned(),
-                market: Market::HK,
-            },
-            extra: Option::None,
-        })
-        .await;
+        let longbridge_info = LongBridgeInfo::new().await;
 
-        let quote_info_result = long_bridge_info.query_real_time_info().await;
+        let quote_info_result = longbridge_info
+            .query_real_time_info(QueryInfoRequest {
+                symbol: Symbol {
+                    market: Market::HK,
+                    identifier: "0700".to_owned(),
+                },
+                kind: QuoteKind::Stock,
+            })
+            .await;
         let quote_info = quote_info_result.unwrap();
         log::warn!("quote_info: {quote_info:?}");
         assert_eq!("0700.HK", quote_info.symbol.to_string());

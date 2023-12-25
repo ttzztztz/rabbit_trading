@@ -168,10 +168,10 @@ impl LongBridgeTransaction {
     }
 
     fn to_submit_order_response(
-        long_bridge_response: longbridge::trade::SubmitOrderResponse,
+        longbridge_response: longbridge::trade::SubmitOrderResponse,
     ) -> SubmitOrderResponse {
         SubmitOrderResponse {
-            order_id: long_bridge_response.order_id,
+            order_id: longbridge_response.order_id,
         }
     }
 
@@ -213,16 +213,16 @@ impl LongBridgeTransaction {
     }
 
     fn to_stock_position(
-        long_bridge_position: &StockPosition,
+        longbridge_position: &StockPosition,
     ) -> Option<crate::model::position::Position> {
-        let symbol = LongBridgeBroker::to_symbol(&long_bridge_position.symbol)?;
-        let currency = LongBridgeBroker::to_currency(&long_bridge_position.currency)?;
+        let symbol = LongBridgeBroker::to_symbol(&longbridge_position.symbol)?;
+        let currency = LongBridgeBroker::to_currency(&longbridge_position.currency)?;
         Option::Some(crate::model::position::Position {
             symbol,
             currency,
-            cost_price: long_bridge_position.cost_price,
-            total_quantity: long_bridge_position.quantity,
-            available_quantity: long_bridge_position.available_quantity,
+            cost_price: longbridge_position.cost_price,
+            total_quantity: longbridge_position.quantity,
+            available_quantity: longbridge_position.available_quantity,
         })
     }
 }
@@ -230,10 +230,10 @@ impl LongBridgeTransaction {
 #[async_trait]
 impl TransactionTrait for LongBridgeTransaction {
     async fn new() -> Self {
-        let (ctx, _) = LongBridgeBroker::create_trade_context().await.unwrap();
+        let (longbridge_context, _) = LongBridgeBroker::create_trade_context().await.unwrap();
 
         LongBridgeTransaction {
-            longbridge_context: ctx,
+            longbridge_context,
         }
     }
 
@@ -320,7 +320,7 @@ impl TransactionTrait for LongBridgeTransaction {
 }
 
 #[cfg(test)]
-mod test_long_bridge_transaction {
+mod test_longbridge_transaction {
     use rust_decimal_macros::dec;
 
     use super::LongBridgeTransaction;
@@ -329,9 +329,9 @@ mod test_long_bridge_transaction {
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_account_balance() {
-        let long_bridge_transaction = LongBridgeTransaction::new().await;
+        let longbridge_transaction = LongBridgeTransaction::new().await;
 
-        let account_balance_result = long_bridge_transaction.account_balance().await;
+        let account_balance_result = longbridge_transaction.account_balance().await;
         assert!(account_balance_result.is_ok());
         let account_balance_map = account_balance_result.unwrap();
         let account_balance_hkd_option = account_balance_map.get(&Currency::HKD);
@@ -347,9 +347,9 @@ mod test_long_bridge_transaction {
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_positions() {
-        let long_bridge_transaction = LongBridgeTransaction::new().await;
+        let longbridge_transaction = LongBridgeTransaction::new().await;
 
-        let positions_result = long_bridge_transaction.positions().await;
+        let positions_result = longbridge_transaction.positions().await;
         assert!(positions_result.is_ok());
         positions_result.unwrap().iter().for_each(|position| {
             assert!(position.cost_price >= dec!(0));

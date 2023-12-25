@@ -80,8 +80,8 @@ impl LongBridgeBroker {
 }
 
 #[cfg(test)]
-mod test_long_bridge_broker_utils {
-    use crate::broker::long_bridge::broker::LongBridgeBroker;
+mod test_longbridge_broker_utils {
+    use crate::broker::longbridge::broker::LongBridgeBroker;
     use crate::model::{currency::Currency, market::Market, symbol::Symbol};
 
     #[test]

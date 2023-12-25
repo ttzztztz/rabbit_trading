@@ -1,30 +1,55 @@
 use async_trait::async_trait;
-use std::iter::Map;
 
-use crate::model::{error::Error, quote::QuoteInfo, symbol::Symbol};
+use crate::model::{
+    error::Error,
+    quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
+};
 
-#[derive(Clone)]
-pub struct InfoContext {
-    pub symbol: Symbol,
-    pub extra: Option<Map<String, String>>,
-}
-
-// todo: redesign info + subscription trait
 #[async_trait]
 pub trait InfoTrait {
-    async fn new(context: InfoContext) -> Self
+    async fn new() -> Self
     where
         Self: Sized;
-    async fn query_real_time_info(&self) -> Result<QuoteInfo, Error>;
+
+    async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error>;
+    async fn query_real_time_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QuoteRealTimeInfo, Error>;
+    async fn query_real_time_depth(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QuoteDepthInfo, Error>;
 }
 
 #[async_trait]
 pub trait InfoInterceptorTrait {
-    async fn before_query_real_time_info(&self) -> Result<(), Error>;
+    async fn before_query_basic_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QueryInfoRequest, Error>;
+    async fn after_query_basic_info(
+        &self,
+        result: Result<QuoteBasicInfo, Error>,
+    ) -> Result<QuoteBasicInfo, Error>;
+
+    async fn before_query_real_time_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QueryInfoRequest, Error>;
     async fn after_query_real_time_info(
         &self,
-        result: Result<QuoteInfo, Error>,
-    ) -> Result<QuoteInfo, Error>;
+        result: Result<QuoteRealTimeInfo, Error>,
+    ) -> Result<QuoteRealTimeInfo, Error>;
+
+    async fn before_query_real_time_depth(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QueryInfoRequest, Error>;
+    async fn after_query_real_time_depth(
+        &self,
+        result: Result<QuoteDepthInfo, Error>,
+    ) -> Result<QuoteDepthInfo, Error>;
 }
 
 pub struct InfoReflection {
@@ -34,16 +59,50 @@ pub struct InfoReflection {
 
 #[async_trait]
 impl InfoTrait for InfoReflection {
-    async fn new(_context: InfoContext) -> Self {
+    async fn new() -> Self {
         panic!("Cannot Call \"new\" on the reflection method!");
     }
 
-    async fn query_real_time_info(&self) -> Result<QuoteInfo, Error> {
-        if let Err(err) = self.interceptor.before_query_real_time_info().await {
-            return Err(err);
+    async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
+        match self.interceptor.before_query_basic_info(request).await {
+            Ok(request) => {
+                let result = self.shadowed_transaction.query_basic_info(request).await;
+                self.interceptor.after_query_basic_info(result).await
+            }
+            Err(err) => Result::Err(err),
         }
-        let result = self.shadowed_transaction.query_real_time_info().await;
-        self.interceptor.after_query_real_time_info(result).await
+    }
+
+    async fn query_real_time_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QuoteRealTimeInfo, Error> {
+        match self.interceptor.before_query_real_time_info(request).await {
+            Ok(request) => {
+                let result = self
+                    .shadowed_transaction
+                    .query_real_time_info(request)
+                    .await;
+                self.interceptor.after_query_real_time_info(result).await
+            }
+            Err(err) => Result::Err(err),
+        }
+    }
+
+    async fn query_real_time_depth(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QuoteDepthInfo, Error> {
+        match self.interceptor.before_query_real_time_depth(request).await {
+            Ok(request) => {
+                let result = self
+                    .shadowed_transaction
+                    .query_real_time_depth(request)
+                    .await;
+                self.interceptor.after_query_real_time_depth(result).await
+            }
+            Err(err) => Result::Err(err),
+        }
     }
 }
 
@@ -51,14 +110,45 @@ pub struct NoOpInfoInterceptor {}
 
 #[async_trait]
 impl InfoInterceptorTrait for NoOpInfoInterceptor {
-    async fn before_query_real_time_info(&self) -> Result<(), Error> {
-        Result::Ok(())
+    async fn before_query_basic_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
+    }
+
+    async fn after_query_basic_info(
+        &self,
+        result: Result<QuoteBasicInfo, Error>,
+    ) -> Result<QuoteBasicInfo, Error> {
+        result
+    }
+
+    async fn before_query_real_time_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
     }
 
     async fn after_query_real_time_info(
         &self,
-        result: Result<QuoteInfo, Error>,
-    ) -> Result<QuoteInfo, Error> {
+        result: Result<QuoteRealTimeInfo, Error>,
+    ) -> Result<QuoteRealTimeInfo, Error> {
+        result
+    }
+
+    async fn before_query_real_time_depth(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
+    }
+
+    async fn after_query_real_time_depth(
+        &self,
+        result: Result<QuoteDepthInfo, Error>,
+    ) -> Result<QuoteDepthInfo, Error> {
         result
     }
 }

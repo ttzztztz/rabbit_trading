@@ -1,6 +1,6 @@
 use super::market::Market;
 
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+#[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub struct Symbol {
     pub market: Market,
     pub identifier: String,

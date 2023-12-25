@@ -1,4 +1,4 @@
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy)]
 pub enum Market {
     CN,
     HK,
