@@ -46,7 +46,7 @@ pub trait TransactionInterceptorTrait {
         result: Result<PositionList, Error>,
     ) -> Result<PositionList, Error>;
 
-    async fn befoer_estimate_max_buying_power(
+    async fn before_estimate_max_buying_power(
         &self,
         request: EstimateMaxBuyingPowerRequest,
     ) -> Result<EstimateMaxBuyingPowerRequest, Error>;
@@ -95,7 +95,7 @@ impl TransactionReflection {
             shadowed_transaction,
             interceptor: match interceptor {
                 Some(interceptor) => interceptor,
-                None => Box::new(EmptyTransactionInterceptor {}),
+                None => Box::new(NoOpTransactionInterceptor {}),
             },
         }
     }
@@ -129,7 +129,7 @@ impl TransactionTrait for TransactionReflection {
     ) -> Result<BuyingPower, Error> {
         match self
             .interceptor
-            .befoer_estimate_max_buying_power(request)
+            .before_estimate_max_buying_power(request)
             .await
         {
             Ok(request) => {
@@ -183,10 +183,10 @@ impl TransactionTrait for TransactionReflection {
     }
 }
 
-pub struct EmptyTransactionInterceptor {}
+pub struct NoOpTransactionInterceptor {}
 
 #[async_trait]
-impl TransactionInterceptorTrait for EmptyTransactionInterceptor {
+impl TransactionInterceptorTrait for NoOpTransactionInterceptor {
     async fn before_account_balance(&self) -> Result<(), Error> {
         Result::Ok(())
     }
@@ -207,7 +207,7 @@ impl TransactionInterceptorTrait for EmptyTransactionInterceptor {
         result
     }
 
-    async fn befoer_estimate_max_buying_power(
+    async fn before_estimate_max_buying_power(
         &self,
         request: EstimateMaxBuyingPowerRequest,
     ) -> Result<EstimateMaxBuyingPowerRequest, Error> {

@@ -4,6 +4,7 @@ use tokio::sync::mpsc::Receiver;
 use super::info::InfoContext;
 use crate::model::{error::Error, quote::QuoteInfo};
 
+// todo: redesign info + subscription trait
 #[async_trait]
 pub trait SubscriptionTrait {
     async fn new(context: InfoContext) -> Self
