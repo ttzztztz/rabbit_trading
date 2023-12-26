@@ -220,7 +220,6 @@ mod test_longbridge_info {
             .into_iter()
             .chain(quote_depth_info.bid_list.into_iter())
             .for_each(|depth| {
-                println!("order_count={}", depth.order_count);
                 assert!(depth.order_count >= 0i64);
                 assert!(depth.position > 0i32);
                 assert!(depth.price > dec!(0.0));
