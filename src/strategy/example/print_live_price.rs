@@ -27,7 +27,7 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
     async fn start(&self) {
         let (mut receiver, _) = self
             .subscription
-            .quote_real_time_info(QueryInfoRequest {
+            .real_time_info(QueryInfoRequest {
                 symbol: Symbol {
                     market: Market::US,
                     identifier: "ABNB".to_owned(),
@@ -46,7 +46,7 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
                             log::info!(
                                 "[{}] ({}), Price: {}, Vol: {}",
                                 quote_info.symbol.to_string(),
-                                OffsetDateTime::from_unix_timestamp(quote_info.timestamp)
+                                OffsetDateTime::from_unix_timestamp(quote_info.timestamp as i64)
                                     .unwrap()
                                     .format(&format)
                                     .unwrap(),

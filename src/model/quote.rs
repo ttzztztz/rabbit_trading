@@ -8,7 +8,7 @@ use super::{currency::Currency, symbol::Symbol};
 pub struct QuoteRealTimeInfo {
     pub symbol: Symbol,
     pub sequence: u64,
-    pub timestamp: i64,
+    pub timestamp: u64,
     pub current_price: Decimal,
     pub volume: u64,
     pub low_price: Option<Decimal>,
@@ -43,6 +43,8 @@ pub struct Depth {
 #[derive(Debug)]
 pub struct QuoteDepthInfo {
     pub symbol: Symbol,
+    pub sequence: u64,
+    pub timestamp: u64,
     pub ask_list: Vec<Depth>,
     pub bid_list: Vec<Depth>,
 }

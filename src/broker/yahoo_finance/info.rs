@@ -23,7 +23,7 @@ impl YahooFinanceInfo {
         QuoteRealTimeInfo {
             symbol,
             sequence: yahoo_quote.timestamp,
-            timestamp: yahoo_quote.timestamp as i64,
+            timestamp: yahoo_quote.timestamp,
             current_price: Decimal::from_str_exact(format!("{:.2}", yahoo_quote.close).as_str())
                 .unwrap(),
             volume: yahoo_quote.volume,
@@ -110,6 +110,6 @@ mod test_yahoo_finance_info {
         assert_eq!("ABNB.US", quote_info.symbol.to_string());
         assert!(quote_info.current_price > dec!(0.0));
         assert!(quote_info.volume > 0u64);
-        assert!(quote_info.timestamp > 0i64);
+        assert!(quote_info.timestamp > 0u64);
     }
 }

@@ -11,11 +11,11 @@ pub trait SubscriptionTrait {
     async fn new() -> Self
     where
         Self: Sized;
-    async fn quote_real_time_info(
+    async fn real_time_info(
         &self,
         request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error>;
-    async fn quote_depth_info(
+    async fn depth_info(
         &self,
         request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error>;

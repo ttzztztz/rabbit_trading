@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use longbridge::quote::{SecurityDepth, SecurityQuote, SecurityStaticInfo};
 use longbridge::QuoteContext;
 use std::result::Result;
+use std::time::SystemTime;
 
 use super::broker::LongBridgeBroker;
 use crate::broker::common::info::InfoTrait;
@@ -15,10 +16,11 @@ pub struct LongBridgeInfo {
 
 impl LongBridgeInfo {
     fn to_quote_real_time_info(symbol: Symbol, security_quote: SecurityQuote) -> QuoteRealTimeInfo {
+        let unix_timestamp = security_quote.timestamp.unix_timestamp() as u64;
         QuoteRealTimeInfo {
             symbol,
-            sequence: security_quote.timestamp.unix_timestamp() as u64,
-            timestamp: security_quote.timestamp.unix_timestamp(),
+            sequence: unix_timestamp,
+            timestamp: unix_timestamp,
             current_price: security_quote.last_done,
             low_price: Option::Some(security_quote.low),
             high_price: Option::Some(security_quote.high),
@@ -47,7 +49,7 @@ impl LongBridgeInfo {
         }
     }
 
-    fn to_depth(depth: longbridge::quote::Depth) -> crate::model::quote::Depth {
+    pub(super) fn to_depth(depth: longbridge::quote::Depth) -> crate::model::quote::Depth {
         crate::model::quote::Depth {
             position: depth.position,
             price: depth.price,
@@ -57,8 +59,15 @@ impl LongBridgeInfo {
     }
 
     fn to_quote_depth_info(symbol: Symbol, security_depth: SecurityDepth) -> QuoteDepthInfo {
+        let current_timestamp = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+
         QuoteDepthInfo {
             symbol,
+            sequence: current_timestamp,
+            timestamp: current_timestamp,
             ask_list: security_depth
                 .asks
                 .into_iter()

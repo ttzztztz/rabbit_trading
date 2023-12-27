@@ -80,7 +80,7 @@ impl SubscriptionTrait for YahooFinanceSubscription {
         YahooFinanceSubscription {}
     }
 
-    async fn quote_real_time_info(
+    async fn real_time_info(
         &self,
         request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
@@ -99,7 +99,7 @@ impl SubscriptionTrait for YahooFinanceSubscription {
         Result::Ok((receiver, Box::new(controller)))
     }
 
-    async fn quote_depth_info(
+    async fn depth_info(
         &self,
         _request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
@@ -127,7 +127,7 @@ mod test_yahoo_finance_subscription {
     async fn test_subscribe_quote_real_time_info() {
         let yahoo_finance_subscription = YahooFinanceSubscription::new().await;
         let subscription_instance_result = yahoo_finance_subscription
-            .quote_real_time_info(QueryInfoRequest {
+            .real_time_info(QueryInfoRequest {
                 symbol: Symbol {
                     market: Market::US,
                     identifier: "ABNB".to_owned(),
@@ -145,7 +145,7 @@ mod test_yahoo_finance_subscription {
                 assert_eq!("ABNB.US", quote_info.symbol.to_string());
                 assert!(quote_info.current_price > dec!(0.0));
                 assert!(quote_info.volume > 0u64);
-                assert!(quote_info.timestamp > 0i64);
+                assert!(quote_info.timestamp > 0u64);
             },
             _ = sleep(Duration::from_millis(3000))=> {
                 panic!("loop not working!");
