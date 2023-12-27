@@ -35,4 +35,11 @@ impl EventBus {
     fn subscribe(&self) -> Receiver<RabbitTradingEvent> {
         self.sender.subscribe()
     }
+
+    async fn send(
+        &self,
+        event: RabbitTradingEvent,
+    ) -> Result<usize, broadcast::error::SendError<RabbitTradingEvent>> {
+        self.sender.send(event)
+    }
 }

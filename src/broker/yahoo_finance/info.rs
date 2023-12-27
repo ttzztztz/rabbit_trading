@@ -44,7 +44,7 @@ impl InfoTrait for YahooFinanceInfo {
         YahooFinanceInfo { provider }
     }
 
-    async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
+    async fn query_basic_info(&self, _request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
         todo!()
     }
 
@@ -71,7 +71,7 @@ impl InfoTrait for YahooFinanceInfo {
         }
     }
 
-    async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
+    async fn query_depth(&self, _request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
         todo!()
     }
 }

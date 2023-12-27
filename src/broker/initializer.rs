@@ -40,7 +40,7 @@ impl BrokerInitializer {
 mod test_broker_initializer {
     use super::BrokerInitializer;
 
-    const longbridge_IDENTIFIER: &'static str = "longbridge";
+    const LONGBRIDGE_IDENTIFIER: &'static str = "longbridge";
     const YAHOO_FINANCE_IDENTIFIER: &'static str = "yahoo_finance";
 
     #[test]
@@ -50,7 +50,7 @@ mod test_broker_initializer {
         assert_eq!(
             cfg!(feature = "longbridge"),
             initializer
-                .get_broker_instance(longbridge_IDENTIFIER.to_owned())
+                .get_broker_instance(LONGBRIDGE_IDENTIFIER.to_owned())
                 .is_some()
         );
         assert_eq!(

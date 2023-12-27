@@ -24,29 +24,44 @@ pub trait InfoInterceptorTrait {
     async fn before_query_basic_info(
         &self,
         request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error>;
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
+    }
+
     async fn after_query_basic_info(
         &self,
         result: Result<QuoteBasicInfo, Error>,
-    ) -> Result<QuoteBasicInfo, Error>;
+    ) -> Result<QuoteBasicInfo, Error> {
+        result
+    }
 
     async fn before_query_real_time_info(
         &self,
         request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error>;
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
+    }
+
     async fn after_query_real_time_info(
         &self,
         result: Result<QuoteRealTimeInfo, Error>,
-    ) -> Result<QuoteRealTimeInfo, Error>;
+    ) -> Result<QuoteRealTimeInfo, Error> {
+        result
+    }
 
     async fn before_query_depth(
         &self,
         request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error>;
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
+    }
+
     async fn after_query_depth(
         &self,
         result: Result<QuoteDepthInfo, Error>,
-    ) -> Result<QuoteDepthInfo, Error>;
+    ) -> Result<QuoteDepthInfo, Error> {
+        result
+    }
 }
 
 pub struct InfoReflection {
@@ -99,47 +114,4 @@ impl InfoTrait for InfoReflection {
 
 pub struct NoOpInfoInterceptor {}
 
-#[async_trait]
-impl InfoInterceptorTrait for NoOpInfoInterceptor {
-    async fn before_query_basic_info(
-        &self,
-        request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error> {
-        Result::Ok(request)
-    }
-
-    async fn after_query_basic_info(
-        &self,
-        result: Result<QuoteBasicInfo, Error>,
-    ) -> Result<QuoteBasicInfo, Error> {
-        result
-    }
-
-    async fn before_query_real_time_info(
-        &self,
-        request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error> {
-        Result::Ok(request)
-    }
-
-    async fn after_query_real_time_info(
-        &self,
-        result: Result<QuoteRealTimeInfo, Error>,
-    ) -> Result<QuoteRealTimeInfo, Error> {
-        result
-    }
-
-    async fn before_query_depth(
-        &self,
-        request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error> {
-        Result::Ok(request)
-    }
-
-    async fn after_query_depth(
-        &self,
-        result: Result<QuoteDepthInfo, Error>,
-    ) -> Result<QuoteDepthInfo, Error> {
-        result
-    }
-}
+impl InfoInterceptorTrait for NoOpInfoInterceptor {}

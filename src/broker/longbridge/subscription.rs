@@ -157,7 +157,7 @@ impl SubscriptionTrait for LongBridgeSubscription {
 
     async fn quote_depth_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         todo!()
     }

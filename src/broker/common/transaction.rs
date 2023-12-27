@@ -34,51 +34,77 @@ pub trait TransactionTrait {
 
 #[async_trait]
 pub trait TransactionInterceptorTrait {
-    async fn before_account_balance(&self) -> Result<(), Error>;
+    async fn before_account_balance(&self) -> Result<(), Error> {
+        Result::Ok(())
+    }
     async fn after_account_balance(
         &self,
         result: Result<BalanceHashMap, Error>,
-    ) -> Result<BalanceHashMap, Error>;
+    ) -> Result<BalanceHashMap, Error> {
+        result
+    }
 
-    async fn before_positions(&self) -> Result<(), Error>;
+    async fn before_positions(&self) -> Result<(), Error> {
+        Result::Ok(())
+    }
     async fn after_positions(
         &self,
         result: Result<PositionList, Error>,
-    ) -> Result<PositionList, Error>;
+    ) -> Result<PositionList, Error> {
+        result
+    }
 
     async fn before_estimate_max_buying_power(
         &self,
         request: EstimateMaxBuyingPowerRequest,
-    ) -> Result<EstimateMaxBuyingPowerRequest, Error>;
+    ) -> Result<EstimateMaxBuyingPowerRequest, Error> {
+        Result::Ok(request)
+    }
     async fn after_estimate_max_buying_power(
         &self,
         result: Result<BuyingPower, Error>,
-    ) -> Result<BuyingPower, Error>;
+    ) -> Result<BuyingPower, Error> {
+        result
+    }
 
     async fn before_submit_order(
         &self,
         request: SubmitOrderRequest,
-    ) -> Result<SubmitOrderRequest, Error>;
+    ) -> Result<SubmitOrderRequest, Error> {
+        Result::Ok(request)
+    }
     async fn after_submit_order(
         &self,
         result: Result<SubmitOrderResponse, Error>,
-    ) -> Result<SubmitOrderResponse, Error>;
+    ) -> Result<SubmitOrderResponse, Error> {
+        result
+    }
 
-    async fn before_edit_order(&self, request: EditOrderRequest)
-        -> Result<EditOrderRequest, Error>;
+    async fn before_edit_order(
+        &self,
+        request: EditOrderRequest,
+    ) -> Result<EditOrderRequest, Error> {
+        Result::Ok(request)
+    }
     async fn after_edit_order(
         &self,
         result: Result<EditOrderResponse, Error>,
-    ) -> Result<EditOrderResponse, Error>;
+    ) -> Result<EditOrderResponse, Error> {
+        result
+    }
 
     async fn before_cancel_order(
         &self,
         request: CancelOrderRequest,
-    ) -> Result<CancelOrderRequest, Error>;
+    ) -> Result<CancelOrderRequest, Error> {
+        Result::Ok(request)
+    }
     async fn after_cancel_order(
         &self,
         result: Result<CancelOrderResponse, Error>,
-    ) -> Result<CancelOrderResponse, Error>;
+    ) -> Result<CancelOrderResponse, Error> {
+        result
+    }
 }
 
 pub struct TransactionReflection {
@@ -185,77 +211,4 @@ impl TransactionTrait for TransactionReflection {
 
 pub struct NoOpTransactionInterceptor {}
 
-#[async_trait]
-impl TransactionInterceptorTrait for NoOpTransactionInterceptor {
-    async fn before_account_balance(&self) -> Result<(), Error> {
-        Result::Ok(())
-    }
-    async fn after_account_balance(
-        &self,
-        result: Result<BalanceHashMap, Error>,
-    ) -> Result<BalanceHashMap, Error> {
-        result
-    }
-
-    async fn before_positions(&self) -> Result<(), Error> {
-        Result::Ok(())
-    }
-    async fn after_positions(
-        &self,
-        result: Result<PositionList, Error>,
-    ) -> Result<PositionList, Error> {
-        result
-    }
-
-    async fn before_estimate_max_buying_power(
-        &self,
-        request: EstimateMaxBuyingPowerRequest,
-    ) -> Result<EstimateMaxBuyingPowerRequest, Error> {
-        Result::Ok(request)
-    }
-    async fn after_estimate_max_buying_power(
-        &self,
-        result: Result<BuyingPower, Error>,
-    ) -> Result<BuyingPower, Error> {
-        result
-    }
-
-    async fn before_submit_order(
-        &self,
-        request: SubmitOrderRequest,
-    ) -> Result<SubmitOrderRequest, Error> {
-        Result::Ok(request)
-    }
-    async fn after_submit_order(
-        &self,
-        result: Result<SubmitOrderResponse, Error>,
-    ) -> Result<SubmitOrderResponse, Error> {
-        result
-    }
-
-    async fn before_edit_order(
-        &self,
-        request: EditOrderRequest,
-    ) -> Result<EditOrderRequest, Error> {
-        Result::Ok(request)
-    }
-    async fn after_edit_order(
-        &self,
-        result: Result<EditOrderResponse, Error>,
-    ) -> Result<EditOrderResponse, Error> {
-        result
-    }
-
-    async fn before_cancel_order(
-        &self,
-        request: CancelOrderRequest,
-    ) -> Result<CancelOrderRequest, Error> {
-        Result::Ok(request)
-    }
-    async fn after_cancel_order(
-        &self,
-        result: Result<CancelOrderResponse, Error>,
-    ) -> Result<CancelOrderResponse, Error> {
-        result
-    }
-}
+impl TransactionInterceptorTrait for NoOpTransactionInterceptor {}

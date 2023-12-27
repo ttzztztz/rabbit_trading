@@ -38,20 +38,28 @@ pub trait SubscriptionInterceptorTrait {
     async fn before_quote_real_time_info(
         &self,
         request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error>;
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
+    }
     async fn after_quote_real_time_info(
         &self,
         result: SubscriptionData<QuoteRealTimeInfo>,
-    ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error>;
+    ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
+        Result::Ok(result)
+    }
 
     async fn before_quote_depth_info(
         &self,
         request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error>;
+    ) -> Result<QueryInfoRequest, Error> {
+        Result::Ok(request)
+    }
     async fn after_quote_depth_info(
         &self,
         result: SubscriptionData<QuoteDepthInfo>,
-    ) -> Result<SubscriptionData<QuoteDepthInfo>, Error>;
+    ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
+        Result::Ok(result)
+    }
 }
 
 pub struct SubscriptionReflection {
@@ -76,33 +84,4 @@ impl SubscriptionReflection {
 
 pub struct NoOpSubscriptionInterceptor {}
 
-#[async_trait]
-impl SubscriptionInterceptorTrait for NoOpSubscriptionInterceptor {
-    async fn before_quote_real_time_info(
-        &self,
-        request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error> {
-        Result::Ok(request)
-    }
-
-    async fn after_quote_real_time_info(
-        &self,
-        result: SubscriptionData<QuoteRealTimeInfo>,
-    ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
-        Result::Ok(result)
-    }
-
-    async fn before_quote_depth_info(
-        &self,
-        request: QueryInfoRequest,
-    ) -> Result<QueryInfoRequest, Error> {
-        Result::Ok(request)
-    }
-
-    async fn after_quote_depth_info(
-        &self,
-        result: SubscriptionData<QuoteDepthInfo>,
-    ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
-        Result::Ok(result)
-    }
-}
+impl SubscriptionInterceptorTrait for NoOpSubscriptionInterceptor {}
