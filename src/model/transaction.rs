@@ -1,6 +1,6 @@
 use rust_decimal::Decimal;
 
-use super::symbol::Symbol;
+use super::{currency::Currency, symbol::Symbol};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Direction {
@@ -17,8 +17,8 @@ pub enum RegularTradingTime {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Expire {
     Day,
-    GoodTillDate,
-    GoodTillCancelled { year: i32, month: i32, day: i32 },
+    GoodTillDate { year: i32, month: i32, day: i32 },
+    GoodTillCancelled,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -105,3 +105,25 @@ pub struct EditOrderRequest {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EditOrderResponse {}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct OrderDetailRequest {
+    pub order_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct OrderDetail {
+    pub order_id: String,
+    pub symbol: Symbol,
+    pub currency: Currency,
+    pub quantity: i64,
+    pub executed_quantity: i64,
+    pub price: Price,
+    pub executed_price: Option<Decimal>,
+    pub direction: Direction,
+    pub regular_trading_time: RegularTradingTime,
+    pub expire: Expire,
+    pub created_timestamp: u64,
+    pub updated_timestamp: Option<u64>,
+    pub triggered_timestamp: Option<u64>,
+}

@@ -1,4 +1,4 @@
-use longbridge::{Config, QuoteContext, Result, TradeContext};
+use longbridge::{Config, QuoteContext, TradeContext};
 use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedReceiver;
 
@@ -6,9 +6,10 @@ use super::broker::LongBridgeBroker;
 use crate::model::{currency::Currency, error::Error, market::Market, symbol::Symbol};
 
 impl LongBridgeBroker {
-    const OTHER_ERROR_CODE: &'static str = "other";
+    pub(super) const OTHER_ERROR_CODE: &'static str = "OTHER_ERROR";
+    pub(super) const PARSING_ERROR_CODE: &'static str = "PARSING_ERROR";
 
-    pub async fn create_quote_context() -> Result<(
+    pub async fn create_quote_context() -> longbridge::Result<(
         QuoteContext,
         UnboundedReceiver<longbridge::quote::PushEvent>,
     )> {
@@ -16,7 +17,7 @@ impl LongBridgeBroker {
         QuoteContext::try_new(config.clone()).await
     }
 
-    pub async fn create_trade_context() -> Result<(
+    pub async fn create_trade_context() -> longbridge::Result<(
         TradeContext,
         UnboundedReceiver<longbridge::trade::PushEvent>,
     )> {
@@ -41,38 +42,40 @@ impl LongBridgeBroker {
         }
     }
 
-    pub fn to_currency(currency: &str) -> Option<Currency> {
+    pub fn to_currency(currency: &str) -> Result<Currency, Error> {
         match currency.to_uppercase().as_str() {
-            "HKD" => Option::Some(Currency::HKD),
-            "USD" => Option::Some(Currency::USD),
-            "CNH" => Option::Some(Currency::CNH),
-            _ => {
-                log::error!("Error when parsing currency {}", currency);
-                Option::None
-            }
+            "HKD" => Result::Ok(Currency::HKD),
+            "USD" => Result::Ok(Currency::USD),
+            "CNH" => Result::Ok(Currency::CNH),
+            _ => Result::Err(Error {
+                code: Self::PARSING_ERROR_CODE.to_owned(),
+                message: format!("Error when parsing currency {}", currency),
+            }),
         }
     }
 
-    pub fn to_market(market: &str) -> Option<Market> {
+    pub fn to_market(market: &str) -> Result<Market, Error> {
         match market.to_uppercase().as_str() {
-            "US" => Option::Some(Market::US),
-            "HK" => Option::Some(Market::HK),
-            "CN" => Option::Some(Market::CN),
-            _ => {
-                log::error!("Error when parsing market {}", market);
-                Option::None
-            }
+            "US" => Result::Ok(Market::US),
+            "HK" => Result::Ok(Market::HK),
+            "CN" => Result::Ok(Market::CN),
+            _ => Result::Err(Error {
+                code: Self::PARSING_ERROR_CODE.to_owned(),
+                message: format!("Error when parsing market {}", market),
+            }),
         }
     }
 
-    pub fn to_symbol(symbol: &str) -> Option<Symbol> {
+    pub fn to_symbol(symbol: &str) -> Result<Symbol, Error> {
         let splitted_vec: Vec<&str> = symbol.split('.').collect();
         if splitted_vec.len() != 2 {
-            log::error!("Error when parsing symbol {}", symbol);
-            return Option::None;
+            return Result::Err(Error {
+                code: Self::PARSING_ERROR_CODE.to_owned(),
+                message: format!("Error when parsing symbol {}", symbol),
+            });
         }
 
-        Option::Some(Symbol {
+        Result::Ok(Symbol {
             market: Self::to_market(splitted_vec[1])?,
             identifier: splitted_vec[0].to_owned(),
         })
@@ -86,41 +89,41 @@ mod test_longbridge_broker_utils {
 
     #[test]
     fn test_to_currency() {
-        assert_eq!(Option::None, LongBridgeBroker::to_currency("JPY"));
+        assert!(LongBridgeBroker::to_currency("JPY").is_err());
         assert_eq!(
-            Option::Some(Currency::CNH),
+            Result::Ok(Currency::CNH),
             LongBridgeBroker::to_currency("CNH")
         );
         assert_eq!(
-            Option::Some(Currency::USD),
+            Result::Ok(Currency::USD),
             LongBridgeBroker::to_currency("USD")
         );
         assert_eq!(
-            Option::Some(Currency::HKD),
+            Result::Ok(Currency::HKD),
             LongBridgeBroker::to_currency("HKD")
         );
     }
 
     #[test]
     fn test_to_market() {
-        assert_eq!(Option::None, LongBridgeBroker::to_market("JP"));
-        assert_eq!(Option::Some(Market::CN), LongBridgeBroker::to_market("CN"));
-        assert_eq!(Option::Some(Market::US), LongBridgeBroker::to_market("US"));
-        assert_eq!(Option::Some(Market::HK), LongBridgeBroker::to_market("HK"));
+        assert!(LongBridgeBroker::to_market("JP").is_err());
+        assert_eq!(Result::Ok(Market::CN), LongBridgeBroker::to_market("CN"));
+        assert_eq!(Result::Ok(Market::US), LongBridgeBroker::to_market("US"));
+        assert_eq!(Result::Ok(Market::HK), LongBridgeBroker::to_market("HK"));
     }
 
     #[test]
     fn test_to_symbol() {
-        assert_eq!(Option::None, LongBridgeBroker::to_symbol("8316.JP"));
+        assert!(LongBridgeBroker::to_symbol("8316.JP").is_err());
         assert_eq!(
-            Option::Some(Symbol {
+            Result::Ok(Symbol {
                 market: Market::US,
                 identifier: "META".to_owned(),
             }),
             LongBridgeBroker::to_symbol("META.US")
         );
         assert_eq!(
-            Option::Some(Symbol {
+            Result::Ok(Symbol {
                 market: Market::HK,
                 identifier: "0700".to_owned(),
             }),

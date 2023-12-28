@@ -6,7 +6,8 @@ use crate::model::{
     position::PositionList,
     transaction::{
         BuyingPower, CancelOrderRequest, CancelOrderResponse, EditOrderRequest, EditOrderResponse,
-        EstimateMaxBuyingPowerRequest, SubmitOrderRequest, SubmitOrderResponse,
+        EstimateMaxBuyingPowerRequest, OrderDetail, OrderDetailRequest, SubmitOrderRequest,
+        SubmitOrderResponse,
     },
 };
 
@@ -23,6 +24,7 @@ pub trait TransactionTrait {
         &self,
         request: EstimateMaxBuyingPowerRequest,
     ) -> Result<BuyingPower, Error>;
+    async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error>;
 
     // <-- Mutate APIs
     async fn submit_order(&self, request: SubmitOrderRequest)
@@ -64,6 +66,19 @@ pub trait TransactionInterceptorTrait {
         &self,
         result: Result<BuyingPower, Error>,
     ) -> Result<BuyingPower, Error> {
+        result
+    }
+
+    async fn before_order_detail(
+        &self,
+        request: OrderDetailRequest,
+    ) -> Result<OrderDetailRequest, Error> {
+        Result::Ok(request)
+    }
+    async fn after_order_detail(
+        &self,
+        result: Result<OrderDetail, Error>,
+    ) -> Result<OrderDetail, Error> {
         result
     }
 
@@ -167,6 +182,16 @@ impl TransactionTrait for TransactionReflection {
                 self.interceptor
                     .after_estimate_max_buying_power(result)
                     .await
+            }
+            Err(err) => Result::Err(err),
+        }
+    }
+
+    async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error> {
+        match self.interceptor.before_order_detail(request).await {
+            Ok(request) => {
+                let result = self.shadowed_transaction.order_detail(request).await;
+                self.interceptor.after_order_detail(result).await
             }
             Err(err) => Result::Err(err),
         }

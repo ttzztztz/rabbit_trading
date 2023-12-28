@@ -38,7 +38,7 @@ impl LongBridgeInfo {
     ) -> QuoteBasicInfo {
         QuoteBasicInfo {
             symbol,
-            currency: LongBridgeBroker::to_currency(&security_static_info.currency),
+            currency: LongBridgeBroker::to_currency(&security_static_info.currency).ok(),
             lot_size: security_static_info.lot_size,
             total_shares: security_static_info.total_shares,
             circulating_shares: security_static_info.circulating_shares,
@@ -155,6 +155,32 @@ mod test_longbridge_info {
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
+    async fn test_query_basic_info() {
+        let longbridge_info = LongBridgeInfo::new().await;
+        let quote_basic_info_result = longbridge_info
+            .query_basic_info(QueryInfoRequest {
+                symbol: Symbol {
+                    market: Market::US,
+                    identifier: "AAPL".to_owned(),
+                },
+                kind: QuoteKind::Stock,
+            })
+            .await;
+        let quote_basic_info = quote_basic_info_result.unwrap();
+        log::warn!("quote_basic_info: {quote_basic_info:?}");
+        assert_eq!("AAPL.US", quote_basic_info.symbol.to_string());
+        assert_eq!(Option::Some(Currency::USD), quote_basic_info.currency);
+        assert!(quote_basic_info.bps >= dec!(0.0));
+        assert!(quote_basic_info.dividend_yield >= dec!(0.0));
+        assert!(quote_basic_info.eps >= dec!(0.0));
+        assert!(quote_basic_info.eps_ttm >= dec!(0.0));
+        assert!(quote_basic_info.lot_size > 0i32);
+        assert!(quote_basic_info.circulating_shares > 0i64);
+        assert!(quote_basic_info.total_shares > 0i64);
+    }
+
+    #[tokio::test]
+    #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_real_time_info() {
         let longbridge_info = LongBridgeInfo::new().await;
         let quote_real_time_info_result = longbridge_info
@@ -178,32 +204,6 @@ mod test_longbridge_info {
         assert!(quote_real_time_info.turnover.unwrap() > dec!(0.0));
         assert!(quote_real_time_info.volume > 0u64);
         assert!(quote_real_time_info.timestamp > 0);
-    }
-
-    #[tokio::test]
-    #[cfg_attr(feature = "ci", ignore)]
-    async fn test_query_basic_info() {
-        let longbridge_info = LongBridgeInfo::new().await;
-        let quote_basic_info_result = longbridge_info
-            .query_basic_info(QueryInfoRequest {
-                symbol: Symbol {
-                    market: Market::US,
-                    identifier: "AAPL".to_owned(),
-                },
-                kind: QuoteKind::Stock,
-            })
-            .await;
-        let quote_basic_info = quote_basic_info_result.unwrap();
-        log::warn!("quote_basic_info: {quote_basic_info:?}");
-        assert_eq!("AAPL.US", quote_basic_info.symbol.to_string());
-        assert_eq!(Option::Some(Currency::USD), quote_basic_info.currency);
-        assert!(quote_basic_info.bps >= dec!(0.0));
-        assert!(quote_basic_info.dividend_yield >= dec!(0.0));
-        assert!(quote_basic_info.eps >= dec!(0.0));
-        assert!(quote_basic_info.eps_ttm >= dec!(0.0));
-        assert!(quote_basic_info.lot_size > 0i32);
-        assert!(quote_basic_info.circulating_shares > 0i64);
-        assert!(quote_basic_info.total_shares > 0i64);
     }
 
     #[tokio::test]
