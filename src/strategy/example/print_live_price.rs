@@ -20,7 +20,7 @@ pub struct PrintLivePriceStrategy {
 impl StrategyTrait<()> for PrintLivePriceStrategy {
     async fn new(context: StrategyContext<()>) -> Self {
         let broker = &context.broker_list[0];
-        let subscription = broker.create_subscription().await;
+        let subscription = broker.create_subscription(Option::None).await;
         PrintLivePriceStrategy { subscription }
     }
 

@@ -5,9 +5,9 @@ use super::{
 };
 use crate::broker::common::{
     broker::BrokerTrait,
-    info::InfoTrait,
-    subscription::SubscriptionTrait,
-    transaction::{TransactionInterceptorTrait, TransactionReflection, TransactionTrait},
+    info::{InfoInterceptorTrait, InfoTrait},
+    subscription::{SubscriptionInterceptorTrait, SubscriptionProxy, SubscriptionTrait},
+    transaction::{TransactionInterceptorTrait, TransactionProxy, TransactionTrait},
 };
 
 pub struct LongBridgeBroker {}
@@ -22,12 +22,19 @@ impl BrokerTrait for LongBridgeBroker {
         return Self::IDENTIFIER.to_owned();
     }
 
-    async fn create_info(&self) -> Box<dyn InfoTrait + Send + Sync> {
+    async fn create_info(
+        &self,
+        interceptor: Option<Box<dyn InfoInterceptorTrait + Send + Sync>>,
+    ) -> Box<dyn InfoTrait + Send + Sync> {
         Box::new(LongBridgeInfo::new().await)
     }
 
-    async fn create_subscription(&self) -> Box<dyn SubscriptionTrait + Send + Sync> {
-        Box::new(LongBridgeSubscription::new().await)
+    async fn create_subscription(
+        &self,
+        interceptor: Option<Box<dyn SubscriptionInterceptorTrait + Send + Sync>>,
+    ) -> Box<dyn SubscriptionTrait + Send + Sync> {
+        let longbridge_subscription = Box::new(LongBridgeSubscription::new().await);
+        Box::new(SubscriptionProxy::new(longbridge_subscription, interceptor))
     }
 
     async fn create_transaction(
@@ -35,9 +42,6 @@ impl BrokerTrait for LongBridgeBroker {
         interceptor: Option<Box<dyn TransactionInterceptorTrait + Send + Sync>>,
     ) -> Box<dyn TransactionTrait + Send + Sync> {
         let longbridge_transaction = Box::new(LongBridgeTransaction::new().await);
-        Box::new(TransactionReflection::new(
-            longbridge_transaction,
-            interceptor,
-        ))
+        Box::new(TransactionProxy::new(longbridge_transaction, interceptor))
     }
 }

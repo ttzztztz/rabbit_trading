@@ -122,19 +122,19 @@ pub trait TransactionInterceptorTrait {
     }
 }
 
-pub struct TransactionReflection {
+pub struct TransactionProxy {
     pub shadowed_transaction: Box<dyn TransactionTrait + Send + Sync>,
     pub interceptor: Box<dyn TransactionInterceptorTrait + Send + Sync>,
 }
 
-impl TransactionReflection {
+impl TransactionProxy {
     pub fn new(
         shadowed_transaction: Box<dyn TransactionTrait + Send + Sync>,
-        interceptor: Option<Box<dyn TransactionInterceptorTrait + Send + Sync>>,
+        interceptor_option: Option<Box<dyn TransactionInterceptorTrait + Send + Sync>>,
     ) -> Self {
-        TransactionReflection {
+        TransactionProxy {
             shadowed_transaction,
-            interceptor: match interceptor {
+            interceptor: match interceptor_option {
                 Some(interceptor) => interceptor,
                 None => Box::new(NoOpTransactionInterceptor {}),
             },
@@ -143,9 +143,9 @@ impl TransactionReflection {
 }
 
 #[async_trait]
-impl TransactionTrait for TransactionReflection {
+impl TransactionTrait for TransactionProxy {
     async fn new() -> Self {
-        panic!("Cannot Call \"new\" on the reflection method!");
+        panic!("Cannot Call \"new\" on the proxy method!");
     }
 
     async fn account_balance(&self) -> Result<BalanceHashMap, Error> {

@@ -1,8 +1,17 @@
-use async_trait::async_trait;
+use tokio::sync::broadcast::Sender;
 
-use crate::broker::common::transaction::TransactionInterceptorTrait;
+use crate::{
+    broker::common::transaction::TransactionInterceptorTrait, model::event::RabbitTradingEvent,
+};
 
-pub struct PodTransactionInterceptor {}
+pub struct PodTransactionInterceptor {
+    event_sender: Sender<RabbitTradingEvent>,
+}
 
-#[async_trait]
+impl PodTransactionInterceptor {
+    pub fn new(event_sender: Sender<RabbitTradingEvent>) -> Self {
+        PodTransactionInterceptor { event_sender }
+    }
+}
+
 impl TransactionInterceptorTrait for PodTransactionInterceptor {}

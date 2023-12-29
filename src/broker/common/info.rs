@@ -64,21 +64,36 @@ pub trait InfoInterceptorTrait {
     }
 }
 
-pub struct InfoReflection {
-    pub shadowed_transaction: Box<dyn InfoTrait + Send + Sync>,
+pub struct InfoProxy {
+    pub shadowed_info: Box<dyn InfoTrait + Send + Sync>,
     pub interceptor: Box<dyn InfoInterceptorTrait + Send + Sync>,
 }
 
+impl InfoProxy {
+    pub fn new(
+        shadowed_info: Box<dyn InfoTrait + Send + Sync>,
+        interceptor_option: Option<Box<dyn InfoInterceptorTrait + Send + Sync>>,
+    ) -> Self {
+        InfoProxy {
+            shadowed_info,
+            interceptor: match interceptor_option {
+                Some(interceptor) => interceptor,
+                None => Box::new(NoOpInfoInterceptor {}),
+            },
+        }
+    }
+}
+
 #[async_trait]
-impl InfoTrait for InfoReflection {
+impl InfoTrait for InfoProxy {
     async fn new() -> Self {
-        panic!("Cannot Call \"new\" on the reflection method!");
+        panic!("Cannot Call \"new\" on the proxy method!");
     }
 
     async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
         match self.interceptor.before_query_basic_info(request).await {
             Ok(request) => {
-                let result = self.shadowed_transaction.query_basic_info(request).await;
+                let result = self.shadowed_info.query_basic_info(request).await;
                 self.interceptor.after_query_basic_info(result).await
             }
             Err(err) => Result::Err(err),
@@ -92,7 +107,7 @@ impl InfoTrait for InfoReflection {
         match self.interceptor.before_query_real_time_info(request).await {
             Ok(request) => {
                 let result = self
-                    .shadowed_transaction
+                    .shadowed_info
                     .query_real_time_info(request)
                     .await;
                 self.interceptor.after_query_real_time_info(result).await
@@ -104,7 +119,7 @@ impl InfoTrait for InfoReflection {
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
         match self.interceptor.before_query_depth(request).await {
             Ok(request) => {
-                let result = self.shadowed_transaction.query_depth(request).await;
+                let result = self.shadowed_info.query_depth(request).await;
                 self.interceptor.after_query_depth(result).await
             }
             Err(err) => Result::Err(err),

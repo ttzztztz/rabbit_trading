@@ -35,49 +35,84 @@ pub type SubscriptionData<T> = (Receiver<T>, Box<dyn SubscriptionController + Se
 
 #[async_trait]
 pub trait SubscriptionInterceptorTrait {
-    async fn before_quote_real_time_info(
+    async fn before_real_time_info(
         &self,
         request: QueryInfoRequest,
     ) -> Result<QueryInfoRequest, Error> {
         Result::Ok(request)
     }
-    async fn after_quote_real_time_info(
+    async fn after_real_time_info(
         &self,
-        result: SubscriptionData<QuoteRealTimeInfo>,
+        result: Result<SubscriptionData<QuoteRealTimeInfo>, Error>,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
-        Result::Ok(result)
+        result
     }
 
-    async fn before_quote_depth_info(
+    async fn before_depth_info(
         &self,
         request: QueryInfoRequest,
     ) -> Result<QueryInfoRequest, Error> {
         Result::Ok(request)
     }
-    async fn after_quote_depth_info(
+    async fn after_depth_info(
         &self,
-        result: SubscriptionData<QuoteDepthInfo>,
+        result: Result<SubscriptionData<QuoteDepthInfo>, Error>,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
-        Result::Ok(result)
+        result
     }
 }
 
-pub struct SubscriptionReflection {
+pub struct SubscriptionProxy {
     pub shadowed_subscription: Box<dyn SubscriptionTrait + Send + Sync>,
     pub interceptor: Box<dyn SubscriptionInterceptorTrait + Send + Sync>,
 }
 
-impl SubscriptionReflection {
+impl SubscriptionProxy {
     pub fn new(
         shadowed_subscription: Box<dyn SubscriptionTrait + Send + Sync>,
-        interceptor: Option<Box<dyn SubscriptionInterceptorTrait + Send + Sync>>,
+        interceptor_option: Option<Box<dyn SubscriptionInterceptorTrait + Send + Sync>>,
     ) -> Self {
-        SubscriptionReflection {
+        SubscriptionProxy {
             shadowed_subscription,
-            interceptor: match interceptor {
+            interceptor: match interceptor_option {
                 Some(interceptor) => interceptor,
                 None => Box::new(NoOpSubscriptionInterceptor {}),
             },
+        }
+    }
+}
+
+#[async_trait]
+impl SubscriptionTrait for SubscriptionProxy {
+    async fn new() -> Self {
+        panic!("Cannot Call \"new\" on the proxy method!");
+    }
+
+    async fn real_time_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
+        match self.interceptor.before_real_time_info(request).await {
+            Ok(request) => {
+                let result = self.shadowed_subscription.real_time_info(request).await;
+
+                self.interceptor.after_real_time_info(result).await
+            }
+            Err(err) => Result::Err(err),
+        }
+    }
+
+    async fn depth_info(
+        &self,
+        request: QueryInfoRequest,
+    ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
+        match self.interceptor.before_depth_info(request).await {
+            Ok(request) => {
+                let result = self.shadowed_subscription.depth_info(request).await;
+
+                self.interceptor.after_depth_info(result).await
+            }
+            Err(err) => Result::Err(err),
         }
     }
 }

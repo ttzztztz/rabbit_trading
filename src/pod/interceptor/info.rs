@@ -1,8 +1,15 @@
-use async_trait::async_trait;
+use tokio::sync::broadcast::Sender;
 
-use crate::broker::common::info::InfoInterceptorTrait;
+use crate::{broker::common::info::InfoInterceptorTrait, model::event::RabbitTradingEvent};
 
-pub struct PodInfoInterceptor {}
+pub struct PodInfoInterceptor {
+    event_sender: Sender<RabbitTradingEvent>,
+}
 
-#[async_trait]
+impl PodInfoInterceptor {
+    pub fn new(event_sender: Sender<RabbitTradingEvent>) -> Self {
+        PodInfoInterceptor { event_sender }
+    }
+}
+
 impl InfoInterceptorTrait for PodInfoInterceptor {}

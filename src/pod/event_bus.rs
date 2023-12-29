@@ -7,7 +7,7 @@ pub struct EventBus {
 }
 
 impl EventBus {
-    fn new() -> Self {
+    pub fn new() -> Self {
         let (sender, receiver) = broadcast::channel::<RabbitTradingEvent>(256);
         Self::start_log_task(receiver);
 
@@ -30,6 +30,10 @@ impl EventBus {
                 }
             }
         }
+    }
+
+    pub(crate) fn get_sender(&self) -> Sender<RabbitTradingEvent> {
+        self.sender.clone()
     }
 
     fn subscribe(&self) -> Receiver<RabbitTradingEvent> {
