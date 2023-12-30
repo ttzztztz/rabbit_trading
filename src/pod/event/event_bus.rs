@@ -1,6 +1,7 @@
 use std::time::SystemTime;
 use tokio::sync::broadcast::{self, Receiver, Sender};
 
+use super::listener::LogEventListener;
 use crate::model::event::{EventContext, RabbitTradingEvent};
 
 pub struct EventBus {
@@ -11,27 +12,8 @@ pub struct EventBus {
 impl EventBus {
     pub fn new(pod_id: String) -> Self {
         let (sender, receiver) = broadcast::channel::<RabbitTradingEvent>(256);
-        Self::start_log_task(receiver);
-
+        LogEventListener::new(receiver);
         EventBus { sender, pod_id }
-    }
-
-    fn start_log_task(receiver: Receiver<RabbitTradingEvent>) {
-        tokio::task::spawn(Self::async_log_task(receiver));
-    }
-
-    async fn async_log_task(mut receiver: Receiver<RabbitTradingEvent>) {
-        loop {
-            match receiver.recv().await {
-                Ok(event) => {
-                    log::info!("Received a log: {:?}", event);
-                }
-                Err(error) => {
-                    log::error!("Error when polling data from event bus, {}", error);
-                    return;
-                }
-            }
-        }
     }
 
     pub fn subscribe(&self) -> Receiver<RabbitTradingEvent> {

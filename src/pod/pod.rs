@@ -1,5 +1,5 @@
 use super::{
-    event_bus::EventBus,
+    event::event_bus::EventBus,
     interceptor::{
         info::PodInfoInterceptor, subscription::PodSubscriptionInterceptor,
         transaction::PodTransactionInterceptor,

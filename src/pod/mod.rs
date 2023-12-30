@@ -1,4 +1,4 @@
-pub mod event_bus;
+pub mod event;
 pub mod initializer;
 pub mod interceptor;
 pub mod log;

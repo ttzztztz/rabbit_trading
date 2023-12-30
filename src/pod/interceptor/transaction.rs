@@ -10,7 +10,7 @@ use crate::{
             SubmitOrderRequest, SubmitOrderResponse,
         },
     },
-    pod::event_bus::EventBus,
+    pod::event::event_bus::EventBus,
 };
 
 pub struct PodTransactionInterceptor {
@@ -42,7 +42,6 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
         {
             log::error!("Error when sending message into event_bus, {}", err);
         }
-
         result
     }
 
@@ -63,7 +62,6 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
         {
             log::error!("Error when sending message into event_bus, {}", err);
         }
-
         result
     }
 
@@ -84,7 +82,6 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
         {
             log::error!("Error when sending message into event_bus, {}", err);
         }
-
         result
     }
 }

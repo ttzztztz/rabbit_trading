@@ -30,6 +30,7 @@ pub trait InfoInterceptorTrait {
 
     async fn after_query_basic_info(
         &self,
+        request: QueryInfoRequest,
         result: Result<QuoteBasicInfo, Error>,
     ) -> Result<QuoteBasicInfo, Error> {
         result
@@ -44,6 +45,7 @@ pub trait InfoInterceptorTrait {
 
     async fn after_query_real_time_info(
         &self,
+        request: QueryInfoRequest,
         result: Result<QuoteRealTimeInfo, Error>,
     ) -> Result<QuoteRealTimeInfo, Error> {
         result
@@ -58,6 +60,7 @@ pub trait InfoInterceptorTrait {
 
     async fn after_query_depth(
         &self,
+        request: QueryInfoRequest,
         result: Result<QuoteDepthInfo, Error>,
     ) -> Result<QuoteDepthInfo, Error> {
         result
@@ -93,8 +96,10 @@ impl InfoTrait for InfoProxy {
     async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
         match self.interceptor.before_query_basic_info(request).await {
             Ok(request) => {
-                let result = self.shadowed_info.query_basic_info(request).await;
-                self.interceptor.after_query_basic_info(result).await
+                let result = self.shadowed_info.query_basic_info(request.clone()).await;
+                self.interceptor
+                    .after_query_basic_info(request, result)
+                    .await
             }
             Err(err) => Result::Err(err),
         }
@@ -108,9 +113,11 @@ impl InfoTrait for InfoProxy {
             Ok(request) => {
                 let result = self
                     .shadowed_info
-                    .query_real_time_info(request)
+                    .query_real_time_info(request.clone())
                     .await;
-                self.interceptor.after_query_real_time_info(result).await
+                self.interceptor
+                    .after_query_real_time_info(request, result)
+                    .await
             }
             Err(err) => Result::Err(err),
         }
@@ -119,8 +126,8 @@ impl InfoTrait for InfoProxy {
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
         match self.interceptor.before_query_depth(request).await {
             Ok(request) => {
-                let result = self.shadowed_info.query_depth(request).await;
-                self.interceptor.after_query_depth(result).await
+                let result = self.shadowed_info.query_depth(request.clone()).await;
+                self.interceptor.after_query_depth(request, result).await
             }
             Err(err) => Result::Err(err),
         }

@@ -43,6 +43,7 @@ pub trait SubscriptionInterceptorTrait {
     }
     async fn after_real_time_info(
         &self,
+        request: QueryInfoRequest,
         result: Result<SubscriptionData<QuoteRealTimeInfo>, Error>,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         result
@@ -56,6 +57,7 @@ pub trait SubscriptionInterceptorTrait {
     }
     async fn after_depth_info(
         &self,
+        request: QueryInfoRequest,
         result: Result<SubscriptionData<QuoteDepthInfo>, Error>,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         result
@@ -94,9 +96,12 @@ impl SubscriptionTrait for SubscriptionProxy {
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         match self.interceptor.before_real_time_info(request).await {
             Ok(request) => {
-                let result = self.shadowed_subscription.real_time_info(request).await;
+                let result = self
+                    .shadowed_subscription
+                    .real_time_info(request.clone())
+                    .await;
 
-                self.interceptor.after_real_time_info(result).await
+                self.interceptor.after_real_time_info(request, result).await
             }
             Err(err) => Result::Err(err),
         }
@@ -108,9 +113,9 @@ impl SubscriptionTrait for SubscriptionProxy {
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         match self.interceptor.before_depth_info(request).await {
             Ok(request) => {
-                let result = self.shadowed_subscription.depth_info(request).await;
+                let result = self.shadowed_subscription.depth_info(request.clone()).await;
 
-                self.interceptor.after_depth_info(result).await
+                self.interceptor.after_depth_info(request, result).await
             }
             Err(err) => Result::Err(err),
         }

@@ -1,4 +1,4 @@
-use crate::{broker::common::info::InfoInterceptorTrait, pod::event_bus::EventBus};
+use crate::{broker::common::info::InfoInterceptorTrait, pod::event::event_bus::EventBus};
 
 pub struct PodInfoInterceptor {
     event_bus: EventBus,
