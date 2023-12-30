@@ -1,4 +1,6 @@
-use crate::{broker::common::subscription::SubscriptionInterceptorTrait, pod::event::event_bus::EventBus};
+use crate::{
+    broker::common::subscription::SubscriptionInterceptorTrait, pod::event::event_bus::EventBus,
+};
 
 pub struct PodSubscriptionInterceptor {
     event_bus: EventBus,

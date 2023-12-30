@@ -32,11 +32,6 @@ pub struct LongBridgeTransaction {
 }
 
 impl LongBridgeTransaction {
-    const UNKNOWN_ORDER_SIDE_MESSAGE: &'static str = "unknown OrderSide";
-    const UNKNOWN_OUTSIDE_RTH_MESSAGE: &'static str = "unknown OutsideRTH";
-    const UNKNOWN_TIME_IN_FORCE_MESSAGE: &'static str = "unknown TimeInForceType";
-    const UNKNOWN_ORDER_TYPE_MESSAGE: &'static str = "unknown OrderType";
-
     fn to_order_side(direction: &Direction) -> OrderSide {
         match direction {
             Direction::Buy => OrderSide::Buy,
@@ -236,12 +231,14 @@ impl LongBridgeTransaction {
     }
 
     fn to_order_direction(order_side: OrderSide) -> Result<Direction, Error> {
+        const UNKNOWN_ORDER_SIDE_MESSAGE: &'static str = "unknown OrderSide";
+
         match order_side {
             OrderSide::Buy => Result::Ok(Direction::Buy),
             OrderSide::Sell => Result::Ok(Direction::Sell),
             OrderSide::Unknown => Result::Err(Error {
                 code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: Self::UNKNOWN_ORDER_SIDE_MESSAGE.to_owned(),
+                message: UNKNOWN_ORDER_SIDE_MESSAGE.to_owned(),
             }),
         }
     }
@@ -249,6 +246,10 @@ impl LongBridgeTransaction {
     fn to_order_detail_response(
         longbridge_order_detail: longbridge::trade::OrderDetail,
     ) -> Result<OrderDetail, Error> {
+        const UNKNOWN_TIME_IN_FORCE_MESSAGE: &'static str = "unknown TimeInForceType";
+        const UNKNOWN_OUTSIDE_RTH_MESSAGE: &'static str = "unknown OutsideRTH";
+        const UNKNOWN_ORDER_TYPE_MESSAGE: &'static str = "unknown OrderType";
+
         let symbol = LongBridgeBroker::to_symbol(&longbridge_order_detail.symbol)?;
         let currency = LongBridgeBroker::to_currency(&longbridge_order_detail.currency)?;
         let direction = Self::to_order_direction(longbridge_order_detail.side)?;
@@ -258,7 +259,7 @@ impl LongBridgeTransaction {
         {
             OutsideRTH::Unknown => Result::Err(Error {
                 code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: Self::UNKNOWN_OUTSIDE_RTH_MESSAGE.to_owned(),
+                message: UNKNOWN_OUTSIDE_RTH_MESSAGE.to_owned(),
             })?,
             OutsideRTH::RTHOnly => RegularTradingTime::OnlyRegularTradingTime,
             OutsideRTH::AnyTime => RegularTradingTime::AllTime,
@@ -266,7 +267,7 @@ impl LongBridgeTransaction {
         let expire = match longbridge_order_detail.time_in_force {
             TimeInForceType::Unknown => Result::Err(Error {
                 code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: Self::UNKNOWN_TIME_IN_FORCE_MESSAGE.to_owned(),
+                message: UNKNOWN_TIME_IN_FORCE_MESSAGE.to_owned(),
             })?,
             TimeInForceType::Day => Expire::Day,
             TimeInForceType::GoodTilCanceled => Expire::GoodTillCancelled,
@@ -320,7 +321,7 @@ impl LongBridgeTransaction {
             | OrderType::ODD
             | OrderType::SLO => Result::Err(Error {
                 code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: Self::UNKNOWN_ORDER_TYPE_MESSAGE.to_owned(),
+                message: UNKNOWN_ORDER_TYPE_MESSAGE.to_owned(),
             })?,
         };
 

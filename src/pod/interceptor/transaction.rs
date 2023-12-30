@@ -1,6 +1,5 @@
-use std::time::Duration;
-
 use async_trait::async_trait;
+use std::time::Duration;
 
 use crate::{
     broker::common::transaction::TransactionInterceptorTrait,

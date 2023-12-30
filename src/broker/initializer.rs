@@ -1,63 +1,54 @@
-use std::collections::HashMap;
-
-use super::common::broker::BrokerTrait;
+use super::common::broker::{BrokerInterceptorFactoryTrait, BrokerTrait};
 
 #[cfg(feature = "longbridge")]
 use super::longbridge::broker::LongBridgeBroker;
 #[cfg(feature = "yahoo_finance")]
 use super::yahoo_finance::broker::YahooFinanceBroker;
 
-pub struct BrokerInitializer {
-    pub broker_map: HashMap<String, Box<dyn BrokerTrait + Send + Sync>>,
-}
-
-impl BrokerInitializer {
-    pub fn new() -> Self {
-        let brokers: Vec<Box<dyn BrokerTrait + Send + Sync>> = vec![
-            #[cfg(feature = "longbridge")]
-            Box::new(LongBridgeBroker {}),
-            #[cfg(feature = "yahoo_finance")]
-            Box::new(YahooFinanceBroker {}),
-        ];
-
-        BrokerInitializer {
-            broker_map: brokers
-                .into_iter()
-                .map(|broker| (broker.get_broker_identifier(), broker))
-                .collect(),
+pub fn get_broker_instance(
+    interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
+    identifier: String,
+) -> Option<Box<dyn BrokerTrait>> {
+    match identifier {
+        #[cfg(feature = "longbridge")]
+        identifier if identifier == LongBridgeBroker::get_broker_identifier() => {
+            Option::Some(Box::new(LongBridgeBroker::new(interceptor_factory)))
         }
-    }
 
-    pub fn get_broker_instance(
-        &self,
-        identifier: String,
-    ) -> Option<&Box<dyn BrokerTrait + Send + Sync>> {
-        self.broker_map.get(&identifier)
+        #[cfg(feature = "yahoo_finance")]
+        identifier if identifier == YahooFinanceBroker::get_broker_identifier() => {
+            Option::Some(Box::new(YahooFinanceBroker::new(interceptor_factory)))
+        }
+
+        _ => Option::None,
     }
 }
-
 #[cfg(test)]
 mod test_broker_initializer {
-    use super::BrokerInitializer;
-
-    const LONGBRIDGE_IDENTIFIER: &'static str = "longbridge";
-    const YAHOO_FINANCE_IDENTIFIER: &'static str = "yahoo_finance";
+    use crate::broker::{
+        common::broker::EmptyBrokerInterceptorFactory, initializer::get_broker_instance,
+    };
 
     #[test]
     fn test_get_broker_instance() {
-        let initializer = BrokerInitializer::new();
+        const LONGBRIDGE_IDENTIFIER: &'static str = "longbridge";
+        const YAHOO_FINANCE_IDENTIFIER: &'static str = "yahoo_finance";
 
         assert_eq!(
             cfg!(feature = "longbridge"),
-            initializer
-                .get_broker_instance(LONGBRIDGE_IDENTIFIER.to_owned())
-                .is_some()
+            get_broker_instance(
+                Box::new(EmptyBrokerInterceptorFactory::new()),
+                LONGBRIDGE_IDENTIFIER.to_owned()
+            )
+            .is_some()
         );
         assert_eq!(
             cfg!(feature = "yahoo_finance"),
-            initializer
-                .get_broker_instance(YAHOO_FINANCE_IDENTIFIER.to_owned())
-                .is_some()
+            get_broker_instance(
+                Box::new(EmptyBrokerInterceptorFactory::new()),
+                YAHOO_FINANCE_IDENTIFIER.to_owned()
+            )
+            .is_some()
         );
     }
 }

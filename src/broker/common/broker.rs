@@ -7,19 +7,43 @@ use super::{
 };
 
 #[async_trait]
-pub trait BrokerTrait {
-    fn get_broker_identifier(&self) -> String;
+pub trait BrokerTrait: Send + Sync {
+    fn new(interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>) -> Self
+    where
+        Self: Sized;
+    fn get_broker_identifier() -> String
+    where
+        Self: Sized;
 
-    async fn create_info(
-        &self,
-        interceptor: Option<Box<dyn InfoInterceptorTrait + Send + Sync>>,
-    ) -> Box<dyn InfoTrait + Send + Sync>;
-    async fn create_subscription(
-        &self,
-        interceptor: Option<Box<dyn SubscriptionInterceptorTrait + Send + Sync>>,
-    ) -> Box<dyn SubscriptionTrait + Send + Sync>;
-    async fn create_transaction(
-        &self,
-        interceptor: Option<Box<dyn TransactionInterceptorTrait + Send + Sync>>,
-    ) -> Box<dyn TransactionTrait + Send + Sync>;
+    async fn create_info(&self) -> Box<dyn InfoTrait>;
+    async fn create_subscription(&self) -> Box<dyn SubscriptionTrait>;
+    async fn create_transaction(&self) -> Box<dyn TransactionTrait>;
+}
+
+pub trait BrokerInterceptorFactoryTrait: Send + Sync {
+    fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>>;
+    fn create_subscription_interceptor(&self) -> Option<Box<dyn SubscriptionInterceptorTrait>>;
+    fn create_transaction_interceptor(&self) -> Option<Box<dyn TransactionInterceptorTrait>>;
+}
+
+pub struct EmptyBrokerInterceptorFactory {}
+
+impl EmptyBrokerInterceptorFactory {
+    pub fn new() -> Self {
+        EmptyBrokerInterceptorFactory {}
+    }
+}
+
+impl BrokerInterceptorFactoryTrait for EmptyBrokerInterceptorFactory {
+    fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>> {
+        Option::None
+    }
+
+    fn create_subscription_interceptor(&self) -> Option<Box<dyn SubscriptionInterceptorTrait>> {
+        Option::None
+    }
+
+    fn create_transaction_interceptor(&self) -> Option<Box<dyn TransactionInterceptorTrait>> {
+        Option::None
+    }
 }

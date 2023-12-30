@@ -49,12 +49,12 @@ mod test_memory_kv_store {
 
     use super::{MemoryKVStore, PersistentKVStore, PersistentKVStoreParameters};
 
-    const MAP_KEY_1: &str = "key_1";
-    const MAP_VALUE_1: &str = "114514";
-    const MAP_KEY_2: &str = "key_2";
-
     #[tokio::test]
     async fn test_operations_on_memory_kv_store() {
+        const MAP_KEY_1: &str = "key_1";
+        const MAP_VALUE_1: &str = "114514";
+        const MAP_KEY_2: &str = "key_2";
+
         let kv_store: Box<dyn PersistentKVStore<String>> = Box::new(
             MemoryKVStore::new(PersistentKVStoreParameters {
                 configuration: HashMap::new(),

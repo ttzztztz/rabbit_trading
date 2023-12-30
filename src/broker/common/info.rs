@@ -7,7 +7,7 @@ use crate::model::{
 };
 
 #[async_trait]
-pub trait InfoTrait {
+pub trait InfoTrait: Send + Sync {
     async fn new() -> Self
     where
         Self: Sized;
@@ -21,7 +21,7 @@ pub trait InfoTrait {
 }
 
 #[async_trait]
-pub trait InfoInterceptorTrait {
+pub trait InfoInterceptorTrait: Send + Sync {
     async fn before_query_basic_info(
         &self,
         request: QueryInfoRequest,
@@ -72,14 +72,14 @@ pub trait InfoInterceptorTrait {
 }
 
 pub struct InfoProxy {
-    pub shadowed_info: Box<dyn InfoTrait + Send + Sync>,
-    pub interceptor: Box<dyn InfoInterceptorTrait + Send + Sync>,
+    pub shadowed_info: Box<dyn InfoTrait>,
+    pub interceptor: Box<dyn InfoInterceptorTrait>,
 }
 
 impl InfoProxy {
     pub fn new(
-        shadowed_info: Box<dyn InfoTrait + Send + Sync>,
-        interceptor_option: Option<Box<dyn InfoInterceptorTrait + Send + Sync>>,
+        shadowed_info: Box<dyn InfoTrait>,
+        interceptor_option: Option<Box<dyn InfoInterceptorTrait>>,
     ) -> Self {
         InfoProxy {
             shadowed_info,

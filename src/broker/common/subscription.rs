@@ -8,7 +8,7 @@ use crate::model::{
 };
 
 #[async_trait]
-pub trait SubscriptionTrait {
+pub trait SubscriptionTrait: Send + Sync {
     async fn new() -> Self
     where
         Self: Sized;
@@ -23,7 +23,7 @@ pub trait SubscriptionTrait {
 }
 
 #[async_trait]
-pub trait SubscriptionController {
+pub trait SubscriptionController: Send + Sync {
     async fn stop(self) -> Result<(), Error>;
 }
 
@@ -32,10 +32,10 @@ pub trait SubscriptionWorker {
     async fn start(self);
 }
 
-pub type SubscriptionData<T> = (Receiver<T>, Box<dyn SubscriptionController + Send + Sync>);
+pub type SubscriptionData<T> = (Receiver<T>, Box<dyn SubscriptionController>);
 
 #[async_trait]
-pub trait SubscriptionInterceptorTrait {
+pub trait SubscriptionInterceptorTrait: Send + Sync {
     async fn before_real_time_info(
         &self,
         request: QueryInfoRequest,
@@ -68,14 +68,14 @@ pub trait SubscriptionInterceptorTrait {
 }
 
 pub struct SubscriptionProxy {
-    pub shadowed_subscription: Box<dyn SubscriptionTrait + Send + Sync>,
-    pub interceptor: Box<dyn SubscriptionInterceptorTrait + Send + Sync>,
+    pub shadowed_subscription: Box<dyn SubscriptionTrait>,
+    pub interceptor: Box<dyn SubscriptionInterceptorTrait>,
 }
 
 impl SubscriptionProxy {
     pub fn new(
-        shadowed_subscription: Box<dyn SubscriptionTrait + Send + Sync>,
-        interceptor_option: Option<Box<dyn SubscriptionInterceptorTrait + Send + Sync>>,
+        shadowed_subscription: Box<dyn SubscriptionTrait>,
+        interceptor_option: Option<Box<dyn SubscriptionInterceptorTrait>>,
     ) -> Self {
         SubscriptionProxy {
             shadowed_subscription,

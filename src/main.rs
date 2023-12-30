@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use broker::{common::broker::BrokerTrait, longbridge::broker::LongBridgeBroker};
+use broker::{
+    common::broker::{BrokerTrait, EmptyBrokerInterceptorFactory},
+    longbridge::broker::LongBridgeBroker,
+};
 use persistent_kv::{
     common::persistent_kv::{PersistentKVStore, PersistentKVStoreParameters},
     memory::memory_kv::MemoryKVStore,
@@ -27,11 +30,11 @@ async fn main() {
         .init()
         .unwrap();
 
-    let longbridge_broker = LongBridgeBroker {};
+    let longbridge_broker = Box::new(LongBridgeBroker::new(Box::new(
+        EmptyBrokerInterceptorFactory::new(),
+    )));
     let strategy_context = StrategyContext {
-        broker_info_list: vec![],
-        broker_transaction_list: vec![],
-        broker_subscription_list: vec![longbridge_broker.create_subscription(Option::None).await],
+        broker_list: vec![longbridge_broker],
         persistent_kv_store: Box::new(
             MemoryKVStore::new(PersistentKVStoreParameters {
                 configuration: HashMap::<String, ()>::new(),

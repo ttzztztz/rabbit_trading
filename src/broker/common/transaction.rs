@@ -15,7 +15,7 @@ use crate::model::{
 };
 
 #[async_trait]
-pub trait TransactionTrait {
+pub trait TransactionTrait: Send + Sync {
     async fn new() -> Self
     where
         Self: Sized;
@@ -38,7 +38,7 @@ pub trait TransactionTrait {
 }
 
 #[async_trait]
-pub trait TransactionInterceptorTrait {
+pub trait TransactionInterceptorTrait: Send + Sync {
     async fn before_account_balance(&self) -> Result<(), Error> {
         Result::Ok(())
     }
@@ -140,14 +140,14 @@ pub trait TransactionInterceptorTrait {
 }
 
 pub struct TransactionProxy {
-    pub shadowed_transaction: Box<dyn TransactionTrait + Send + Sync>,
-    pub interceptor: Box<dyn TransactionInterceptorTrait + Send + Sync>,
+    pub shadowed_transaction: Box<dyn TransactionTrait>,
+    pub interceptor: Box<dyn TransactionInterceptorTrait>,
 }
 
 impl TransactionProxy {
     pub fn new(
-        shadowed_transaction: Box<dyn TransactionTrait + Send + Sync>,
-        interceptor_option: Option<Box<dyn TransactionInterceptorTrait + Send + Sync>>,
+        shadowed_transaction: Box<dyn TransactionTrait>,
+        interceptor_option: Option<Box<dyn TransactionInterceptorTrait>>,
     ) -> Self {
         TransactionProxy {
             shadowed_transaction,

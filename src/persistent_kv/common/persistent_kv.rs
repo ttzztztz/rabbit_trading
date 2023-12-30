@@ -9,7 +9,7 @@ pub struct PersistentKVStoreParameters<V: Send + Sync + Clone> {
 }
 
 #[async_trait]
-pub trait PersistentKVStore<V: Send + Sync + Clone> {
+pub trait PersistentKVStore<V: Send + Sync + Clone>: Send + Sync {
     async fn new(parameters: PersistentKVStoreParameters<V>) -> Self
     where
         Self: Sized;
