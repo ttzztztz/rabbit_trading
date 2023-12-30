@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::time::{Duration, Instant};
 
 use crate::model::{
     common::error::Error,
@@ -45,6 +46,7 @@ pub trait TransactionInterceptorTrait {
         &self,
         request: (),
         result: Result<BalanceHashMap, Error>,
+        duration: Duration,
     ) -> Result<BalanceHashMap, Error> {
         result
     }
@@ -56,6 +58,7 @@ pub trait TransactionInterceptorTrait {
         &self,
         request: (),
         result: Result<PositionList, Error>,
+        duration: Duration,
     ) -> Result<PositionList, Error> {
         result
     }
@@ -70,6 +73,7 @@ pub trait TransactionInterceptorTrait {
         &self,
         request: EstimateMaxBuyingPowerRequest,
         result: Result<BuyingPower, Error>,
+        duration: Duration,
     ) -> Result<BuyingPower, Error> {
         result
     }
@@ -84,6 +88,7 @@ pub trait TransactionInterceptorTrait {
         &self,
         request: OrderDetailRequest,
         result: Result<OrderDetail, Error>,
+        duration: Duration,
     ) -> Result<OrderDetail, Error> {
         result
     }
@@ -98,6 +103,7 @@ pub trait TransactionInterceptorTrait {
         &self,
         request: SubmitOrderRequest,
         result: Result<SubmitOrderResponse, Error>,
+        duration: Duration,
     ) -> Result<SubmitOrderResponse, Error> {
         result
     }
@@ -112,6 +118,7 @@ pub trait TransactionInterceptorTrait {
         &self,
         request: EditOrderRequest,
         result: Result<EditOrderResponse, Error>,
+        duration: Duration,
     ) -> Result<EditOrderResponse, Error> {
         result
     }
@@ -126,6 +133,7 @@ pub trait TransactionInterceptorTrait {
         &self,
         request: CancelOrderRequest,
         result: Result<CancelOrderResponse, Error>,
+        duration: Duration,
     ) -> Result<CancelOrderResponse, Error> {
         result
     }
@@ -161,16 +169,22 @@ impl TransactionTrait for TransactionProxy {
         if let Err(err) = self.interceptor.before_account_balance().await {
             return Err(err);
         }
+        let instant = Instant::now();
         let result = self.shadowed_transaction.account_balance().await;
-        self.interceptor.after_account_balance((), result).await
+        let duration = instant.elapsed();
+        self.interceptor
+            .after_account_balance((), result, duration)
+            .await
     }
 
     async fn positions(&self) -> Result<PositionList, Error> {
         if let Err(err) = self.interceptor.before_positions().await {
             return Err(err);
         }
+        let instant = Instant::now();
         let result = self.shadowed_transaction.positions().await;
-        self.interceptor.after_positions((), result).await
+        let duration = instant.elapsed();
+        self.interceptor.after_positions((), result, duration).await
     }
 
     async fn estimate_max_buying_power(
@@ -183,13 +197,14 @@ impl TransactionTrait for TransactionProxy {
             .await
         {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self
                     .shadowed_transaction
                     .estimate_max_buying_power(request.clone())
                     .await;
-
+                let duration = instant.elapsed();
                 self.interceptor
-                    .after_estimate_max_buying_power(request, result)
+                    .after_estimate_max_buying_power(request, result, duration)
                     .await
             }
             Err(err) => Result::Err(err),
@@ -199,11 +214,15 @@ impl TransactionTrait for TransactionProxy {
     async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error> {
         match self.interceptor.before_order_detail(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self
                     .shadowed_transaction
                     .order_detail(request.clone())
                     .await;
-                self.interceptor.after_order_detail(request, result).await
+                let duration = instant.elapsed();
+                self.interceptor
+                    .after_order_detail(request, result, duration)
+                    .await
             }
             Err(err) => Result::Err(err),
         }
@@ -215,11 +234,15 @@ impl TransactionTrait for TransactionProxy {
     ) -> Result<SubmitOrderResponse, Error> {
         match self.interceptor.before_submit_order(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self
                     .shadowed_transaction
                     .submit_order(request.clone())
                     .await;
-                self.interceptor.after_submit_order(request, result).await
+                let duration = instant.elapsed();
+                self.interceptor
+                    .after_submit_order(request, result, duration)
+                    .await
             }
             Err(err) => Result::Err(err),
         }
@@ -228,8 +251,12 @@ impl TransactionTrait for TransactionProxy {
     async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
         match self.interceptor.before_edit_order(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self.shadowed_transaction.edit_order(request.clone()).await;
-                self.interceptor.after_edit_order(request, result).await
+                let duration = instant.elapsed();
+                self.interceptor
+                    .after_edit_order(request, result, duration)
+                    .await
             }
             Err(err) => Result::Err(err),
         }
@@ -241,11 +268,15 @@ impl TransactionTrait for TransactionProxy {
     ) -> Result<CancelOrderResponse, Error> {
         match self.interceptor.before_cancel_order(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self
                     .shadowed_transaction
                     .cancel_order(request.clone())
                     .await;
-                self.interceptor.after_cancel_order(request, result).await
+                let duration = instant.elapsed();
+                self.interceptor
+                    .after_cancel_order(request, result, duration)
+                    .await
             }
             Err(err) => Result::Err(err),
         }

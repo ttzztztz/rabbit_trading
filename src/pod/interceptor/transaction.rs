@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use async_trait::async_trait;
 
 use crate::{
@@ -31,6 +33,7 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
         &self,
         request: SubmitOrderRequest,
         result: Result<SubmitOrderResponse, Error>,
+        _duration: Duration, // todo: integrate "duration" into the metric module
     ) -> Result<SubmitOrderResponse, Error> {
         if let Some(err) = self
             .event_bus
@@ -51,6 +54,7 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
         &self,
         request: EditOrderRequest,
         result: Result<EditOrderResponse, Error>,
+        _duration: Duration, // todo: integrate "duration" into the metric module
     ) -> Result<EditOrderResponse, Error> {
         if let Some(err) = self
             .event_bus
@@ -71,6 +75,7 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
         &self,
         request: CancelOrderRequest,
         result: Result<CancelOrderResponse, Error>,
+        _duration: Duration, // todo: integrate "duration" into the metric module
     ) -> Result<CancelOrderResponse, Error> {
         if let Some(err) = self
             .event_bus

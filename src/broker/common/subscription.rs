@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::time::{Duration, Instant};
 use tokio::sync::mpsc::Receiver;
 
 use crate::model::{
@@ -45,6 +46,7 @@ pub trait SubscriptionInterceptorTrait {
         &self,
         request: QueryInfoRequest,
         result: Result<SubscriptionData<QuoteRealTimeInfo>, Error>,
+        duration: Duration,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         result
     }
@@ -59,6 +61,7 @@ pub trait SubscriptionInterceptorTrait {
         &self,
         request: QueryInfoRequest,
         result: Result<SubscriptionData<QuoteDepthInfo>, Error>,
+        duration: Duration,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         result
     }
@@ -96,12 +99,15 @@ impl SubscriptionTrait for SubscriptionProxy {
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         match self.interceptor.before_real_time_info(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self
                     .shadowed_subscription
                     .real_time_info(request.clone())
                     .await;
-
-                self.interceptor.after_real_time_info(request, result).await
+                let duration = instant.elapsed();
+                self.interceptor
+                    .after_real_time_info(request, result, duration)
+                    .await
             }
             Err(err) => Result::Err(err),
         }
@@ -113,9 +119,12 @@ impl SubscriptionTrait for SubscriptionProxy {
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         match self.interceptor.before_depth_info(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self.shadowed_subscription.depth_info(request.clone()).await;
-
-                self.interceptor.after_depth_info(request, result).await
+                let duration = instant.elapsed();
+                self.interceptor
+                    .after_depth_info(request, result, duration)
+                    .await
             }
             Err(err) => Result::Err(err),
         }

@@ -5,22 +5,21 @@ use super::{
         transaction::PodTransactionInterceptor,
     },
 };
-use crate::{broker::initializer::BrokerInitializer, strategy::common::strategy::StrategyTrait};
+use crate::{broker::initializer::BrokerInitializer, model::config::pod::PodConfig};
 
 pub struct Pod {
-    pod_id: String,
+    pod_config: PodConfig,
     broker_initializer: BrokerInitializer,
     event_bus: EventBus,
-    strategy: Box<dyn StrategyTrait + Send + Sync>,
 }
 
 impl Pod {
-    pub fn new(pod_id: String, strategy: Box<dyn StrategyTrait + Send + Sync>) -> Self {
+    pub fn new(pod_config: PodConfig) -> Self {
+        let pod_id = pod_config.pod_id.clone();
         Pod {
-            pod_id: pod_id.clone(),
+            pod_config,
             broker_initializer: BrokerInitializer::new(),
             event_bus: EventBus::new(pod_id),
-            strategy,
         }
     }
 

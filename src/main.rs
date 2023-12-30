@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use broker::{common::broker::BrokerTrait, longbridge::broker::LongBridgeBroker};
 use persistent_kv::{
-    memory_kv::MemoryKVStore,
-    persistent_kv_trait::{PersistentKVStore, PersistentKVStoreParameters},
+    common::persistent_kv::{PersistentKVStore, PersistentKVStoreParameters},
+    memory::memory_kv::MemoryKVStore,
 };
 use simple_logger::SimpleLogger;
 use strategy::{

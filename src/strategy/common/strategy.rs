@@ -4,7 +4,7 @@ use crate::{
     broker::common::{
         info::InfoTrait, subscription::SubscriptionTrait, transaction::TransactionTrait,
     },
-    persistent_kv::persistent_kv_trait::PersistentKVStore,
+    persistent_kv::common::persistent_kv::PersistentKVStore,
 };
 
 pub struct StrategyContext<V = String>

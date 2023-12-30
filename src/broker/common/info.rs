@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::time::{Duration, Instant};
 
 use crate::model::{
     common::error::Error,
@@ -32,6 +33,7 @@ pub trait InfoInterceptorTrait {
         &self,
         request: QueryInfoRequest,
         result: Result<QuoteBasicInfo, Error>,
+        duration: Duration,
     ) -> Result<QuoteBasicInfo, Error> {
         result
     }
@@ -47,6 +49,7 @@ pub trait InfoInterceptorTrait {
         &self,
         request: QueryInfoRequest,
         result: Result<QuoteRealTimeInfo, Error>,
+        duration: Duration,
     ) -> Result<QuoteRealTimeInfo, Error> {
         result
     }
@@ -62,6 +65,7 @@ pub trait InfoInterceptorTrait {
         &self,
         request: QueryInfoRequest,
         result: Result<QuoteDepthInfo, Error>,
+        duration: Duration,
     ) -> Result<QuoteDepthInfo, Error> {
         result
     }
@@ -96,9 +100,11 @@ impl InfoTrait for InfoProxy {
     async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
         match self.interceptor.before_query_basic_info(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self.shadowed_info.query_basic_info(request.clone()).await;
+                let duration = instant.elapsed();
                 self.interceptor
-                    .after_query_basic_info(request, result)
+                    .after_query_basic_info(request, result, duration)
                     .await
             }
             Err(err) => Result::Err(err),
@@ -111,12 +117,14 @@ impl InfoTrait for InfoProxy {
     ) -> Result<QuoteRealTimeInfo, Error> {
         match self.interceptor.before_query_real_time_info(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self
                     .shadowed_info
                     .query_real_time_info(request.clone())
                     .await;
+                let duration = instant.elapsed();
                 self.interceptor
-                    .after_query_real_time_info(request, result)
+                    .after_query_real_time_info(request, result, duration)
                     .await
             }
             Err(err) => Result::Err(err),
@@ -126,8 +134,12 @@ impl InfoTrait for InfoProxy {
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
         match self.interceptor.before_query_depth(request).await {
             Ok(request) => {
+                let instant = Instant::now();
                 let result = self.shadowed_info.query_depth(request.clone()).await;
-                self.interceptor.after_query_depth(request, result).await
+                let duration = instant.elapsed();
+                self.interceptor
+                    .after_query_depth(request, result, duration)
+                    .await
             }
             Err(err) => Result::Err(err),
         }
