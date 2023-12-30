@@ -2,13 +2,17 @@ use async_trait::async_trait;
 use longbridge::quote::{SecurityDepth, SecurityQuote, SecurityStaticInfo};
 use longbridge::QuoteContext;
 use std::result::Result;
-use std::time::SystemTime;
 
 use super::broker::LongBridgeBroker;
 use crate::broker::common::info::InfoTrait;
-use crate::model::error::Error;
-use crate::model::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo};
-use crate::model::symbol::Symbol;
+use crate::model::{
+    common::error::Error,
+    trading::{
+        quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
+        symbol::Symbol,
+    },
+};
+use crate::utils::time::get_now_unix_timestamp;
 
 pub struct LongBridgeInfo {
     longbridge_context: QuoteContext,
@@ -49,8 +53,8 @@ impl LongBridgeInfo {
         }
     }
 
-    pub(super) fn to_depth(depth: longbridge::quote::Depth) -> crate::model::quote::Depth {
-        crate::model::quote::Depth {
+    pub(super) fn to_depth(depth: longbridge::quote::Depth) -> crate::model::trading::quote::Depth {
+        crate::model::trading::quote::Depth {
             position: depth.position,
             price: depth.price,
             volume: depth.volume,
@@ -59,10 +63,7 @@ impl LongBridgeInfo {
     }
 
     fn to_quote_depth_info(symbol: Symbol, security_depth: SecurityDepth) -> QuoteDepthInfo {
-        let current_timestamp = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let current_timestamp = get_now_unix_timestamp();
 
         QuoteDepthInfo {
             symbol,
@@ -149,9 +150,12 @@ mod test_longbridge_info {
 
     use super::LongBridgeInfo;
     use crate::broker::common::info::InfoTrait;
-    use crate::model::currency::Currency;
-    use crate::model::quote::{QueryInfoRequest, QuoteKind};
-    use crate::model::{market::Market, symbol::Symbol};
+    use crate::model::trading::{
+        currency::Currency,
+        market::Market,
+        quote::{QueryInfoRequest, QuoteKind},
+        symbol::Symbol,
+    };
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]

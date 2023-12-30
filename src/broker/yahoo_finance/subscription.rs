@@ -1,16 +1,20 @@
 use async_trait::async_trait;
 use std::sync::Arc;
-use tokio::sync::mpsc::{self, Sender};
-use tokio::sync::Mutex;
+use tokio::sync::{
+    mpsc::{self, Sender},
+    Mutex,
+};
 use tokio::time::{sleep, Duration};
 
 use super::info::YahooFinanceInfo;
-use crate::broker::common::subscription::{
-    SubscriptionController, SubscriptionData, SubscriptionWorker,
+use crate::broker::common::{
+    subscription::{SubscriptionController, SubscriptionData, SubscriptionWorker},
+    {info::InfoTrait, subscription::SubscriptionTrait},
 };
-use crate::broker::common::{info::InfoTrait, subscription::SubscriptionTrait};
-use crate::model::error::Error;
-use crate::model::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo};
+use crate::model::{
+    common::error::Error,
+    trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
+};
 
 pub struct YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
     request: QueryInfoRequest,
@@ -116,7 +120,7 @@ mod test_yahoo_finance_subscription {
     use super::YahooFinanceSubscription;
     use crate::{
         broker::common::subscription::SubscriptionTrait,
-        model::{
+        model::trading::{
             market::Market,
             quote::{QueryInfoRequest, QuoteKind},
             symbol::Symbol,

@@ -1,7 +1,7 @@
 use yahoo_finance_api::YahooError;
 
 use super::broker::YahooFinanceBroker;
-use crate::model::error::Error;
+use crate::model::common::error::Error;
 
 impl YahooFinanceBroker {
     pub fn to_rabbit_trading_err(err: YahooError) -> Error {

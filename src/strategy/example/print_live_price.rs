@@ -3,7 +3,7 @@ use time::{format_description, OffsetDateTime};
 use tokio::select;
 
 use crate::{
-    model::{
+    model::trading::{
         market::Market,
         quote::{QueryInfoRequest, QuoteKind},
         symbol::Symbol,
@@ -62,6 +62,6 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
     }
 
     async fn stop(&self) {
-        // todo: provide an approach to stop gracefully
+        todo!() // todo: provide an approach to stop gracefully
     }
 }

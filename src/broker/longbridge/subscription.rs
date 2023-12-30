@@ -18,8 +18,8 @@ use super::{
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait, SubscriptionWorker},
     model::{
-        error::Error,
-        quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
+        common::error::Error,
+        trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
     },
 };
 
@@ -90,7 +90,7 @@ mod test_longbridge_subscription {
     use super::LongBridgeSubscription;
     use crate::{
         broker::common::subscription::SubscriptionTrait,
-        model::{
+        model::trading::{
             market::Market,
             quote::{QueryInfoRequest, QuoteKind},
             symbol::Symbol,

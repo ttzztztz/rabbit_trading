@@ -1,8 +1,10 @@
-use std::time::SystemTime;
 use tokio::sync::broadcast::{self, Receiver, Sender};
 
 use super::listener::LogEventListener;
-use crate::model::event::{EventContext, RabbitTradingEvent};
+use crate::{
+    model::trading::event::{EventContext, RabbitTradingEvent},
+    utils::time::get_now_unix_timestamp,
+};
 
 pub struct EventBus {
     sender: Sender<RabbitTradingEvent>,
@@ -28,14 +30,9 @@ impl EventBus {
     }
 
     pub fn create_event_context(&self) -> EventContext {
-        let timestamp = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-
         EventContext {
             pod_id: self.pod_id.clone(),
-            timestamp,
+            timestamp: get_now_unix_timestamp(),
         }
     }
 }

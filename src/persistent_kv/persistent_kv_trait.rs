@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use crate::model::error::Error;
+use crate::model::common::error::Error;
 
 #[derive(Clone)]
 pub struct PersistentKVStoreParameters<V: Send + Sync + Clone> {

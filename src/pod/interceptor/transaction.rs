@@ -3,11 +3,13 @@ use async_trait::async_trait;
 use crate::{
     broker::common::transaction::TransactionInterceptorTrait,
     model::{
-        error::Error,
-        event::RabbitTradingEvent,
-        transaction::{
-            CancelOrderRequest, CancelOrderResponse, EditOrderRequest, EditOrderResponse,
-            SubmitOrderRequest, SubmitOrderResponse,
+        common::error::Error,
+        trading::{
+            event::RabbitTradingEvent,
+            transaction::{
+                CancelOrderRequest, CancelOrderResponse, EditOrderRequest, EditOrderResponse,
+                SubmitOrderRequest, SubmitOrderResponse,
+            },
         },
     },
     pod::event::event_bus::EventBus,

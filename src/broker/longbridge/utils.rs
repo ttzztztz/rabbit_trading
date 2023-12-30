@@ -3,7 +3,10 @@ use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedReceiver;
 
 use super::broker::LongBridgeBroker;
-use crate::model::{currency::Currency, error::Error, market::Market, symbol::Symbol};
+use crate::model::{
+    common::error::Error,
+    trading::{currency::Currency, market::Market, symbol::Symbol},
+};
 
 impl LongBridgeBroker {
     pub(super) const OTHER_ERROR_CODE: &'static str = "OTHER_ERROR";
@@ -85,7 +88,7 @@ impl LongBridgeBroker {
 #[cfg(test)]
 mod test_longbridge_broker_utils {
     use crate::broker::longbridge::broker::LongBridgeBroker;
-    use crate::model::{currency::Currency, market::Market, symbol::Symbol};
+    use crate::model::trading::{currency::Currency, market::Market, symbol::Symbol};
 
     #[test]
     fn test_to_currency() {

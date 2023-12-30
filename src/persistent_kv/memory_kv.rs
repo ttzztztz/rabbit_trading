@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 
 use super::persistent_kv_trait::{PersistentKVStore, PersistentKVStoreParameters};
-use crate::model::error::Error;
+use crate::model::common::error::Error;
 
 pub struct MemoryKVStore<V: Send + Sync + Clone> {
     data: Arc<RwLock<HashMap<String, V>>>,

@@ -13,14 +13,16 @@ use super::broker::LongBridgeBroker;
 use crate::{
     broker::common::transaction::TransactionTrait,
     model::{
-        balance::{BalanceDetail, BalanceHashMap},
-        error::Error,
-        position::PositionList,
-        transaction::{
-            BuyingPower, CancelOrderRequest, CancelOrderResponse, Direction, EditOrderRequest,
-            EditOrderResponse, EstimateMaxBuyingPowerRequest, Expire, OrderDetail,
-            OrderDetailRequest, Price, RegularTradingTime, SubmitOrderRequest, SubmitOrderResponse,
-            TrailingLimitPrice, TrailingMarketPrice,
+        common::error::Error,
+        trading::{
+            balance::{BalanceDetail, BalanceHashMap},
+            position::PositionList,
+            transaction::{
+                BuyingPower, CancelOrderRequest, CancelOrderResponse, Direction, EditOrderRequest,
+                EditOrderResponse, EstimateMaxBuyingPowerRequest, Expire, OrderDetail,
+                OrderDetailRequest, Price, RegularTradingTime, SubmitOrderRequest,
+                SubmitOrderResponse, TrailingLimitPrice, TrailingMarketPrice,
+            },
         },
     },
 };
@@ -221,10 +223,10 @@ impl LongBridgeTransaction {
 
     fn to_stock_position(
         longbridge_position: &StockPosition,
-    ) -> Result<crate::model::position::Position, Error> {
+    ) -> Result<crate::model::trading::position::Position, Error> {
         let symbol = LongBridgeBroker::to_symbol(&longbridge_position.symbol)?;
         let currency = LongBridgeBroker::to_currency(&longbridge_position.currency)?;
-        Result::Ok(crate::model::position::Position {
+        Result::Ok(crate::model::trading::position::Position {
             symbol,
             currency,
             cost_price: longbridge_position.cost_price,
@@ -448,7 +450,9 @@ mod test_longbridge_transaction {
     use rust_decimal_macros::dec;
 
     use super::LongBridgeTransaction;
-    use crate::{broker::common::transaction::TransactionTrait, model::currency::Currency};
+    use crate::{
+        broker::common::transaction::TransactionTrait, model::trading::currency::Currency,
+    };
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]

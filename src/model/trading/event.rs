@@ -1,6 +1,6 @@
-use super::{
-    error::Error,
-    transaction::{
+use crate::model::{
+    common::error::Error,
+    trading::transaction::{
         CancelOrderRequest, CancelOrderResponse, EditOrderRequest, EditOrderResponse,
         SubmitOrderRequest, SubmitOrderResponse,
     },

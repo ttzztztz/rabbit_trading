@@ -3,7 +3,7 @@ use longbridge::{
     quote::{PushDepth, PushEvent, SubFlags},
     QuoteContext,
 };
-use std::{sync::Arc, time::SystemTime};
+use std::sync::Arc;
 use tokio::sync::{
     mpsc::{Sender, UnboundedReceiver},
     Mutex,
@@ -14,7 +14,11 @@ use crate::{
         common::subscription::{SubscriptionController, SubscriptionWorker},
         longbridge::{broker::LongBridgeBroker, info::LongBridgeInfo},
     },
-    model::{error::Error, quote::QuoteDepthInfo, symbol::Symbol},
+    model::{
+        common::error::Error,
+        trading::{quote::QuoteDepthInfo, symbol::Symbol},
+    },
+    utils::time::get_now_unix_timestamp,
 };
 
 pub struct LongBridgeQuoteDepthInfoSubscriptionWorker {
@@ -43,10 +47,7 @@ impl LongBridgeQuoteDepthInfoSubscriptionWorker {
         symbol: Symbol,
         longbridge_depth: PushDepth,
     ) -> QuoteDepthInfo {
-        let current_timestamp = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let current_timestamp = get_now_unix_timestamp();
 
         QuoteDepthInfo {
             symbol,

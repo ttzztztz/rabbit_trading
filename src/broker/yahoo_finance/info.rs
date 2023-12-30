@@ -3,11 +3,14 @@ use rust_decimal::Decimal;
 use std::result::Result;
 use yahoo_finance_api::YahooConnector;
 
-use crate::broker::common::info::InfoTrait;
-use crate::broker::yahoo_finance::broker::YahooFinanceBroker;
-use crate::model::error::Error;
-use crate::model::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo};
-use crate::model::symbol::Symbol;
+use crate::broker::{common::info::InfoTrait, yahoo_finance::broker::YahooFinanceBroker};
+use crate::model::{
+    common::error::Error,
+    trading::{
+        quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
+        symbol::Symbol,
+    },
+};
 
 pub struct YahooFinanceInfo {
     provider: YahooConnector,
@@ -84,7 +87,7 @@ mod test_yahoo_finance_info {
     use super::YahooFinanceInfo;
     use crate::{
         broker::common::info::InfoTrait,
-        model::{
+        model::trading::{
             market::Market,
             quote::{QueryInfoRequest, QuoteKind},
             symbol::Symbol,

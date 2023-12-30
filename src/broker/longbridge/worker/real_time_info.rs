@@ -14,7 +14,10 @@ use crate::{
         common::subscription::{SubscriptionController, SubscriptionWorker},
         longbridge::broker::LongBridgeBroker,
     },
-    model::{error::Error, quote::QuoteRealTimeInfo, symbol::Symbol},
+    model::{
+        common::error::Error,
+        trading::{quote::QuoteRealTimeInfo, symbol::Symbol},
+    },
 };
 
 pub struct LongBridgeQuoteRealTimeInfoSubscriptionWorker {

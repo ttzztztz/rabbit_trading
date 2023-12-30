@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use tokio::sync::mpsc::Receiver;
 
 use crate::model::{
-    error::Error,
-    quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
+    common::error::Error,
+    trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 
 #[async_trait]

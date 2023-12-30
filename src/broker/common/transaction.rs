@@ -1,13 +1,15 @@
 use async_trait::async_trait;
 
 use crate::model::{
-    balance::BalanceHashMap,
-    error::Error,
-    position::PositionList,
-    transaction::{
-        BuyingPower, CancelOrderRequest, CancelOrderResponse, EditOrderRequest, EditOrderResponse,
-        EstimateMaxBuyingPowerRequest, OrderDetail, OrderDetailRequest, SubmitOrderRequest,
-        SubmitOrderResponse,
+    common::error::Error,
+    trading::{
+        balance::BalanceHashMap,
+        position::PositionList,
+        transaction::{
+            BuyingPower, CancelOrderRequest, CancelOrderResponse, EditOrderRequest,
+            EditOrderResponse, EstimateMaxBuyingPowerRequest, OrderDetail, OrderDetailRequest,
+            SubmitOrderRequest, SubmitOrderResponse,
+        },
     },
 };
 

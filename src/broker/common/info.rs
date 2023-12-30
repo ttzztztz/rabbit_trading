@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 
 use crate::model::{
-    error::Error,
-    quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
+    common::error::Error,
+    trading::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 
 #[async_trait]

@@ -1,7 +1,7 @@
 use tokio::sync::broadcast::Receiver;
 
 use super::event_bus::EventBus;
-use crate::model::event::RabbitTradingEvent;
+use crate::model::trading::event::RabbitTradingEvent;
 
 pub trait EventListenerTrait {
     fn new(event_bus: &EventBus) -> Self
