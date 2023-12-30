@@ -1,23 +1,33 @@
-use super::transaction::{CancelOrderRequest, EditOrderRequest, SubmitOrderRequest};
+use super::{
+    error::Error,
+    transaction::{
+        CancelOrderRequest, CancelOrderResponse, EditOrderRequest, EditOrderResponse,
+        SubmitOrderRequest, SubmitOrderResponse,
+    },
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EventContext {
-    pub pod: String,
-    pub timestamp: i64,
+    pub pod_id: String,
+    pub timestamp: u64,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum RabbitTradingEvent { // todo: add more events
+pub enum RabbitTradingEvent {
+    // todo: add more events
     SubmitOrder {
         context: EventContext,
         request: SubmitOrderRequest,
+        result: Result<SubmitOrderResponse, Error>,
     },
     EditOrder {
         context: EventContext,
         request: EditOrderRequest,
+        result: Result<EditOrderResponse, Error>,
     },
     CancelOrder {
         context: EventContext,
         request: CancelOrderRequest,
+        result: Result<CancelOrderResponse, Error>,
     },
 }

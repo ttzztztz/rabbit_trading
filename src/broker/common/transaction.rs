@@ -41,6 +41,7 @@ pub trait TransactionInterceptorTrait {
     }
     async fn after_account_balance(
         &self,
+        request: (),
         result: Result<BalanceHashMap, Error>,
     ) -> Result<BalanceHashMap, Error> {
         result
@@ -51,6 +52,7 @@ pub trait TransactionInterceptorTrait {
     }
     async fn after_positions(
         &self,
+        request: (),
         result: Result<PositionList, Error>,
     ) -> Result<PositionList, Error> {
         result
@@ -64,6 +66,7 @@ pub trait TransactionInterceptorTrait {
     }
     async fn after_estimate_max_buying_power(
         &self,
+        request: EstimateMaxBuyingPowerRequest,
         result: Result<BuyingPower, Error>,
     ) -> Result<BuyingPower, Error> {
         result
@@ -77,6 +80,7 @@ pub trait TransactionInterceptorTrait {
     }
     async fn after_order_detail(
         &self,
+        request: OrderDetailRequest,
         result: Result<OrderDetail, Error>,
     ) -> Result<OrderDetail, Error> {
         result
@@ -90,6 +94,7 @@ pub trait TransactionInterceptorTrait {
     }
     async fn after_submit_order(
         &self,
+        request: SubmitOrderRequest,
         result: Result<SubmitOrderResponse, Error>,
     ) -> Result<SubmitOrderResponse, Error> {
         result
@@ -103,6 +108,7 @@ pub trait TransactionInterceptorTrait {
     }
     async fn after_edit_order(
         &self,
+        request: EditOrderRequest,
         result: Result<EditOrderResponse, Error>,
     ) -> Result<EditOrderResponse, Error> {
         result
@@ -116,6 +122,7 @@ pub trait TransactionInterceptorTrait {
     }
     async fn after_cancel_order(
         &self,
+        request: CancelOrderRequest,
         result: Result<CancelOrderResponse, Error>,
     ) -> Result<CancelOrderResponse, Error> {
         result
@@ -153,7 +160,7 @@ impl TransactionTrait for TransactionProxy {
             return Err(err);
         }
         let result = self.shadowed_transaction.account_balance().await;
-        self.interceptor.after_account_balance(result).await
+        self.interceptor.after_account_balance((), result).await
     }
 
     async fn positions(&self) -> Result<PositionList, Error> {
@@ -161,7 +168,7 @@ impl TransactionTrait for TransactionProxy {
             return Err(err);
         }
         let result = self.shadowed_transaction.positions().await;
-        self.interceptor.after_positions(result).await
+        self.interceptor.after_positions((), result).await
     }
 
     async fn estimate_max_buying_power(
@@ -176,11 +183,11 @@ impl TransactionTrait for TransactionProxy {
             Ok(request) => {
                 let result = self
                     .shadowed_transaction
-                    .estimate_max_buying_power(request)
+                    .estimate_max_buying_power(request.clone())
                     .await;
 
                 self.interceptor
-                    .after_estimate_max_buying_power(result)
+                    .after_estimate_max_buying_power(request, result)
                     .await
             }
             Err(err) => Result::Err(err),
@@ -190,8 +197,11 @@ impl TransactionTrait for TransactionProxy {
     async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error> {
         match self.interceptor.before_order_detail(request).await {
             Ok(request) => {
-                let result = self.shadowed_transaction.order_detail(request).await;
-                self.interceptor.after_order_detail(result).await
+                let result = self
+                    .shadowed_transaction
+                    .order_detail(request.clone())
+                    .await;
+                self.interceptor.after_order_detail(request, result).await
             }
             Err(err) => Result::Err(err),
         }
@@ -203,8 +213,11 @@ impl TransactionTrait for TransactionProxy {
     ) -> Result<SubmitOrderResponse, Error> {
         match self.interceptor.before_submit_order(request).await {
             Ok(request) => {
-                let result = self.shadowed_transaction.submit_order(request).await;
-                self.interceptor.after_submit_order(result).await
+                let result = self
+                    .shadowed_transaction
+                    .submit_order(request.clone())
+                    .await;
+                self.interceptor.after_submit_order(request, result).await
             }
             Err(err) => Result::Err(err),
         }
@@ -213,8 +226,8 @@ impl TransactionTrait for TransactionProxy {
     async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
         match self.interceptor.before_edit_order(request).await {
             Ok(request) => {
-                let result = self.shadowed_transaction.edit_order(request).await;
-                self.interceptor.after_edit_order(result).await
+                let result = self.shadowed_transaction.edit_order(request.clone()).await;
+                self.interceptor.after_edit_order(request, result).await
             }
             Err(err) => Result::Err(err),
         }
@@ -226,8 +239,11 @@ impl TransactionTrait for TransactionProxy {
     ) -> Result<CancelOrderResponse, Error> {
         match self.interceptor.before_cancel_order(request).await {
             Ok(request) => {
-                let result = self.shadowed_transaction.cancel_order(request).await;
-                self.interceptor.after_cancel_order(result).await
+                let result = self
+                    .shadowed_transaction
+                    .cancel_order(request.clone())
+                    .await;
+                self.interceptor.after_cancel_order(request, result).await
             }
             Err(err) => Result::Err(err),
         }

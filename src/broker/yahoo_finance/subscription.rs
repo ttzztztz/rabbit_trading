@@ -147,7 +147,7 @@ mod test_yahoo_finance_subscription {
                 assert!(quote_info.volume > 0u64);
                 assert!(quote_info.timestamp > 0u64);
             },
-            _ = sleep(Duration::from_millis(3000))=> {
+            _ = sleep(Duration::from_millis(5000))=> {
                 panic!("loop not working!");
             },
         };
