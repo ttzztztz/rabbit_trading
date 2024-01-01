@@ -3,25 +3,37 @@ use time::{format_description, OffsetDateTime};
 use tokio::select;
 
 use crate::{
-    model::trading::{
-        market::Market,
-        quote::{QueryInfoRequest, QuoteKind},
-        symbol::Symbol,
+    model::{
+        common::error::Error,
+        trading::{
+            market::Market,
+            quote::{QueryInfoRequest, QuoteKind},
+            symbol::Symbol,
+        },
     },
     strategy::common::strategy::{StrategyContext, StrategyTrait},
 };
 
 pub struct PrintLivePriceStrategy {
-    strategy_context: StrategyContext<()>,
+    strategy_context: StrategyContext,
 }
 
 #[async_trait]
-impl StrategyTrait<()> for PrintLivePriceStrategy {
-    async fn new(strategy_context: StrategyContext<()>) -> Self {
+impl StrategyTrait for PrintLivePriceStrategy {
+    fn new(strategy_context: StrategyContext) -> Self {
         PrintLivePriceStrategy { strategy_context }
     }
 
-    async fn start(&self) {
+    fn get_identifier() -> String {
+        const IDENTIFIER: &'static str = "ExamplePrintLivePriceStrategy";
+        return IDENTIFIER.to_owned();
+    }
+
+    async fn start(&self) -> Result<(), Error> {
+        const EMPTY_MESSAGE_RECEIVED_ERROR_CODE: &'static str = "EMPTY_MESSAGE_RECEIVED";
+        const EMPTY_MESSAGE_RECEIVED_ERROR_MESSAGE: &'static str =
+            "Received empty data from socket subscription, program will exit.";
+
         let broker = &self.strategy_context.broker_list[0];
         let subscription = broker.create_subscription().await;
 
@@ -54,8 +66,10 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
                             );
                         },
                         None => {
-                            log::error!("Received empty data from socket subscription, program will exit.");
-                            return;
+                            return Result::Err(Error {
+                                code: EMPTY_MESSAGE_RECEIVED_ERROR_CODE.to_owned(),
+                                message: EMPTY_MESSAGE_RECEIVED_ERROR_MESSAGE.to_owned(),
+                            });
                         }
                     }
                 }
@@ -63,7 +77,7 @@ impl StrategyTrait<()> for PrintLivePriceStrategy {
         }
     }
 
-    async fn stop(&self) {
+    async fn stop(&self) -> Result<(), Error> {
         todo!() // todo: provide an approach to stop gracefully
     }
 }

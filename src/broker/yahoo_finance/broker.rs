@@ -20,7 +20,7 @@ impl BrokerTrait for YahooFinanceBroker {
         }
     }
 
-    fn get_broker_identifier() -> String {
+    fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "yahoo_finance";
         return IDENTIFIER.to_owned();
     }

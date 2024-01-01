@@ -11,7 +11,7 @@ pub trait BrokerTrait: Send + Sync {
     fn new(interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>) -> Self
     where
         Self: Sized;
-    fn get_broker_identifier() -> String
+    fn get_identifier() -> String
     where
         Self: Sized;
 

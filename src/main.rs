@@ -1,18 +1,12 @@
 use std::collections::HashMap;
 
-use broker::{
-    common::broker::{BrokerTrait, EmptyBrokerInterceptorFactory},
-    longbridge::broker::LongBridgeBroker,
-};
-use persistent_kv::{
-    common::persistent_kv::{PersistentKVStore, PersistentKVStoreParameters},
-    memory::memory_kv::MemoryKVStore,
-};
+use model::config::broker::BrokerConfig;
+use model::config::persistent_kv_store::PersistentKVStoreConfig;
+use model::config::strategy::StrategyConfig;
 use simple_logger::SimpleLogger;
-use strategy::{
-    common::strategy::{StrategyContext, StrategyTrait},
-    example::print_live_price::PrintLivePriceStrategy,
-};
+
+use crate::model::config::pod::PodConfig;
+use crate::pod::pod::Pod;
 
 mod broker;
 mod control_plane;
@@ -30,18 +24,21 @@ async fn main() {
         .init()
         .unwrap();
 
-    let longbridge_broker = Box::new(LongBridgeBroker::new(Box::new(
-        EmptyBrokerInterceptorFactory::new(),
-    )));
-    let strategy_context = StrategyContext {
-        broker_list: vec![longbridge_broker],
-        persistent_kv_store: Box::new(
-            MemoryKVStore::new(PersistentKVStoreParameters {
-                configuration: HashMap::<String, ()>::new(),
-            })
-            .await,
-        ),
-    };
-    let print_live_price_strategy = PrintLivePriceStrategy::new(strategy_context).await;
-    print_live_price_strategy.start().await;
+    let pod = Pod::new(PodConfig {
+        pod_id: "DEMO_POD".to_owned(),
+        broker_list: vec![BrokerConfig {
+            identifier: "longbridge".to_owned(),
+            config_map: HashMap::new(),
+        }],
+        persistent_kv_store: PersistentKVStoreConfig {
+            identifier: "MemoryKVStore".to_owned(),
+            config_map: HashMap::new(),
+        },
+        strategy: StrategyConfig {
+            identifier: "ExamplePrintLivePriceStrategy".to_owned(),
+            config_map: HashMap::new(),
+        },
+    });
+
+    pod.start().await.unwrap();
 }

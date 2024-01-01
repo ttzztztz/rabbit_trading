@@ -22,7 +22,7 @@ impl BrokerTrait for LongBridgeBroker {
         }
     }
 
-    fn get_broker_identifier() -> String {
+    fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "longbridge";
         return IDENTIFIER.to_owned();
     }

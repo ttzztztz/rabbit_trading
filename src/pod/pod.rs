@@ -1,12 +1,15 @@
 use super::event::event_bus::EventBus;
 use crate::{
     broker::{common::broker::BrokerTrait, initializer::get_broker_instance},
-    model::{
-        common::error::Error,
-        config::{pod::PodConfig, strategy::StrategyConfig},
+    model::{common::error::Error, config::pod::PodConfig},
+    persistent_kv::{
+        common::store::PersistentKVStoreTrait, initializer::get_persistent_kv_instance,
     },
     pod::interceptor::factory::PodBrokerInterceptorCollectionFactory,
-    strategy::common::strategy::StrategyContext,
+    strategy::{
+        common::strategy::{StrategyContext, StrategyTrait},
+        initializer::get_strategy_instance,
+    },
 };
 
 pub struct Pod {
@@ -32,11 +35,13 @@ impl Pod {
             .iter()
             .filter_map(|broker_config| {
                 get_broker_instance(
+                    broker_config.identifier.clone(),
                     Box::new(PodBrokerInterceptorCollectionFactory::new(
                         self.event_bus.clone(),
                     )),
-                    broker_config.identifier.clone(),
+                    broker_config.config_map.clone(),
                 )
+                .ok()
             })
             .collect();
 
@@ -57,20 +62,43 @@ impl Pod {
         Result::Ok(broker_list)
     }
 
-    fn initialize(&self) -> Result<(), Error> {
+    async fn initialize_persistent_kv_store(
+        &self,
+    ) -> Result<Box<dyn PersistentKVStoreTrait>, Error> {
+        get_persistent_kv_instance(
+            self.pod_config.persistent_kv_store.identifier.clone(),
+            self.pod_config.persistent_kv_store.config_map.clone(),
+        )
+        .await
+    }
+
+    fn initialize_strategy(
+        &self,
+        broker_list: Vec<Box<dyn BrokerTrait>>,
+        persistent_kv_store: Box<dyn PersistentKVStoreTrait>,
+    ) -> Result<Box<dyn StrategyTrait>, Error> {
+        get_strategy_instance(
+            self.pod_config.strategy.identifier.clone(),
+            StrategyContext {
+                broker_list,
+                persistent_kv_store,
+                config_map: self.pod_config.strategy.config_map.clone(),
+            },
+        )
+    }
+
+    async fn initialize(&self) -> Result<Box<dyn StrategyTrait>, Error> {
         let broker_list = self.initialize_broker_list()?;
-
-        let strategy_context = StrategyContext::<String> {
-            broker_list,
-            persistent_kv_store: todo!(),
-        };
+        let persistent_kv_store = self.initialize_persistent_kv_store().await?;
+        self.initialize_strategy(broker_list, persistent_kv_store)
     }
 
-    pub fn start(&self) {
-        self.initialize();
+    pub async fn start(&self) -> Result<(), Error> {
+        let strategy_instance = self.initialize().await?;
+        strategy_instance.start().await
     }
 
-    pub fn stop(&self) {
+    pub async fn stop(&self) {
         todo!() // gracefully exit
     }
 }
