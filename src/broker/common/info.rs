@@ -31,9 +31,9 @@ pub trait InfoInterceptorTrait: Send + Sync {
 
     async fn after_query_basic_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
         result: Result<QuoteBasicInfo, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<QuoteBasicInfo, Error> {
         result
     }
@@ -47,9 +47,9 @@ pub trait InfoInterceptorTrait: Send + Sync {
 
     async fn after_query_real_time_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
         result: Result<QuoteRealTimeInfo, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<QuoteRealTimeInfo, Error> {
         result
     }
@@ -63,9 +63,9 @@ pub trait InfoInterceptorTrait: Send + Sync {
 
     async fn after_query_depth(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
         result: Result<QuoteDepthInfo, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<QuoteDepthInfo, Error> {
         result
     }

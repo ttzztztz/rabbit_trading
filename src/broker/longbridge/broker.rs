@@ -3,11 +3,14 @@ use async_trait::async_trait;
 use super::{
     info::LongBridgeInfo, subscription::LongBridgeSubscription, transaction::LongBridgeTransaction,
 };
-use crate::broker::common::{
-    broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
-    info::{InfoProxy, InfoTrait},
-    subscription::{SubscriptionProxy, SubscriptionTrait},
-    transaction::{TransactionProxy, TransactionTrait},
+use crate::{
+    broker::common::{
+        broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
+        info::{InfoProxy, InfoTrait},
+        subscription::{SubscriptionProxy, SubscriptionTrait},
+        transaction::{TransactionProxy, TransactionTrait},
+    },
+    model::common::types::ConfigMap,
 };
 
 pub struct LongBridgeBroker {
@@ -16,7 +19,10 @@ pub struct LongBridgeBroker {
 
 #[async_trait]
 impl BrokerTrait for LongBridgeBroker {
-    fn new(interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>) -> Self {
+    fn new(
+        interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
+        _config_map: ConfigMap,
+    ) -> Self {
         LongBridgeBroker {
             interceptor_factory,
         }

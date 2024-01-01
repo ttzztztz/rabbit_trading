@@ -44,9 +44,9 @@ pub trait TransactionInterceptorTrait: Send + Sync {
     }
     async fn after_account_balance(
         &self,
-        request: (),
+        _request: (),
         result: Result<BalanceHashMap, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<BalanceHashMap, Error> {
         result
     }
@@ -56,9 +56,9 @@ pub trait TransactionInterceptorTrait: Send + Sync {
     }
     async fn after_positions(
         &self,
-        request: (),
+        _request: (),
         result: Result<PositionList, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<PositionList, Error> {
         result
     }
@@ -71,9 +71,9 @@ pub trait TransactionInterceptorTrait: Send + Sync {
     }
     async fn after_estimate_max_buying_power(
         &self,
-        request: EstimateMaxBuyingPowerRequest,
+        _request: EstimateMaxBuyingPowerRequest,
         result: Result<BuyingPower, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<BuyingPower, Error> {
         result
     }
@@ -86,9 +86,9 @@ pub trait TransactionInterceptorTrait: Send + Sync {
     }
     async fn after_order_detail(
         &self,
-        request: OrderDetailRequest,
+        _request: OrderDetailRequest,
         result: Result<OrderDetail, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<OrderDetail, Error> {
         result
     }
@@ -101,9 +101,9 @@ pub trait TransactionInterceptorTrait: Send + Sync {
     }
     async fn after_submit_order(
         &self,
-        request: SubmitOrderRequest,
+        _request: SubmitOrderRequest,
         result: Result<SubmitOrderResponse, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<SubmitOrderResponse, Error> {
         result
     }
@@ -116,9 +116,9 @@ pub trait TransactionInterceptorTrait: Send + Sync {
     }
     async fn after_edit_order(
         &self,
-        request: EditOrderRequest,
+        _request: EditOrderRequest,
         result: Result<EditOrderResponse, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<EditOrderResponse, Error> {
         result
     }
@@ -131,9 +131,9 @@ pub trait TransactionInterceptorTrait: Send + Sync {
     }
     async fn after_cancel_order(
         &self,
-        request: CancelOrderRequest,
+        _request: CancelOrderRequest,
         result: Result<CancelOrderResponse, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<CancelOrderResponse, Error> {
         result
     }

@@ -1,5 +1,7 @@
 use async_trait::async_trait;
 
+use crate::model::common::types::ConfigMap;
+
 use super::{
     info::{InfoInterceptorTrait, InfoTrait},
     subscription::{SubscriptionInterceptorTrait, SubscriptionTrait},
@@ -8,7 +10,10 @@ use super::{
 
 #[async_trait]
 pub trait BrokerTrait: Send + Sync {
-    fn new(interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>) -> Self
+    fn new(
+        interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
+        config_map: ConfigMap,
+    ) -> Self
     where
         Self: Sized;
     fn get_identifier() -> String

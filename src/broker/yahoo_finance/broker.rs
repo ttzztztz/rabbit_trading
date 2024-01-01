@@ -1,11 +1,14 @@
 use async_trait::async_trait;
 
 use super::{info::YahooFinanceInfo, subscription::YahooFinanceSubscription};
-use crate::broker::common::{
-    broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
-    info::{InfoProxy, InfoTrait},
-    subscription::{SubscriptionProxy, SubscriptionTrait},
-    transaction::TransactionTrait,
+use crate::{
+    broker::common::{
+        broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
+        info::{InfoProxy, InfoTrait},
+        subscription::{SubscriptionProxy, SubscriptionTrait},
+        transaction::TransactionTrait,
+    },
+    model::common::types::ConfigMap,
 };
 
 pub struct YahooFinanceBroker {
@@ -14,7 +17,10 @@ pub struct YahooFinanceBroker {
 
 #[async_trait]
 impl BrokerTrait for YahooFinanceBroker {
-    fn new(interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>) -> Self {
+    fn new(
+        interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
+        _config_map: ConfigMap,
+    ) -> Self {
         YahooFinanceBroker {
             interceptor_factory,
         }

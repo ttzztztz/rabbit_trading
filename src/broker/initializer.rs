@@ -15,14 +15,14 @@ pub fn get_broker_instance(
 
     match identifier {
         #[cfg(feature = "longbridge")]
-        identifier if identifier == LongBridgeBroker::get_identifier() => {
-            Result::Ok(Box::new(LongBridgeBroker::new(interceptor_factory)))
-        }
+        identifier if identifier == LongBridgeBroker::get_identifier() => Result::Ok(Box::new(
+            LongBridgeBroker::new(interceptor_factory, config_map),
+        )),
 
         #[cfg(feature = "yahoo_finance")]
-        identifier if identifier == YahooFinanceBroker::get_identifier() => {
-            Result::Ok(Box::new(YahooFinanceBroker::new(interceptor_factory)))
-        }
+        identifier if identifier == YahooFinanceBroker::get_identifier() => Result::Ok(Box::new(
+            YahooFinanceBroker::new(interceptor_factory, config_map),
+        )),
 
         _ => Result::Err(Error {
             code: IDENTIFIER_NOT_MATCHED_ERROR_CODE.to_owned(),

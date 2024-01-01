@@ -44,9 +44,9 @@ pub trait SubscriptionInterceptorTrait: Send + Sync {
     }
     async fn after_real_time_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
         result: Result<SubscriptionData<QuoteRealTimeInfo>, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         result
     }
@@ -59,9 +59,9 @@ pub trait SubscriptionInterceptorTrait: Send + Sync {
     }
     async fn after_depth_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
         result: Result<SubscriptionData<QuoteDepthInfo>, Error>,
-        duration: Duration,
+        _duration: Duration,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         result
     }
