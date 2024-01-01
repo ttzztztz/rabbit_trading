@@ -22,9 +22,11 @@ yahoo_finance_api = "2.1.0"
 tokio-test = "0.4.3"
 
 [features]
-full = ["longbridge", "yahoo_finance", "interactive_brokers"]
+full = ["broker__longbridge", "broker__yahoo_finance", "broker__interactive_brokers", "persistent__memory", "strategy__example"]
 default = ["full"]
 ci = ["full"]
-longbridge = []
-yahoo_finance = []
-interactive_brokers = []
+broker__longbridge = []
+broker__yahoo_finance = []
+broker__interactive_brokers = []
+persistent__memory = []
+strategy__example = []
