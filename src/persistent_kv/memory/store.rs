@@ -12,12 +12,13 @@ pub struct MemoryKVStore {
 }
 
 impl MemoryKVStore {
-    const KEY_NOT_EXISTS_MESSAGE: &'static str = "Key Not Exists";
-
     fn create_key_not_exists_err() -> Error {
+        const KEY_NOT_EXISTS_ERROR_CODE: &'static str = "MEM_KEY_NOT_EXISTS";
+        const KEY_NOT_EXISTS_MESSAGE: &'static str = "Key Not Exists";
+
         Error {
-            code: Self::KEY_NOT_EXISTS_MESSAGE.to_owned(),
-            message: Self::KEY_NOT_EXISTS_MESSAGE.to_owned(),
+            code: KEY_NOT_EXISTS_ERROR_CODE.to_owned(),
+            message: KEY_NOT_EXISTS_MESSAGE.to_owned(),
         }
     }
 }

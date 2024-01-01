@@ -26,7 +26,7 @@ pub fn get_broker_instance(
 
         _ => Result::Err(Error {
             code: IDENTIFIER_NOT_MATCHED_ERROR_CODE.to_owned(),
-            message: format!("PersistentKV: {}", identifier),
+            message: format!("Broker: {}", identifier),
         }),
     }
 }
