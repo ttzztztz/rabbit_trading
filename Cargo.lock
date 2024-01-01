@@ -1226,6 +1226,7 @@ dependencies = [
  "serde",
  "serde_yaml",
  "simple_logger",
+ "statsd",
  "tempfile",
  "time",
  "tokio",
@@ -1726,6 +1727,15 @@ name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
+
+[[package]]
+name = "statsd"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9033ee26c7f426551c18ecc4ff6a7dd24ef81b7e62cfb0304984123b75af6f8b"
+dependencies = [
+ "rand",
+]
 
 [[package]]
 name = "string_cache"

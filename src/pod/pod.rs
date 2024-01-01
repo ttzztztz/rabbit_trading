@@ -1,6 +1,7 @@
 use super::event::event_bus::EventBus;
 use crate::{
     broker::{common::broker::BrokerTrait, initializer::get_broker_instance},
+    metrics::initializer::get_metrics_registry_factory,
     model::{common::error::Error, config::pod::PodConfig},
     persistent_kv::{
         common::store::PersistentKVStoreTrait, initializer::get_persistent_kv_instance,
@@ -34,10 +35,17 @@ impl Pod {
             .broker_list
             .iter()
             .filter_map(|broker_config| {
+                let metrics_registry_factory = get_metrics_registry_factory(
+                    self.pod_config.metrics_registry.identifier.clone(),
+                    self.pod_config.metrics_registry.config_map.clone(),
+                )
+                .ok()?;
+
                 get_broker_instance(
                     broker_config.identifier.clone(),
                     Box::new(PodBrokerInterceptorCollectionFactory::new(
                         self.event_bus.clone(),
+                        metrics_registry_factory,
                     )),
                     broker_config.config_map.clone(),
                 )

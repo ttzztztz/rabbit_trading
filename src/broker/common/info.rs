@@ -28,7 +28,6 @@ pub trait InfoInterceptorTrait: Send + Sync {
     ) -> Result<QueryInfoRequest, Error> {
         Result::Ok(request)
     }
-
     async fn after_query_basic_info(
         &self,
         _request: QueryInfoRequest,
@@ -44,7 +43,6 @@ pub trait InfoInterceptorTrait: Send + Sync {
     ) -> Result<QueryInfoRequest, Error> {
         Result::Ok(request)
     }
-
     async fn after_query_real_time_info(
         &self,
         _request: QueryInfoRequest,
@@ -60,7 +58,6 @@ pub trait InfoInterceptorTrait: Send + Sync {
     ) -> Result<QueryInfoRequest, Error> {
         Result::Ok(request)
     }
-
     async fn after_query_depth(
         &self,
         _request: QueryInfoRequest,

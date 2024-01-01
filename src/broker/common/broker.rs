@@ -1,12 +1,11 @@
 use async_trait::async_trait;
 
-use crate::model::common::types::ConfigMap;
-
 use super::{
     info::{InfoInterceptorTrait, InfoTrait},
     subscription::{SubscriptionInterceptorTrait, SubscriptionTrait},
     transaction::{TransactionInterceptorTrait, TransactionTrait},
 };
+use crate::model::common::types::ConfigMap;
 
 #[async_trait]
 pub trait BrokerTrait: Send + Sync {
@@ -25,10 +24,13 @@ pub trait BrokerTrait: Send + Sync {
     async fn create_transaction(&self) -> Box<dyn TransactionTrait>;
 }
 
+#[async_trait]
 pub trait BrokerInterceptorFactoryTrait: Send + Sync {
-    fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>>;
-    fn create_subscription_interceptor(&self) -> Option<Box<dyn SubscriptionInterceptorTrait>>;
-    fn create_transaction_interceptor(&self) -> Option<Box<dyn TransactionInterceptorTrait>>;
+    async fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>>;
+    async fn create_subscription_interceptor(
+        &self,
+    ) -> Option<Box<dyn SubscriptionInterceptorTrait>>;
+    async fn create_transaction_interceptor(&self) -> Option<Box<dyn TransactionInterceptorTrait>>;
 }
 
 pub struct EmptyBrokerInterceptorFactory {}
@@ -39,16 +41,19 @@ impl EmptyBrokerInterceptorFactory {
     }
 }
 
+#[async_trait]
 impl BrokerInterceptorFactoryTrait for EmptyBrokerInterceptorFactory {
-    fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>> {
+    async fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>> {
         Option::None
     }
 
-    fn create_subscription_interceptor(&self) -> Option<Box<dyn SubscriptionInterceptorTrait>> {
+    async fn create_subscription_interceptor(
+        &self,
+    ) -> Option<Box<dyn SubscriptionInterceptorTrait>> {
         Option::None
     }
 
-    fn create_transaction_interceptor(&self) -> Option<Box<dyn TransactionInterceptorTrait>> {
+    async fn create_transaction_interceptor(&self) -> Option<Box<dyn TransactionInterceptorTrait>> {
         Option::None
     }
 }

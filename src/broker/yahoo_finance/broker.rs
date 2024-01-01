@@ -35,7 +35,7 @@ impl BrokerTrait for YahooFinanceBroker {
         let yahoo_finance_info = Box::new(YahooFinanceInfo::new().await);
         Box::new(InfoProxy::new(
             yahoo_finance_info,
-            self.interceptor_factory.create_info_interceptor(),
+            self.interceptor_factory.create_info_interceptor().await,
         ))
     }
 
@@ -43,7 +43,9 @@ impl BrokerTrait for YahooFinanceBroker {
         let yahoo_finance_subscription = Box::new(YahooFinanceSubscription::new().await);
         Box::new(SubscriptionProxy::new(
             yahoo_finance_subscription,
-            self.interceptor_factory.create_subscription_interceptor(),
+            self.interceptor_factory
+                .create_subscription_interceptor()
+                .await,
         ))
     }
 

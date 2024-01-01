@@ -1,15 +1,16 @@
+use model::config::metrics_registry::MetricsRegistryConfig;
+use simple_logger::SimpleLogger;
 use std::collections::HashMap;
 
-use model::config::broker::BrokerConfig;
-use model::config::persistent_kv_store::PersistentKVStoreConfig;
-use model::config::strategy::StrategyConfig;
-use simple_logger::SimpleLogger;
-
-use crate::model::config::pod::PodConfig;
+use crate::model::config::{
+    broker::BrokerConfig, persistent_kv_store::PersistentKVStoreConfig, pod::PodConfig,
+    strategy::StrategyConfig,
+};
 use crate::pod::pod::Pod;
 
 mod broker;
 mod control_plane;
+mod metrics;
 mod model;
 mod persistent_kv;
 mod pod;
@@ -36,6 +37,10 @@ async fn main() {
         },
         strategy: StrategyConfig {
             identifier: "ExamplePrintLivePriceStrategy".to_owned(),
+            config_map: HashMap::new(),
+        },
+        metrics_registry: MetricsRegistryConfig {
+            identifier: "NoOpMetricRegistryFactory".to_owned(),
             config_map: HashMap::new(),
         },
     });

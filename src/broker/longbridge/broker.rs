@@ -37,7 +37,7 @@ impl BrokerTrait for LongBridgeBroker {
         let longbridge_info = Box::new(LongBridgeInfo::new().await);
         Box::new(InfoProxy::new(
             longbridge_info,
-            self.interceptor_factory.create_info_interceptor(),
+            self.interceptor_factory.create_info_interceptor().await,
         ))
     }
 
@@ -45,7 +45,9 @@ impl BrokerTrait for LongBridgeBroker {
         let longbridge_subscription = Box::new(LongBridgeSubscription::new().await);
         Box::new(SubscriptionProxy::new(
             longbridge_subscription,
-            self.interceptor_factory.create_subscription_interceptor(),
+            self.interceptor_factory
+                .create_subscription_interceptor()
+                .await,
         ))
     }
 
@@ -53,7 +55,9 @@ impl BrokerTrait for LongBridgeBroker {
         let longbridge_transaction = Box::new(LongBridgeTransaction::new().await);
         Box::new(TransactionProxy::new(
             longbridge_transaction,
-            self.interceptor_factory.create_transaction_interceptor(),
+            self.interceptor_factory
+                .create_transaction_interceptor()
+                .await,
         ))
     }
 }
