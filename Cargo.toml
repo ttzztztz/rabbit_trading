@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.74"
+dogstatsd = "0.11.1"
 log = "0.4.20"
 longbridge = "0.2.77"
 rust_decimal = "1.33.1"
@@ -14,7 +15,6 @@ rust_decimal_macros = "1.33.1"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_yaml = "0.9.29"
 simple_logger = "4.3.3"
-statsd = "0.16.0"
 tempfile = "3.9.0"
 time = { version = "0.3.31", features = ["parsing", "macros", "formatting"] }
 tokio = { version = "1.35.1", features = ["full"] }

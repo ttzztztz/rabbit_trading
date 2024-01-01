@@ -19,7 +19,7 @@ impl NoOpMetricRegistry {
 
 #[async_trait]
 impl MetricRegistryTrait for NoOpMetricRegistry {
-    async fn inc_counter(&self, name: String, tags: HashMap<String, String>, times: i32) {
+    async fn inc_counter(&self, name: String, tags: HashMap<String, String>, times: i64) {
         log::warn!(
             "inc_counter::metrics={}, tags={}, times={}",
             name,
@@ -37,7 +37,7 @@ impl MetricRegistryTrait for NoOpMetricRegistry {
         );
     }
 
-    async fn gauge(&self, name: String, tags: HashMap<String, String>, value: i32) {
+    async fn gauge(&self, name: String, tags: HashMap<String, String>, value: String) {
         log::warn!(
             "gauge::metrics={}, tags={}, value={}",
             name,
