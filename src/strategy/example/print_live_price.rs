@@ -45,8 +45,7 @@ impl StrategyTrait for PrintLivePriceStrategy {
                 },
                 kind: QuoteKind::Stock,
             })
-            .await
-            .unwrap();
+            .await?;
         let format = format_description::parse("[year]-[month]-[day] [hour]:[minute]:[second] [offset_hour sign:mandatory]:[offset_minute]:[offset_second]").unwrap();
 
         loop {

@@ -29,7 +29,7 @@ pub trait SubscriptionController: Send + Sync {
 
 #[async_trait]
 pub trait SubscriptionWorker {
-    async fn start(self);
+    async fn start(self) -> Result<(), Error>;
 }
 
 pub type SubscriptionData<T> = (Receiver<T>, Box<dyn SubscriptionController>);

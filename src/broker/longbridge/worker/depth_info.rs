@@ -69,7 +69,7 @@ impl LongBridgeQuoteDepthInfoSubscriptionWorker {
 
 #[async_trait]
 impl SubscriptionWorker for LongBridgeQuoteDepthInfoSubscriptionWorker {
-    async fn start(mut self) {
+    async fn start(mut self) -> Result<(), Error> {
         let symbol_identifier = self.symbol.to_string();
         let sys_sender = self.sys_sender;
         let mut longbridge_receiver = self.longbridge_receiver;
@@ -78,7 +78,7 @@ impl SubscriptionWorker for LongBridgeQuoteDepthInfoSubscriptionWorker {
             .await
             .subscribe([symbol_identifier], SubFlags::DEPTH, true)
             .await
-            .unwrap();
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)?;
 
         while let Some(event_detail) = longbridge_receiver.recv().await.map(|event| event.detail) {
             match event_detail {
@@ -94,6 +94,8 @@ impl SubscriptionWorker for LongBridgeQuoteDepthInfoSubscriptionWorker {
                 }
             }
         }
+
+        Result::Ok(())
     }
 }
 

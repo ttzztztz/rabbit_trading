@@ -38,8 +38,9 @@ impl SubscriptionTrait for LongBridgeSubscription {
         &self,
         request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
-        let (longbridge_context, longbridge_receiver) =
-            LongBridgeBroker::create_quote_context().await.unwrap();
+        let (longbridge_context, longbridge_receiver) = LongBridgeBroker::create_quote_context()
+            .await
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)?;
         let (sys_sender, sys_receiver) = mpsc::channel(64);
         let longbridge_context_ref = Arc::new(Mutex::new(longbridge_context));
 
@@ -61,8 +62,9 @@ impl SubscriptionTrait for LongBridgeSubscription {
         &self,
         request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
-        let (longbridge_context, longbridge_receiver) =
-            LongBridgeBroker::create_quote_context().await.unwrap();
+        let (longbridge_context, longbridge_receiver) = LongBridgeBroker::create_quote_context()
+            .await
+            .map_err(LongBridgeBroker::to_rabbit_trading_err)?;
         let (sys_sender, sys_receiver) = mpsc::channel(64);
         let longbridge_context_ref = Arc::new(Mutex::new(longbridge_context));
 

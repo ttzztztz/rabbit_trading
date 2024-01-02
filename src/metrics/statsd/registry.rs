@@ -23,24 +23,30 @@ impl StatsDMetricRegistry {
 #[async_trait]
 impl MetricRegistryTrait for StatsDMetricRegistry {
     async fn inc_counter(&self, name: String, tags: HashMap<String, String>, times: i64) {
-        self.client
-            .incr_by_value(name, times, Self::transform_tags(tags))
-            .unwrap(); // todo: handle unwrap here
+        if let Err(err) = self
+            .client
+            .incr_by_value(&name, times, Self::transform_tags(tags))
+        {
+            log::error!("Error when inc_counter for name={}, {}", name, err);
+        }
     }
 
     async fn timer(&self, name: String, tags: HashMap<String, String>, duration: Duration) {
-        self.client
-            .timing(
-                name,
-                duration.as_millis() as i64,
-                Self::transform_tags(tags),
-            )
-            .unwrap(); // todo: handle unwrap here
+        if let Err(err) = self.client.timing(
+            &name,
+            duration.as_millis() as i64,
+            Self::transform_tags(tags),
+        ) {
+            log::error!("Error when timer for name={}, {}", name, err);
+        }
     }
 
     async fn gauge(&self, name: String, tags: HashMap<String, String>, value: String) {
-        self.client
-            .gauge(name, value.to_string(), Self::transform_tags(tags))
-            .unwrap(); // todo: handle unwrap here
+        if let Err(err) = self
+            .client
+            .gauge(&name, value.to_string(), Self::transform_tags(tags))
+        {
+            log::error!("Error when gauge for name={}, {}", name, err);
+        }
     }
 }

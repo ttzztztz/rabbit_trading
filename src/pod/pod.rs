@@ -106,7 +106,7 @@ impl Pod {
         strategy_instance.start().await
     }
 
-    pub async fn stop(&self) {
+    pub async fn stop(&self) -> Result<(), Error> {
         todo!() // gracefully exit
     }
 }

@@ -1,14 +1,14 @@
 use tokio::sync::broadcast::Receiver;
 
 use super::event_bus::EventBus;
-use crate::model::trading::event::RabbitTradingEvent;
+use crate::model::{common::error::Error, trading::event::RabbitTradingEvent};
 
 pub trait EventListenerTrait {
     fn new(event_bus: &EventBus) -> Self
     where
         Self: Sized;
 
-    fn stop(&self);
+    fn stop(&self) -> Result<(), Error>;
 }
 
 pub struct LogEventListener {}
@@ -40,7 +40,7 @@ impl EventListenerTrait for LogEventListener {
         Self::new(receiver)
     }
 
-    fn stop(&self) {
+    fn stop(&self) -> Result<(), Error> {
         todo!()
     }
 }

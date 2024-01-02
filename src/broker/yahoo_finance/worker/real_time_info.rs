@@ -36,12 +36,12 @@ impl YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
 
 #[async_trait]
 impl SubscriptionWorker for YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
-    async fn start(self) {
+    async fn start(self) -> Result<(), Error> {
         let info = YahooFinanceInfo::new().await;
 
         loop {
             if *self.working_flag.lock().await == false {
-                return;
+                return Result::Ok(());
             }
 
             let real_time_info_result = info.query_real_time_info(self.request.clone()).await;
