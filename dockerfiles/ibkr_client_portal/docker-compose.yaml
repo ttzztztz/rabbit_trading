@@ -1,0 +1,10 @@
+services:
+  ibkr_client_portal:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+    - type: bind
+      read_only: true
+      source: ./conf.yaml
+      target: /opt/ibkr/root/conf.yaml

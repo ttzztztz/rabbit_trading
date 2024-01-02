@@ -1,5 +1,5 @@
 pub mod common;
-pub mod example;
+pub mod initializer;
 
 #[cfg(feature = "strategy__example")]
-pub mod initializer;
+pub mod example;
