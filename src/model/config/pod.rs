@@ -1,6 +1,7 @@
 use super::{
-    broker::BrokerConfig, metrics_registry::MetricsRegistryConfig,
-    persistent_kv_store::PersistentKVStoreConfig, strategy::StrategyConfig,
+    broker::BrokerConfig, event_listener::EventListenerConfig,
+    metrics_registry::MetricsRegistryConfig, persistent_kv_store::PersistentKVStoreConfig,
+    strategy::StrategyConfig,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -10,4 +11,5 @@ pub struct PodConfig {
     pub persistent_kv_store: PersistentKVStoreConfig,
     pub strategy: StrategyConfig,
     pub metrics_registry: MetricsRegistryConfig,
+    pub event_listener_list: Vec<EventListenerConfig>,
 }

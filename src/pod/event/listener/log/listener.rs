@@ -1,15 +1,12 @@
 use tokio::sync::broadcast::Receiver;
 
-use super::event_bus::EventBus;
-use crate::model::{common::error::Error, trading::event::RabbitTradingEvent};
-
-pub trait EventListenerTrait {
-    fn new(event_bus: &EventBus) -> Self
-    where
-        Self: Sized;
-
-    fn stop(&self) -> Result<(), Error>;
-}
+use crate::{
+    model::{
+        common::{error::Error, types::ConfigMap},
+        trading::event::RabbitTradingEvent,
+    },
+    pod::event::listener::common::listener::EventListenerTrait,
+};
 
 pub struct LogEventListener {}
 
@@ -27,17 +24,20 @@ impl LogEventListener {
             }
         }
     }
-
-    pub fn new(receiver: Receiver<RabbitTradingEvent>) -> Self {
-        tokio::task::spawn(Self::async_log_task(receiver));
-        LogEventListener {}
-    }
 }
 
 impl EventListenerTrait for LogEventListener {
-    fn new(event_bus: &EventBus) -> Self {
-        let receiver = event_bus.subscribe();
-        Self::new(receiver)
+    fn new(_config_map: ConfigMap) -> Self {
+        LogEventListener {}
+    }
+
+    fn get_identifier() -> String {
+        const IDENTIFIER: &'static str = "LogEventListener";
+        return IDENTIFIER.to_owned();
+    }
+
+    fn start(&self, receiver: Receiver<RabbitTradingEvent>) {
+        tokio::task::spawn(Self::async_log_task(receiver));
     }
 
     fn stop(&self) -> Result<(), Error> {

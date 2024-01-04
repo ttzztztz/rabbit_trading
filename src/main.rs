@@ -43,6 +43,7 @@ async fn main() {
             identifier: "NoOpMetricRegistryFactory".to_owned(),
             config_map: HashMap::new(),
         },
+        event_listener_list: vec![],
     });
 
     pod.start().await.unwrap();

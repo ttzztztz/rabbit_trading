@@ -1,8 +1,11 @@
 use tokio::sync::broadcast::{self, Receiver, Sender};
 
-use super::listener::LogEventListener;
+use super::listener::{common::listener::EventListenerTrait, log::listener::LogEventListener};
 use crate::{
-    model::trading::event::{EventContext, RabbitTradingEvent},
+    model::{
+        common::types::ConfigMap,
+        trading::event::{EventContext, RabbitTradingEvent},
+    },
     utils::time::get_now_unix_timestamp,
 };
 
@@ -14,7 +17,7 @@ pub struct EventBus {
 impl EventBus {
     pub fn new(pod_id: String) -> Self {
         let (sender, receiver) = broadcast::channel::<RabbitTradingEvent>(256);
-        LogEventListener::new(receiver);
+        LogEventListener::new(ConfigMap::new()).start(receiver);
         EventBus { sender, pod_id }
     }
 

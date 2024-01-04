@@ -30,6 +30,7 @@ pub fn get_broker_instance(
         }),
     }
 }
+
 #[cfg(test)]
 mod test_broker_initializer {
     use std::collections::HashMap;

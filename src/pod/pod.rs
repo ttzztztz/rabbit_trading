@@ -1,4 +1,4 @@
-use super::event::event_bus::EventBus;
+use super::event::{event_bus::EventBus, listener::initializer::get_event_listener};
 use crate::{
     broker::{common::broker::BrokerTrait, initializer::get_broker_instance},
     metrics::initializer::get_metrics_registry_factory,
@@ -95,9 +95,28 @@ impl Pod {
         )
     }
 
+    fn initialize_event_listeners(&self) -> Result<(), Error> {
+        match self
+            .pod_config
+            .event_listener_list
+            .iter()
+            .find_map(|event_listener_config| {
+                get_event_listener(
+                    event_listener_config.identifier.clone(),
+                    event_listener_config.config_map.clone(),
+                )
+                .map(|event_listener| event_listener.start(self.event_bus.subscribe()))
+                .err()
+            }) {
+            None => Result::Ok(()),
+            Some(err) => Result::Err(err),
+        }
+    }
+
     async fn initialize(&self) -> Result<Box<dyn StrategyTrait>, Error> {
         let broker_list = self.initialize_broker_list()?;
         let persistent_kv_store = self.initialize_persistent_kv_store().await?;
+        self.initialize_event_listeners()?;
         self.initialize_strategy(broker_list, persistent_kv_store)
     }
 
