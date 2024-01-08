@@ -23,27 +23,26 @@ impl MetricRegistryFactoryTrait for StatsDMetricRegistryFactory {
     }
 
     async fn create(&self) -> Box<dyn MetricRegistryTrait> {
-        const CLIENT_FROM_ADDRESS_CONFIG_PARAMETER_KEY: &'static str =
-            "metrics.statsd.from.address";
-        const CLIENT_TO_ADDRESS_CONFIG_PARAMETER_KEY: &'static str = "metrics.statsd.to.address";
-        const CLIENT_PREFIX_CONFIG_PARAMETER_KEY: &'static str = "metrics.statsd.prefix";
-        const CLIENT_PREFIX_CONFIG_FALLBACK_VALUE: &'static str = "rabbit.trading.";
+        const CONFIG_KEY_CLIENT_FROM_ADDRESS: &'static str = "metrics.statsd.from.address";
+        const CONFIG_KEY_CLIENT_TO_ADDRESS: &'static str = "metrics.statsd.to.address";
+        const CONFIG_KEY_CLIENT_PREFIX: &'static str = "metrics.statsd.prefix";
+        const CONFIG_DEFAULT_VALUE_CLIENT_PREFIX: &'static str = "rabbit.trading.";
 
         let from_address = self
             .config_map
-            .get(CLIENT_FROM_ADDRESS_CONFIG_PARAMETER_KEY)
+            .get(CONFIG_KEY_CLIENT_FROM_ADDRESS)
             .unwrap()
             .clone();
         let to_address = self
             .config_map
-            .get(CLIENT_TO_ADDRESS_CONFIG_PARAMETER_KEY)
+            .get(CONFIG_KEY_CLIENT_TO_ADDRESS)
             .unwrap()
             .clone();
         let prefix = self
             .config_map
-            .get(CLIENT_PREFIX_CONFIG_PARAMETER_KEY)
+            .get(CONFIG_KEY_CLIENT_PREFIX)
             .map(|value| value.to_string())
-            .unwrap_or(CLIENT_PREFIX_CONFIG_FALLBACK_VALUE.to_owned());
+            .unwrap_or(CONFIG_DEFAULT_VALUE_CLIENT_PREFIX.to_owned());
 
         let client_options = Options::new(
             from_address.as_str(),

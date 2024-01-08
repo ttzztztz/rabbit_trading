@@ -6,6 +6,7 @@ use super::{
 use crate::{
     broker::common::{
         broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
+        heartbeat::HeartbeatTrait,
         info::{InfoProxy, InfoTrait},
         subscription::{SubscriptionProxy, SubscriptionTrait},
         transaction::{TransactionProxy, TransactionTrait},
@@ -59,5 +60,9 @@ impl BrokerTrait for LongBridgeBroker {
                 .create_transaction_interceptor()
                 .await,
         ))
+    }
+
+    async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
+        Option::None
     }
 }

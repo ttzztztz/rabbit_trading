@@ -1,8 +1,10 @@
 use async_trait::async_trait;
 
+use super::client_portal::client::IBClientPortal;
 use crate::{
     broker::common::{
         broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
+        heartbeat::HeartbeatTrait,
         info::InfoTrait,
         subscription::SubscriptionTrait,
         transaction::TransactionTrait,
@@ -12,6 +14,15 @@ use crate::{
 
 pub struct InteractiveBrokersBroker {
     interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
+}
+
+impl InteractiveBrokersBroker {
+    fn create_ib_client_portal(config_map: ConfigMap) -> IBClientPortal {
+        const CONFIG_KEY_HOST: &'static str = "ibkr.cp.host";
+
+        let host = config_map.get(CONFIG_KEY_HOST).map(|val| val.clone());
+        IBClientPortal::new(host)
+    }
 }
 
 #[async_trait]
@@ -40,5 +51,9 @@ impl BrokerTrait for InteractiveBrokersBroker {
 
     async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
         todo!()
+    }
+
+    async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
+        Option::None
     }
 }

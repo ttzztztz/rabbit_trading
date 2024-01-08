@@ -43,8 +43,9 @@ impl PersistentKVStoreTrait for FileSystemKVStore {
     }
 
     async fn new(config_map: ConfigMap) -> Self {
-        const BASE_PATH_CONFIG_PARAMETER_KEY: &'static str = "persistent.fs.base_path";
-        let backend_path = match config_map.get(BASE_PATH_CONFIG_PARAMETER_KEY) {
+        const CONFIG_KEY_BASE_PATH: &'static str = "persistent.fs.base_path";
+
+        let backend_path = match config_map.get(CONFIG_KEY_BASE_PATH) {
             Some(base_path) => KVStoreBackendPath::UserDefinedPath {
                 base_path: base_path.clone(),
             },

@@ -4,6 +4,7 @@ use super::{info::YahooFinanceInfo, subscription::YahooFinanceSubscription};
 use crate::{
     broker::common::{
         broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
+        heartbeat::HeartbeatTrait,
         info::{InfoProxy, InfoTrait},
         subscription::{SubscriptionProxy, SubscriptionTrait},
         transaction::TransactionTrait,
@@ -51,5 +52,9 @@ impl BrokerTrait for YahooFinanceBroker {
 
     async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
         todo!("Yahoo Finance cannot be used for trading")
+    }
+
+    async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
+        Option::None
     }
 }

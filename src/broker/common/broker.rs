@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 
 use super::{
+    heartbeat::HeartbeatTrait,
     info::{InfoInterceptorTrait, InfoTrait},
     subscription::{SubscriptionInterceptorTrait, SubscriptionTrait},
     transaction::{TransactionInterceptorTrait, TransactionTrait},
@@ -22,6 +23,7 @@ pub trait BrokerTrait: Send + Sync {
     async fn create_info(&self) -> Box<dyn InfoTrait>;
     async fn create_subscription(&self) -> Box<dyn SubscriptionTrait>;
     async fn create_transaction(&self) -> Box<dyn TransactionTrait>;
+    async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>>;
 }
 
 #[async_trait]

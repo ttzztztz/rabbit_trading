@@ -115,6 +115,12 @@ impl Pod {
 
     async fn initialize(&self) -> Result<Box<dyn StrategyTrait>, Error> {
         let broker_list = self.initialize_broker_list()?;
+        for broker in broker_list.iter() {
+            if let Some(heartbeat) = broker.create_heartbeat().await {
+                heartbeat.start().await?;
+                // todo: manager the lifecycle of heartbeat (stop)
+            }
+        }
         let persistent_kv_store = self.initialize_persistent_kv_store().await?;
         self.initialize_event_listeners()?;
         self.initialize_strategy(broker_list, persistent_kv_store)
