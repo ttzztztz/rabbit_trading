@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use super::client_portal::client::IBClientPortal;
+use super::{client_portal::client::IBClientPortal, heartbeat::InteractiveBrokersHeartbeat};
 use crate::{
     broker::common::{
         broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
@@ -13,11 +13,12 @@ use crate::{
 };
 
 pub struct InteractiveBrokersBroker {
+    config_map: ConfigMap,
     interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
 }
 
 impl InteractiveBrokersBroker {
-    fn create_ib_client_portal(config_map: ConfigMap) -> IBClientPortal {
+    pub(super) fn create_ib_client_portal(config_map: ConfigMap) -> IBClientPortal {
         const CONFIG_KEY_HOST: &'static str = "ibkr.cp.host";
 
         let host = config_map.get(CONFIG_KEY_HOST).map(|val| val.clone());
@@ -32,6 +33,7 @@ impl BrokerTrait for InteractiveBrokersBroker {
         config_map: ConfigMap,
     ) -> Self {
         InteractiveBrokersBroker {
+            config_map,
             interceptor_factory,
         }
     }
@@ -54,6 +56,8 @@ impl BrokerTrait for InteractiveBrokersBroker {
     }
 
     async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
-        Option::None
+        Option::Some(Box::new(
+            InteractiveBrokersHeartbeat::new(self.config_map.clone()).await,
+        ))
     }
 }

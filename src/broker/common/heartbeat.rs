@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 
-use crate::model::common::error::Error;
+use crate::model::common::{error::Error, types::ConfigMap};
 
 #[async_trait]
 pub trait HeartbeatTrait: Send + Sync {
-    async fn new() -> Self
+    async fn new(config_map: ConfigMap) -> Self
     where
         Self: Sized;
 
