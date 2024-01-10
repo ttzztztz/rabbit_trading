@@ -1,5 +1,9 @@
+pub mod contract_detail;
 pub mod contract;
 pub mod definition;
+pub mod order_ticket;
 pub mod stock_contract;
 pub mod position;
+pub mod tick_types;
 pub mod tickle;
+pub mod web_socket;

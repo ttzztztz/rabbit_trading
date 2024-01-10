@@ -1,10 +1,11 @@
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
 use super::{
     definition::{AssetClass, OptionRight},
     position::DisplayRule,
 };
-use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]

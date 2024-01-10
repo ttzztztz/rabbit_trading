@@ -1,12 +1,13 @@
 pub struct IBClientPortal {
-    pub(super) client: reqwest::Client,
+    pub(super) account: String,
     pub(super) host: String,
+    pub(super) listen_ssl: bool,
+
+    pub(super) client: reqwest::Client,
 }
 
 impl IBClientPortal {
-    pub fn new(host: Option<String>) -> Self {
-        const DEFAULT_HOST: &'static str = "http://localhost:5000";
-
+    pub fn new(account: String, host: String, listen_ssl: bool) -> Self {
         let mut default_headers = reqwest::header::HeaderMap::new();
         default_headers.insert(
             reqwest::header::CONTENT_TYPE,
@@ -23,11 +24,16 @@ impl IBClientPortal {
             .build()
             .unwrap();
 
-        let host = host.unwrap_or(DEFAULT_HOST.to_owned());
-        IBClientPortal { client, host }
+        IBClientPortal {
+            account,
+            host,
+            listen_ssl,
+            client,
+        }
     }
 
     pub(crate) fn get_url(&self, path: &str) -> String {
-        format!("{}/v1/api{path}", self.host)
+        let protocol = if self.listen_ssl { "https" } else { "http" };
+        format!("{protocol}://{}/v1/api{path}", self.host)
     }
 }
