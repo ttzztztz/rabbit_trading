@@ -100,9 +100,8 @@ impl IBClientPortal {
 
 #[cfg(test)]
 mod test_ib_cp_client {
-    use std::env;
-
     use dotenv::dotenv;
+    use std::env;
 
     use crate::broker::interactive_brokers::client_portal::client::IBClientPortal;
 
@@ -139,7 +138,6 @@ mod test_ib_cp_client {
         let response_stock_contract_info_option = response.get("QQQ");
         assert!(response_stock_contract_info_option.is_some());
         let response_stock_contract_info = response_stock_contract_info_option.unwrap();
-        println!("{:?}", response_stock_contract_info);
         assert!(response_stock_contract_info.len() > 0);
         let contract_info = &response_stock_contract_info[0];
         assert!(contract_info.contracts.len() > 0);
