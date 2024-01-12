@@ -1393,6 +1393,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "dogstatsd",
+ "dotenv",
  "futures-util",
  "log",
  "longbridge",

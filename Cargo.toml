@@ -27,6 +27,7 @@ yahoo_finance_api = "2.1.0"
 
 [dev-dependencies]
 tokio-test = "0.4.3"
+dotenv = "0.15.0"
 
 [features]
 full = ["broker__longbridge", "broker__yahoo_finance", "broker__interactive_brokers", "metrics__noops", "metrics__statsd", "persistent__memory", "persistent__fs", "strategy__example"]
