@@ -1,6 +1,12 @@
-use tokio::sync::broadcast::{self, Receiver, Sender};
+use std::collections::LinkedList;
+use tokio::sync::{
+    broadcast::{self, Receiver, Sender},
+    RwLockReadGuard,
+};
 
-use super::listener::{common::listener::EventListenerTrait, log::listener::LogEventListener};
+use super::listener::{
+    common::listener::EventListenerTrait, log_container::listener::LogContainerEventListener,
+};
 use crate::{
     model::{
         common::types::ConfigMap,
@@ -12,13 +18,23 @@ use crate::{
 pub struct EventBus {
     sender: Sender<RabbitTradingEvent>,
     pod_id: String,
+    log_container_event_listener: LogContainerEventListener,
 }
 
 impl EventBus {
     pub fn new(pod_id: String) -> Self {
         let (sender, receiver) = broadcast::channel::<RabbitTradingEvent>(256);
-        LogEventListener::new(ConfigMap::new()).start(receiver);
-        EventBus { sender, pod_id }
+        let log_container_event_listener = LogContainerEventListener::new(ConfigMap::new());
+        log_container_event_listener.start(receiver);
+        EventBus {
+            sender,
+            pod_id,
+            log_container_event_listener,
+        }
+    }
+
+    pub async fn inspect_log(&self) -> RwLockReadGuard<'_, LinkedList<RabbitTradingEvent>> {
+        self.log_container_event_listener.inspect_log().await
     }
 
     pub fn subscribe(&self) -> Receiver<RabbitTradingEvent> {
@@ -34,6 +50,7 @@ impl EventBus {
 
     pub fn create_event_context(&self) -> EventContext {
         EventContext {
+            // todo: add broker_id
             pod_id: self.pod_id.clone(),
             timestamp: get_now_unix_timestamp(),
         }
@@ -45,6 +62,7 @@ impl Clone for EventBus {
         Self {
             sender: self.sender.clone(),
             pod_id: self.pod_id.clone(),
+            log_container_event_listener: self.log_container_event_listener.clone(),
         }
     }
 }

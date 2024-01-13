@@ -1,8 +1,11 @@
+use std::collections::LinkedList;
+use tokio::sync::RwLockReadGuard;
+
 use super::event::{event_bus::EventBus, listener::initializer::get_event_listener};
 use crate::{
     broker::{common::broker::BrokerTrait, initializer::get_broker_instance},
     metrics::initializer::get_metrics_registry_factory,
-    model::{common::error::Error, config::pod::PodConfig},
+    model::{common::error::Error, config::pod::PodConfig, trading::event::RabbitTradingEvent},
     persistent_kv::{
         common::store::PersistentKVStoreTrait, initializer::get_persistent_kv_instance,
     },
@@ -124,6 +127,10 @@ impl Pod {
         let persistent_kv_store = self.initialize_persistent_kv_store().await?;
         self.initialize_event_listeners()?;
         self.initialize_strategy(broker_list, persistent_kv_store)
+    }
+
+    pub async fn inspect_log(&self) -> RwLockReadGuard<'_, LinkedList<RabbitTradingEvent>> {
+        self.event_bus.inspect_log().await
     }
 
     pub async fn start(&self) -> Result<(), Error> {

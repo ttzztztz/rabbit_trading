@@ -1,7 +1,9 @@
 use super::common::listener::EventListenerTrait;
 use crate::{
     model::common::{error::Error, types::ConfigMap},
-    pod::event::listener::log::listener::LogEventListener,
+    pod::event::listener::{
+        log::listener::LogEventListener, log_container::listener::LogContainerEventListener,
+    },
 };
 
 pub fn get_event_listener(
@@ -13,6 +15,10 @@ pub fn get_event_listener(
     match identifier {
         identifier if identifier == LogEventListener::get_identifier() => {
             Result::Ok(Box::new(LogEventListener::new(config_map)))
+        }
+
+        identifier if identifier == LogContainerEventListener::get_identifier() => {
+            Result::Ok(Box::new(LogContainerEventListener::new(config_map)))
         }
 
         _ => Result::Err(Error {
