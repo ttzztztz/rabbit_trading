@@ -23,10 +23,12 @@ pub struct Pod {
 
 impl Pod {
     pub fn new(pod_config: PodConfig) -> Self {
+        const EMPTY_BROKER_ID: &'static str = "";
+
         let pod_id = pod_config.pod_id.clone();
         Pod {
             pod_config,
-            event_bus: EventBus::new(pod_id),
+            event_bus: EventBus::new(EMPTY_BROKER_ID.to_owned(), pod_id),
         }
     }
 
@@ -47,7 +49,8 @@ impl Pod {
                 get_broker_instance(
                     broker_config.identifier.clone(),
                     Box::new(PodBrokerInterceptorCollectionFactory::new(
-                        self.event_bus.clone(),
+                        self.event_bus
+                            .shallow_clone(Option::Some(broker_config.identifier.clone())),
                         metrics_registry_factory,
                     )),
                     broker_config.config_map.clone(),

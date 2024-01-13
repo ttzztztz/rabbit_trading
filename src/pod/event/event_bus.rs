@@ -17,17 +17,19 @@ use crate::{
 
 pub struct EventBus {
     sender: Sender<RabbitTradingEvent>,
+    broker_id: String,
     pod_id: String,
     log_container_event_listener: LogContainerEventListener,
 }
 
 impl EventBus {
-    pub fn new(pod_id: String) -> Self {
+    pub fn new(broker_id: String, pod_id: String) -> Self {
         let (sender, receiver) = broadcast::channel::<RabbitTradingEvent>(256);
         let log_container_event_listener = LogContainerEventListener::new(ConfigMap::new());
         log_container_event_listener.start(receiver);
         EventBus {
             sender,
+            broker_id,
             pod_id,
             log_container_event_listener,
         }
@@ -55,12 +57,11 @@ impl EventBus {
             timestamp: get_now_unix_timestamp(),
         }
     }
-}
 
-impl Clone for EventBus {
-    fn clone(&self) -> Self {
-        Self {
+    pub fn shallow_clone(&self, broker_id: Option<String>) -> Self {
+        EventBus {
             sender: self.sender.clone(),
+            broker_id: broker_id.unwrap_or(self.broker_id.clone()),
             pod_id: self.pod_id.clone(),
             log_container_event_listener: self.log_container_event_listener.clone(),
         }

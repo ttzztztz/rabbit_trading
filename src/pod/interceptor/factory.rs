@@ -34,7 +34,7 @@ impl PodBrokerInterceptorCollectionFactory {
 impl BrokerInterceptorFactoryTrait for PodBrokerInterceptorCollectionFactory {
     async fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>> {
         let info_interceptor = PodInfoInterceptor::new(
-            self.event_bus.clone(),
+            self.event_bus.shallow_clone(Option::None),
             self.metric_registry_factory.create().await,
         );
         Option::Some(Box::new(info_interceptor))
@@ -44,7 +44,7 @@ impl BrokerInterceptorFactoryTrait for PodBrokerInterceptorCollectionFactory {
         &self,
     ) -> Option<Box<dyn SubscriptionInterceptorTrait>> {
         let subscription_interceptor = PodSubscriptionInterceptor::new(
-            self.event_bus.clone(),
+            self.event_bus.shallow_clone(Option::None),
             self.metric_registry_factory.create().await,
         );
         Option::Some(Box::new(subscription_interceptor))
@@ -52,7 +52,7 @@ impl BrokerInterceptorFactoryTrait for PodBrokerInterceptorCollectionFactory {
 
     async fn create_transaction_interceptor(&self) -> Option<Box<dyn TransactionInterceptorTrait>> {
         let transaction_interceptor = PodTransactionInterceptor::new(
-            self.event_bus.clone(),
+            self.event_bus.shallow_clone(Option::None),
             self.metric_registry_factory.create().await,
         );
         Option::Some(Box::new(transaction_interceptor))
