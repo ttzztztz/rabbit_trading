@@ -4,12 +4,12 @@ use futures_util::{
 };
 use serde_json::json;
 use tokio::net::TcpStream;
-use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::{
+    tungstenite::{Error, Message},
+    MaybeTlsStream, WebSocketStream,
+};
 
 use super::{client::IBClientPortal, model::web_socket::Subscription};
-use crate::{
-    model::common::error::Error, utils::error::tokio_tungstenite_error_to_rabbit_trading_error,
-};
 
 pub type WriteWs = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
 pub type ReadWs = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
@@ -17,11 +17,7 @@ pub type ReadWs = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
 //https://interactivebrokers.github.io/cpwebapi/websockets
 pub async fn listen(reader: &mut ReadWs, on_message: fn(String) -> ()) -> Result<(), Error> {
     while let Some(msg) = reader.next().await {
-        on_message(
-            msg.map_err(tokio_tungstenite_error_to_rabbit_trading_error)?
-                .into_text()
-                .map_err(tokio_tungstenite_error_to_rabbit_trading_error)?,
-        );
+        on_message(msg?.into_text()?);
     }
     Ok(())
 }
@@ -32,10 +28,7 @@ pub async fn keep_alive(mut writer: WriteWs) -> Result<(), Error> {
     let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(58));
     loop {
         interval.tick().await;
-        writer
-            .send(Message::Text("tic".to_owned()))
-            .await
-            .map_err(tokio_tungstenite_error_to_rabbit_trading_error)?;
+        writer.send(Message::Text("tic".to_owned())).await?;
     }
 }
 
@@ -55,24 +48,16 @@ impl IBClientPortal {
         on_message: fn(String) -> (),
     ) -> Result<(), Error> {
         let url = self.get_ws_url();
-        let (ws_stream, _) = tokio_tungstenite::connect_async(url)
-            .await
-            .map_err(tokio_tungstenite_error_to_rabbit_trading_error)?;
+        let (ws_stream, _) = tokio_tungstenite::connect_async(url).await?;
         let (mut ws_out, mut ws_in) = ws_stream.split();
 
-        let session = self.tickle().await?.session;
+        let session = self.tickle().await.unwrap().session; // todo: eliminate "unwrap" here
         let auth_message = self.ws_auth_msg(session).to_owned();
-        ws_out
-            .send(Message::Text(auth_message))
-            .await
-            .map_err(tokio_tungstenite_error_to_rabbit_trading_error)?;
+        ws_out.send(Message::Text(auth_message)).await?;
 
         for sub in subscriptions {
             let message = sub.build();
-            ws_out
-                .send(Message::Text(message))
-                .await
-                .map_err(tokio_tungstenite_error_to_rabbit_trading_error)?;
+            ws_out.send(Message::Text(message)).await?;
         }
         tokio::try_join!(listen(&mut ws_in, on_message), keep_alive(ws_out))?;
         Ok(())
@@ -84,7 +69,7 @@ mod test_ib_cp_client {
     use dotenv::dotenv;
     use std::env;
 
-    use crate::broker::interactive_brokers::client_portal::{
+    use crate::{
         client::IBClientPortal,
         model::{
             tick_types::TickType,

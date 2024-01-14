@@ -1,3 +1,4 @@
+use reqwest::Error;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -8,7 +9,6 @@ use super::{
         position::Position, stock_contract::StockContracts, tickle::Tickle,
     },
 };
-use crate::{model::common::error::Error, utils::error::reqwest_error_to_rabbit_trading_error};
 
 impl IBClientPortal {
     pub async fn tickle(&self) -> Result<Tickle, Error> {
@@ -21,13 +21,9 @@ impl IBClientPortal {
             )
             .body("")
             .send()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)?;
+            .await?;
 
-        response
-            .json()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)
+        response.json().await
     }
 
     pub async fn get_stocks_by_symbol(
@@ -39,15 +35,9 @@ impl IBClientPortal {
             .client
             .get(self.get_url(path))
             .query(&[("symbols", symbols.join(","))]);
-        let response = request
-            .send()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)?;
+        let response = request.send().await?;
 
-        response
-            .json()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)
+        response.json().await
     }
 
     pub async fn market_data(
@@ -55,81 +45,50 @@ impl IBClientPortal {
         request: MarketDataRequest,
     ) -> Result<Vec<HashMap<String, Value>>, Error> {
         let path = "/iserver/marketdata/snapshot";
-        let query: Vec<(&str, String)> = request
-            .conids
-            .into_iter()
-            .map(|conid| ("conids", conid))
-            .chain(
-                request
-                    .fields
-                    .into_iter()
-                    .map(|field| ("fields", field.to_string())),
-            )
-            .chain(
-                request
-                    .since
-                    .map_or(vec![], |since| vec![("since", since.to_string())]),
-            )
-            .collect();
+        let conids_query = ("conids", request.conids.join(",").to_string());
+        let fields_query = (
+            "fields",
+            request
+                .fields
+                .into_iter()
+                .map(|field| field.to_string())
+                .collect::<Vec<String>>()
+                .join(",")
+                .to_string(),
+        );
+        let since_query = request.since.map(|since| ("since", since.to_string()));
+        let mut query = vec![conids_query, fields_query];
+        if let Some(since_query) = since_query {
+            query.push(since_query);
+        }
 
         let request = self.client.get(self.get_url(path)).query(&query);
-        let response = request
-            .send()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)?;
+        let response = request.send().await?;
 
-        response
-            .json()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)
+        response.json().await
     }
 
     pub async fn get_positions(&self, page: i32) -> Result<Vec<Position>, Error> {
         let path = format!("/portfolio/{}/positions/{}", self.account, page);
-        let response = self
-            .client
-            .get(self.get_url(&path))
-            .body("")
-            .send()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)?;
+        let response = self.client.get(self.get_url(&path)).body("").send().await?;
 
-        response
-            .json()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)
+        response.json().await
     }
 
     pub async fn place_order(&self, orders: Vec<OrderTicket>) -> Result<Value, Error> {
         let path = format!("/iserver/account/{}/order", self.account);
         let payload = json!({"orders":orders});
         let request = self.client.post(self.get_url(&path));
-        let response = request
-            .body(payload.to_string())
-            .send()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)?;
+        let response = request.body(payload.to_string()).send().await?;
 
-        response
-            .json()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)
+        response.json().await
     }
 
     pub async fn get_contract_detail(&self, conid: i64) -> Result<ContractDetail, Error> {
         let path = format!("/iserver/contract/{}/info", conid);
-        let response = self
-            .client
-            .get(self.get_url(&path))
-            .body("")
-            .send()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)?;
+        let response = self.client.get(self.get_url(&path)).body("").send().await?;
 
-        response
-            .json()
-            .await
-            .map_err(reqwest_error_to_rabbit_trading_error)
+        response.json().await
     }
 }
 
@@ -138,7 +97,7 @@ mod test_ib_cp_client {
     use dotenv::dotenv;
     use std::{env, vec};
 
-    use crate::broker::interactive_brokers::client_portal::{
+    use crate::{
         client::IBClientPortal,
         model::{market_data::MarketDataRequest, tick_types::TickType},
     };
@@ -214,8 +173,8 @@ mod test_ib_cp_client {
         let response_result = ib_cp_client
             .market_data(MarketDataRequest {
                 conids: vec![CONID_QQQ.to_string()],
-                since: Option::None,
-                fields: vec![TickType::LastPrice],
+                since: Option::Some(1_705_230_000_000),
+                fields: vec![TickType::LastPrice, TickType::Low, TickType::High],
             })
             .await;
 
@@ -225,6 +184,12 @@ mod test_ib_cp_client {
         let first_contract = response.first().unwrap();
         assert!(first_contract
             .get(TickType::LastPrice.to_string().as_str())
+            .is_some());
+        assert!(first_contract
+            .get(TickType::Low.to_string().as_str())
+            .is_some());
+        assert!(first_contract
+            .get(TickType::High.to_string().as_str())
             .is_some());
     }
 }

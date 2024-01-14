@@ -1,6 +1,6 @@
 use async_trait::async_trait;
+use ibkr_client_portal::client::IBClientPortal;
 
-use super::client_portal::client::IBClientPortal;
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait},
     model::{

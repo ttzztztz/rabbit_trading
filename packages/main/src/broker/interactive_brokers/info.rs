@@ -1,6 +1,7 @@
 use async_trait::async_trait;
+use ibkr_client_portal::client::IBClientPortal;
 
-use super::{broker::InteractiveBrokersBroker, client_portal::client::IBClientPortal};
+use super::broker::InteractiveBrokersBroker;
 use crate::{
     broker::common::info::InfoTrait,
     model::{

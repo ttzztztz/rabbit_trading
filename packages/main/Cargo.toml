@@ -1,0 +1,42 @@
+[package]
+name = "rabbit_trading"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-trait = { workspace = true }
+dogstatsd = { workspace = true }
+ibkr_client_portal = { path = "../ibkr_client_portal" }
+log = { workspace = true }
+longbridge = { workspace = true }
+reqwest = { workspace = true, features = ["json"] }
+rust_decimal = { workspace = true, features = ["maths", "serde-float", "serde-with-str"] }
+rust_decimal_macros = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+simple_logger = { workspace = true }
+tempfile = { workspace = true }
+time = { workspace = true, features = ["parsing", "macros", "formatting"] }
+tokio = { workspace = true, features = ["full"] }
+tokio-tungstenite = { workspace = true }
+yahoo_finance_api = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+dotenv = { workspace = true }
+
+[features]
+full = ["broker__longbridge", "broker__yahoo_finance", "broker__interactive_brokers", "metrics__noops", "metrics__statsd", "persistent__memory", "persistent__fs", "strategy__example"]
+default = ["full"]
+ci = ["full"]
+broker__longbridge = []
+broker__yahoo_finance = []
+broker__interactive_brokers = []
+metrics__noops = []
+metrics__statsd = []
+persistent__memory = []
+persistent__fs = []
+strategy__example = []

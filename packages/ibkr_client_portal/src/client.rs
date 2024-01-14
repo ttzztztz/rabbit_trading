@@ -1,9 +1,9 @@
 pub struct IBClientPortal {
-    pub(super) account: String,
-    pub(super) host: String,
-    pub(super) listen_ssl: bool,
+    pub account: String,
+    pub host: String,
+    pub listen_ssl: bool,
 
-    pub(super) client: reqwest::Client,
+    pub client: reqwest::Client,
 }
 
 impl IBClientPortal {
@@ -32,7 +32,7 @@ impl IBClientPortal {
         }
     }
 
-    pub(crate) fn get_url(&self, path: &str) -> String {
+    pub fn get_url(&self, path: &str) -> String {
         let protocol = if self.listen_ssl { "https" } else { "http" };
         format!("{protocol}://{}/v1/api{path}", self.host)
     }
