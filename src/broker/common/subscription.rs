@@ -3,13 +3,13 @@ use std::time::{Duration, Instant};
 use tokio::sync::mpsc::Receiver;
 
 use crate::model::{
-    common::error::Error,
+    common::{error::Error, types::ConfigMap},
     trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 
 #[async_trait]
 pub trait SubscriptionTrait: Send + Sync {
-    async fn new() -> Self
+    async fn new(config_map: ConfigMap) -> Self
     where
         Self: Sized;
     async fn real_time_info(
@@ -89,7 +89,7 @@ impl SubscriptionProxy {
 
 #[async_trait]
 impl SubscriptionTrait for SubscriptionProxy {
-    async fn new() -> Self {
+    async fn new(config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

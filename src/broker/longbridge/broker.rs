@@ -15,6 +15,7 @@ use crate::{
 };
 
 pub struct LongBridgeBroker {
+    config_map: ConfigMap,
     interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
 }
 
@@ -22,9 +23,10 @@ pub struct LongBridgeBroker {
 impl BrokerTrait for LongBridgeBroker {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
-        _config_map: ConfigMap,
+        config_map: ConfigMap,
     ) -> Self {
         LongBridgeBroker {
+            config_map,
             interceptor_factory,
         }
     }
@@ -35,7 +37,7 @@ impl BrokerTrait for LongBridgeBroker {
     }
 
     async fn create_info(&self) -> Box<dyn InfoTrait> {
-        let longbridge_info = Box::new(LongBridgeInfo::new().await);
+        let longbridge_info = Box::new(LongBridgeInfo::new(self.config_map.clone()).await);
         Box::new(InfoProxy::new(
             longbridge_info,
             self.interceptor_factory.create_info_interceptor().await,
@@ -43,7 +45,8 @@ impl BrokerTrait for LongBridgeBroker {
     }
 
     async fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
-        let longbridge_subscription = Box::new(LongBridgeSubscription::new().await);
+        let longbridge_subscription =
+            Box::new(LongBridgeSubscription::new(self.config_map.clone()).await);
         Box::new(SubscriptionProxy::new(
             longbridge_subscription,
             self.interceptor_factory
@@ -53,7 +56,8 @@ impl BrokerTrait for LongBridgeBroker {
     }
 
     async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
-        let longbridge_transaction = Box::new(LongBridgeTransaction::new().await);
+        let longbridge_transaction =
+            Box::new(LongBridgeTransaction::new(self.config_map.clone()).await);
         Box::new(TransactionProxy::new(
             longbridge_transaction,
             self.interceptor_factory

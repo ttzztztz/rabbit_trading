@@ -2,13 +2,13 @@ use async_trait::async_trait;
 use std::time::{Duration, Instant};
 
 use crate::model::{
-    common::error::Error,
+    common::{error::Error, types::ConfigMap},
     trading::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 
 #[async_trait]
 pub trait InfoTrait: Send + Sync {
-    async fn new() -> Self
+    async fn new(config_map: ConfigMap) -> Self
     where
         Self: Sized;
 
@@ -90,7 +90,7 @@ impl InfoProxy {
 
 #[async_trait]
 impl InfoTrait for InfoProxy {
-    async fn new() -> Self {
+    async fn new(config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

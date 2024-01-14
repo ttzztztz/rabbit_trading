@@ -18,20 +18,22 @@ use super::{
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait, SubscriptionWorker},
     model::{
-        common::error::Error,
+        common::{error::Error, types::ConfigMap},
         trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
     },
 };
 
 // https://crates.io/crates/longbridge
-pub(super) struct LongBridgeSubscription {}
+pub struct LongBridgeSubscription {
+    config_map: ConfigMap,
+}
 
 impl LongBridgeSubscription {}
 
 #[async_trait]
 impl SubscriptionTrait for LongBridgeSubscription {
-    async fn new() -> Self {
-        LongBridgeSubscription {}
+    async fn new(config_map: ConfigMap) -> Self {
+        LongBridgeSubscription { config_map }
     }
 
     async fn real_time_info(
@@ -92,17 +94,20 @@ mod test_longbridge_subscription {
     use super::LongBridgeSubscription;
     use crate::{
         broker::common::subscription::SubscriptionTrait,
-        model::trading::{
-            market::Market,
-            quote::{QueryInfoRequest, QuoteKind},
-            symbol::Symbol,
+        model::{
+            common::types::ConfigMap,
+            trading::{
+                market::Market,
+                quote::{QueryInfoRequest, QuoteKind},
+                symbol::Symbol,
+            },
         },
     };
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_quote_real_time_info() {
-        let longbridge_subscription = LongBridgeSubscription::new().await;
+        let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new()).await;
         let (mut receiver, _) = longbridge_subscription
             .real_time_info(QueryInfoRequest {
                 symbol: Symbol {
@@ -132,7 +137,7 @@ mod test_longbridge_subscription {
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_quote_depth_info() {
-        let longbridge_subscription = LongBridgeSubscription::new().await;
+        let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new()).await;
         let (mut receiver, _) = longbridge_subscription
             .depth_info(QueryInfoRequest {
                 symbol: Symbol {

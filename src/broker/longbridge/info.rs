@@ -6,7 +6,7 @@ use std::result::Result;
 use super::broker::LongBridgeBroker;
 use crate::broker::common::info::InfoTrait;
 use crate::model::{
-    common::error::Error,
+    common::{error::Error, types::ConfigMap},
     trading::{
         quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
         symbol::Symbol,
@@ -95,7 +95,7 @@ impl LongBridgeInfo {
 
 #[async_trait]
 impl InfoTrait for LongBridgeInfo {
-    async fn new() -> Self {
+    async fn new(config_map: ConfigMap) -> Self {
         let (longbridge_context, _) = LongBridgeBroker::create_quote_context().await.unwrap();
         LongBridgeInfo { longbridge_context }
     }
@@ -150,17 +150,20 @@ mod test_longbridge_info {
 
     use super::LongBridgeInfo;
     use crate::broker::common::info::InfoTrait;
-    use crate::model::trading::{
-        currency::Currency,
-        market::Market,
-        quote::{QueryInfoRequest, QuoteKind},
-        symbol::Symbol,
+    use crate::model::{
+        common::types::ConfigMap,
+        trading::{
+            currency::Currency,
+            market::Market,
+            quote::{QueryInfoRequest, QuoteKind},
+            symbol::Symbol,
+        },
     };
 
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_basic_info() {
-        let longbridge_info = LongBridgeInfo::new().await;
+        let longbridge_info = LongBridgeInfo::new(ConfigMap::new()).await;
         let quote_basic_info_result = longbridge_info
             .query_basic_info(QueryInfoRequest {
                 symbol: Symbol {
@@ -186,7 +189,7 @@ mod test_longbridge_info {
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_real_time_info() {
-        let longbridge_info = LongBridgeInfo::new().await;
+        let longbridge_info = LongBridgeInfo::new(ConfigMap::new()).await;
         let quote_real_time_info_result = longbridge_info
             .query_real_time_info(QueryInfoRequest {
                 symbol: Symbol {
@@ -213,7 +216,7 @@ mod test_longbridge_info {
     #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
     async fn test_query_depth() {
-        let longbridge_info = LongBridgeInfo::new().await;
+        let longbridge_info = LongBridgeInfo::new(ConfigMap::new()).await;
         let quote_depth_info_result = longbridge_info
             .query_depth(QueryInfoRequest {
                 symbol: Symbol {

@@ -4,7 +4,7 @@ use super::client_portal::client::IBClientPortal;
 use crate::{
     broker::common::transaction::TransactionTrait,
     model::{
-        common::error::Error,
+        common::{error::Error, types::ConfigMap},
         trading::{
             balance::BalanceHashMap,
             position::PositionList,
@@ -23,7 +23,7 @@ pub struct InteractiveBrokersTransaction {
 
 #[async_trait]
 impl TransactionTrait for InteractiveBrokersTransaction {
-    async fn new() -> Self {
+    async fn new(config_map: ConfigMap) -> Self {
         todo!()
     }
 

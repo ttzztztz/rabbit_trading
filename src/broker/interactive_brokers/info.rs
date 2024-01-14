@@ -4,7 +4,7 @@ use super::{broker::InteractiveBrokersBroker, client_portal::client::IBClientPor
 use crate::{
     broker::common::info::InfoTrait,
     model::{
-        common::error::Error,
+        common::{error::Error, types::ConfigMap},
         trading::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
     },
 };
@@ -14,9 +14,10 @@ pub struct InteractiveBrokersInfo {
 }
 
 #[async_trait]
-impl InfoTrait for InteractiveBrokersBroker {
-    async fn new() -> Self {
-        todo!()
+impl InfoTrait for InteractiveBrokersInfo {
+    async fn new(config_map: ConfigMap) -> Self {
+        let client_portal = InteractiveBrokersBroker::create_ib_client_portal(config_map);
+        InteractiveBrokersInfo { client_portal }
     }
 
     async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {

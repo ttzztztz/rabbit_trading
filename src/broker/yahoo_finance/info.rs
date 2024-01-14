@@ -4,6 +4,7 @@ use std::result::Result;
 use yahoo_finance_api::YahooConnector;
 
 use crate::broker::{common::info::InfoTrait, yahoo_finance::broker::YahooFinanceBroker};
+use crate::model::common::types::ConfigMap;
 use crate::model::{
     common::error::Error,
     trading::{
@@ -13,6 +14,7 @@ use crate::model::{
 };
 
 pub struct YahooFinanceInfo {
+    config_map: ConfigMap,
     provider: YahooConnector,
 }
 
@@ -42,9 +44,12 @@ impl YahooFinanceInfo {
 
 #[async_trait]
 impl InfoTrait for YahooFinanceInfo {
-    async fn new() -> Self {
+    async fn new(config_map: ConfigMap) -> Self {
         let provider = YahooConnector::new();
-        YahooFinanceInfo { provider }
+        YahooFinanceInfo {
+            config_map,
+            provider,
+        }
     }
 
     async fn query_basic_info(&self, _request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
@@ -87,16 +92,19 @@ mod test_yahoo_finance_info {
     use super::YahooFinanceInfo;
     use crate::{
         broker::common::info::InfoTrait,
-        model::trading::{
-            market::Market,
-            quote::{QueryInfoRequest, QuoteKind},
-            symbol::Symbol,
+        model::{
+            common::types::ConfigMap,
+            trading::{
+                market::Market,
+                quote::{QueryInfoRequest, QuoteKind},
+                symbol::Symbol,
+            },
         },
     };
 
     #[tokio::test]
     async fn test_query_quote_info() {
-        let yahoo_finance_info = YahooFinanceInfo::new().await;
+        let yahoo_finance_info = YahooFinanceInfo::new(ConfigMap::new()).await;
 
         let quote_info_result = yahoo_finance_info
             .query_real_time_info(QueryInfoRequest {

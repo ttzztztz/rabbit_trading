@@ -4,7 +4,7 @@ use super::client_portal::client::IBClientPortal;
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait},
     model::{
-        common::error::Error,
+        common::{error::Error, types::ConfigMap},
         trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
     },
 };
@@ -15,7 +15,7 @@ pub struct InteractiveBrokersSubscription {
 
 #[async_trait]
 impl SubscriptionTrait for InteractiveBrokersSubscription {
-    async fn new() -> Self {
+    async fn new(config_map: ConfigMap) -> Self {
         todo!()
     }
 

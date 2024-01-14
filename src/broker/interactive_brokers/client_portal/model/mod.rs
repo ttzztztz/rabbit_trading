@@ -1,6 +1,7 @@
 pub mod contract_detail;
 pub mod contract;
 pub mod definition;
+pub mod market_data;
 pub mod order_ticket;
 pub mod stock_contract;
 pub mod position;

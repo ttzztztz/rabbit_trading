@@ -6,19 +6,23 @@ use super::worker::real_time_info::{
     YahooFinanceQuoteRealTimeInfoSubscriptionController,
     YahooFinanceQuoteRealTimeInfoSubscriptionWorker,
 };
-use crate::broker::common::subscription::SubscriptionWorker;
-use crate::broker::common::{subscription::SubscriptionData, subscription::SubscriptionTrait};
+use crate::broker::common::{
+    subscription::SubscriptionTrait,
+    subscription::{SubscriptionData, SubscriptionWorker},
+};
 use crate::model::{
-    common::error::Error,
+    common::{error::Error, types::ConfigMap},
     trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 
-pub struct YahooFinanceSubscription {}
+pub struct YahooFinanceSubscription {
+    config_map: ConfigMap,
+}
 
 #[async_trait]
 impl SubscriptionTrait for YahooFinanceSubscription {
-    async fn new() -> Self {
-        YahooFinanceSubscription {}
+    async fn new(config_map: ConfigMap) -> Self {
+        YahooFinanceSubscription { config_map }
     }
 
     async fn real_time_info(
@@ -57,16 +61,19 @@ mod test_yahoo_finance_subscription {
     use super::YahooFinanceSubscription;
     use crate::{
         broker::common::subscription::SubscriptionTrait,
-        model::trading::{
-            market::Market,
-            quote::{QueryInfoRequest, QuoteKind},
-            symbol::Symbol,
+        model::{
+            common::types::ConfigMap,
+            trading::{
+                market::Market,
+                quote::{QueryInfoRequest, QuoteKind},
+                symbol::Symbol,
+            },
         },
     };
 
     #[tokio::test]
     async fn test_subscribe_quote_real_time_info() {
-        let yahoo_finance_subscription = YahooFinanceSubscription::new().await;
+        let yahoo_finance_subscription = YahooFinanceSubscription::new(ConfigMap::new()).await;
         let subscription_instance_result = yahoo_finance_subscription
             .real_time_info(QueryInfoRequest {
                 symbol: Symbol {

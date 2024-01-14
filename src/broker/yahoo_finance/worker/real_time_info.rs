@@ -8,6 +8,7 @@ use crate::broker::{
     common::subscription::{SubscriptionController, SubscriptionWorker},
     yahoo_finance::info::YahooFinanceInfo,
 };
+use crate::model::common::types::ConfigMap;
 use crate::model::{
     common::error::Error,
     trading::quote::{QueryInfoRequest, QuoteRealTimeInfo},
@@ -37,7 +38,7 @@ impl YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
 #[async_trait]
 impl SubscriptionWorker for YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
     async fn start(self) -> Result<(), Error> {
-        let info = YahooFinanceInfo::new().await;
+        let info = YahooFinanceInfo::new(ConfigMap::new()).await;
 
         loop {
             if *self.working_flag.lock().await == false {

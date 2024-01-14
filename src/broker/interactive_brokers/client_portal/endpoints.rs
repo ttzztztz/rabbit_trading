@@ -1,10 +1,11 @@
 use serde_json::{json, Value};
+use std::collections::HashMap;
 
 use super::{
     client::IBClientPortal,
     model::{
-        contract_detail::ContractDetail, order_ticket::OrderTicket, position::Position,
-        stock_contract::StockContracts, tickle::Tickle,
+        contract_detail::ContractDetail, market_data::MarketDataRequest, order_ticket::OrderTicket,
+        position::Position, stock_contract::StockContracts, tickle::Tickle,
     },
 };
 use crate::{model::common::error::Error, utils::error::reqwest_error_to_rabbit_trading_error};
@@ -38,6 +39,40 @@ impl IBClientPortal {
             .client
             .get(self.get_url(path))
             .query(&[("symbols", symbols.join(","))]);
+        let response = request
+            .send()
+            .await
+            .map_err(reqwest_error_to_rabbit_trading_error)?;
+
+        response
+            .json()
+            .await
+            .map_err(reqwest_error_to_rabbit_trading_error)
+    }
+
+    pub async fn market_data(
+        &self,
+        request: MarketDataRequest,
+    ) -> Result<Vec<HashMap<String, Value>>, Error> {
+        let path = "/iserver/marketdata/snapshot";
+        let query: Vec<(&str, String)> = request
+            .conids
+            .into_iter()
+            .map(|conid| ("conids", conid))
+            .chain(
+                request
+                    .fields
+                    .into_iter()
+                    .map(|field| ("fields", field.to_string())),
+            )
+            .chain(
+                request
+                    .since
+                    .map_or(vec![], |since| vec![("since", since.to_string())]),
+            )
+            .collect();
+
+        let request = self.client.get(self.get_url(path)).query(&query);
         let response = request
             .send()
             .await
@@ -101,9 +136,12 @@ impl IBClientPortal {
 #[cfg(test)]
 mod test_ib_cp_client {
     use dotenv::dotenv;
-    use std::env;
+    use std::{env, vec};
 
-    use crate::broker::interactive_brokers::client_portal::client::IBClientPortal;
+    use crate::broker::interactive_brokers::client_portal::{
+        client::IBClientPortal,
+        model::{market_data::MarketDataRequest, tick_types::TickType},
+    };
 
     const ENV_KEY_TEST_ACCOUNT: &'static str = "IBKR_TEST_ACCOUNT";
     const TEST_ACCOUNT: &'static str = "0";
@@ -167,5 +205,26 @@ mod test_ib_cp_client {
         response.into_iter().for_each(|position| {
             assert!(position.conid > 0);
         });
+    }
+
+    #[tokio::test]
+    #[cfg_attr(feature = "ci", ignore)]
+    async fn test_market_data() {
+        let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+        let response_result = ib_cp_client
+            .market_data(MarketDataRequest {
+                conids: vec![CONID_QQQ.to_string()],
+                since: Option::None,
+                fields: vec![TickType::LastPrice],
+            })
+            .await;
+
+        assert!(response_result.is_ok());
+        let response = response_result.unwrap();
+        assert!(response.len() > 0);
+        let first_contract = response.first().unwrap();
+        assert!(first_contract
+            .get(TickType::LastPrice.to_string().as_str())
+            .is_some());
     }
 }

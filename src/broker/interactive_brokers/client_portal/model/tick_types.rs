@@ -256,3 +256,9 @@ pub enum TickType {
     ///hasTradingPermissions - if user has trading permissions for specified contract. Returns 1(true) or 0(false).
     HasTradingPermissions = 7768,
 }
+
+impl ToString for TickType {
+    fn to_string(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
+}

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use std::time::{Duration, Instant};
 
 use crate::model::{
-    common::error::Error,
+    common::{error::Error, types::ConfigMap},
     trading::{
         balance::BalanceHashMap,
         position::PositionList,
@@ -16,7 +16,7 @@ use crate::model::{
 
 #[async_trait]
 pub trait TransactionTrait: Send + Sync {
-    async fn new() -> Self
+    async fn new(config_map: ConfigMap) -> Self
     where
         Self: Sized;
 
@@ -161,7 +161,7 @@ impl TransactionProxy {
 
 #[async_trait]
 impl TransactionTrait for TransactionProxy {
-    async fn new() -> Self {
+    async fn new(config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 
