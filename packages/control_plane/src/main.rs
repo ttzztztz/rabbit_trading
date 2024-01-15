@@ -1,21 +1,12 @@
-use model::config::metrics_registry::MetricsRegistryConfig;
+use rabbit_trading_core::{
+    model::config::{
+        broker::BrokerConfig, metrics_registry::MetricsRegistryConfig,
+        persistent_kv_store::PersistentKVStoreConfig, pod::PodConfig, strategy::StrategyConfig,
+    },
+    pod::pod::Pod,
+};
 use simple_logger::SimpleLogger;
 use std::collections::HashMap;
-
-use crate::model::config::{
-    broker::BrokerConfig, persistent_kv_store::PersistentKVStoreConfig, pod::PodConfig,
-    strategy::StrategyConfig,
-};
-use crate::pod::pod::Pod;
-
-mod broker;
-mod control_plane;
-mod metrics;
-mod model;
-mod persistent_kv;
-mod pod;
-mod strategy;
-mod utils;
 
 #[tokio::main]
 async fn main() {

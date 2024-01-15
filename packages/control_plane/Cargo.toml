@@ -1,0 +1,15 @@
+[package]
+name = "rabbit_trading_control_plane"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { workspace = true }
+log = { workspace = true }
+rabbit_trading_core = { path = "../core" }
+simple_logger = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+
+[dev-dependencies]
+
+[features]

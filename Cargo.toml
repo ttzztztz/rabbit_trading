@@ -1,11 +1,13 @@
 [workspace]
 members = [
+    "packages/control_plane",
+    "packages/core",
     "packages/ibkr_client_portal",
-    "packages/main",
 ]
 
 [workspace.dependencies]
 async-trait = "0.1.77"
+axum = "0.7.4"
 dogstatsd = "0.11.1"
 dotenv = "0.15.0"
 futures-util = "0.3.30"
