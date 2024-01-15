@@ -4,9 +4,9 @@ use std::str::FromStr;
 #[derive(PartialEq, Eq)]
 pub enum AuthConfig {
     NoAuth,
-    BasicAuth,
-    BearerAuth,
-    KerberosAuth,
+    BasicAuth,    // todo: support this kind of http auth
+    BearerAuth,   // todo: support this kind of http auth
+    KerberosAuth, // todo: support this kind of http auth
 }
 
 impl FromStr for AuthConfig {

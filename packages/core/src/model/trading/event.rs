@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 use crate::model::{
     common::error::Error,
     trading::transaction::{
@@ -6,13 +8,13 @@ use crate::model::{
     },
 };
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EventContext {
     pub pod_id: String,
     pub timestamp: u64,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum RabbitTradingEvent {
     // todo: add more events
     SubmitOrder {

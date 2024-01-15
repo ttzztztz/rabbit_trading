@@ -8,6 +8,7 @@ axum = { workspace = true }
 dotenv = { workspace = true }
 log = { workspace = true }
 rabbit_trading_core = { path = "../core" }
+serde = { workspace = true, features = ["derive"] }
 simple_logger = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 

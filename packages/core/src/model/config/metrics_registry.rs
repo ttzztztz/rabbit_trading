@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::model::common::types::ConfigMap;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct MetricsRegistryConfig {
     pub identifier: String,
     pub config_map: ConfigMap,

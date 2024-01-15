@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use super::market::Market;
 
-#[derive(PartialEq, Eq, Debug, Hash, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Symbol {
     pub market: Market,
     pub identifier: String,

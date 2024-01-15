@@ -5,6 +5,8 @@ use rabbit_trading_core::utils::error::env_var_error_to_rabbit_trading_error;
 use simple_logger::SimpleLogger;
 use std::{env, str::FromStr};
 
+use crate::handler::pod::router::initialize_pod_router;
+
 mod auth;
 mod handler;
 mod model;
@@ -58,6 +60,7 @@ async fn main() {
     log::warn!("bind_address = {}", bind_address);
 
     let app = Router::new();
+    let app = initialize_pod_router(app);
     let listener = tokio::net::TcpListener::bind(bind_address).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }

@@ -1,27 +1,28 @@
 use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 
 use super::{currency::Currency, symbol::Symbol};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Direction {
     Buy,
     Sell,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum RegularTradingTime {
     AllTime,
     OnlyRegularTradingTime,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Expire {
     Day,
     GoodTillDate { year: i32, month: i32, day: i32 },
     GoodTillCancelled,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum TrailingLimitPrice {
     Amount {
         limit_offset: Decimal,
@@ -33,13 +34,13 @@ pub enum TrailingLimitPrice {
     },
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum TrailingMarketPrice {
     Amount { trailing_amount: Decimal },
     Percent { trailing_percent: Decimal },
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Price {
     LimitOrder {
         price: Decimal,
@@ -60,7 +61,7 @@ pub enum Price {
     },
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubmitOrderRequest {
     pub symbol: Symbol,
     pub quantity: i64,
@@ -70,7 +71,7 @@ pub struct SubmitOrderRequest {
     pub price: Price,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubmitOrderResponse {
     pub order_id: String,
 }
@@ -88,30 +89,30 @@ pub struct BuyingPower {
     pub margin_max_quantity: i64,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CancelOrderRequest {
     pub order_id: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CancelOrderResponse {}
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EditOrderRequest {
     pub order_id: String,
     pub quantity: i64,
     pub price: Price,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EditOrderResponse {}
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct OrderDetailRequest {
     pub order_id: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct OrderDetail {
     pub order_id: String,
     pub symbol: Symbol,
