@@ -3,9 +3,10 @@ use axum::Router;
 use dotenv::dotenv;
 use rabbit_trading_core::utils::error::env_var_error_to_rabbit_trading_error;
 use simple_logger::SimpleLogger;
-use std::{env, str::FromStr};
+use std::{collections::BTreeMap, env, str::FromStr, sync::Arc};
+use tokio::sync::RwLock;
 
-use crate::handler::pod::router::initialize_pod_router;
+use crate::handler::state::AppState;
 
 mod auth;
 mod handler;
@@ -59,8 +60,11 @@ async fn main() {
     }
     log::warn!("bind_address = {}", bind_address);
 
-    let app = Router::new();
-    let app = initialize_pod_router(app);
+    let app_state = Arc::new(AppState {
+        pod_store: Arc::new(RwLock::new(BTreeMap::new())),
+    });
+    let app = Router::new().with_state(app_state);
+    // let app = initialize_pod_router(app);
     let listener = tokio::net::TcpListener::bind(bind_address).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }

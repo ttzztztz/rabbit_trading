@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 axum = { workspace = true }
+axum-macros = { workspace = true }
 dotenv = { workspace = true }
 log = { workspace = true }
 rabbit_trading_core = { path = "../core" }
