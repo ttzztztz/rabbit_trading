@@ -7,5 +7,5 @@ pub struct ListPodRequest {}
 
 #[derive(Serialize)]
 pub struct ListPodResponse {
-    pod_list: Vec<PodMetadata>,
+    pub pod_list: Vec<PodMetadata>,
 }

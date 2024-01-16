@@ -4,10 +4,10 @@ use super::metadata::PodMetadata;
 
 #[derive(Deserialize)]
 pub struct StopPodRequest {
-    pod_id: String,
+    pub pod_id: String,
 }
 
 #[derive(Serialize)]
 pub struct StopPodResponse {
-    metadata: PodMetadata,
+    pub metadata: PodMetadata,
 }

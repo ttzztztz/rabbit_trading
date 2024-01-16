@@ -3,15 +3,19 @@ use axum::Router;
 use dotenv::dotenv;
 use rabbit_trading_core::utils::error::env_var_error_to_rabbit_trading_error;
 use simple_logger::SimpleLogger;
-use std::{collections::BTreeMap, env, str::FromStr, sync::Arc};
-use tokio::sync::RwLock;
+use std::{env, str::FromStr, sync::Arc};
 
-use crate::handler::state::AppState;
+use crate::{
+    handler::{pod::router::initialize_pod_router, state::AppState},
+    utils::id_generator::auto_increment::AutoIncrementIdGenerator,
+};
 
 mod auth;
 mod handler;
 mod model;
+mod utils;
 
+const LOG_LEVEL: log::LevelFilter = ::log::LevelFilter::Info;
 const DEFAULT_HOST: &'static str = "127.0.0.1";
 const DEFAULT_PORT: &'static str = "7000";
 const DEFAULT_AUTH: AuthConfig = AuthConfig::NoAuth;
@@ -36,14 +40,13 @@ const DEFAULT_AUTH: AuthConfig = AuthConfig::NoAuth;
 //     },
 //     event_listener_list: vec![],
 // });
-// pod.start().await.unwrap();
 
 #[tokio::main]
 async fn main() {
     dotenv().unwrap();
     SimpleLogger::new()
         .env()
-        .with_level(::log::LevelFilter::Info)
+        .with_level(LOG_LEVEL)
         .init()
         .unwrap();
 
@@ -60,11 +63,9 @@ async fn main() {
     }
     log::warn!("bind_address = {}", bind_address);
 
-    let app_state = Arc::new(AppState {
-        pod_store: Arc::new(RwLock::new(BTreeMap::new())),
-    });
-    let app = Router::new().with_state(app_state);
-    // let app = initialize_pod_router(app);
+    let app = Router::new();
+    let app_state = AppState::new(Arc::new(Box::new(AutoIncrementIdGenerator::new(1i64))));
+    let app = initialize_pod_router(app).with_state(app_state);
     let listener = tokio::net::TcpListener::bind(bind_address).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }

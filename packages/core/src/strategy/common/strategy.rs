@@ -13,7 +13,7 @@ pub struct StrategyContext {
 }
 
 #[async_trait]
-pub trait StrategyTrait<V: Send + Sync + Clone = String> {
+pub trait StrategyTrait: Send + Sync {
     fn new(strategy_context: StrategyContext) -> Self
     where
         Self: Sized;

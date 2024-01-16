@@ -1,17 +1,13 @@
-use axum::{
-    extract::State,
-    routing::{get, post},
-    Router,
+use axum::{routing::post, Router};
+
+use super::{
+    inspect::inspect_handler, list::list_handler, start::start_handler, stop::stop_handler,
 };
-
 use crate::handler::state::AppState;
-
-async fn default(State(state): State<AppState>) -> &'static str {
-    "Hello, World!"
-}
 
 pub fn initialize_pod_router(router: Router<AppState>) -> Router<AppState> {
     router
-        .route("/pod/list", post(default))
-        .route("/pod", get(default).post(default).delete(default))
+        .route("/pod/list", post(list_handler))
+        .route("/pod/inspect", post(inspect_handler))
+        .route("/pod", post(start_handler).delete(stop_handler))
 }
