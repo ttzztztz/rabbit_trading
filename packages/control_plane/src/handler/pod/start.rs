@@ -13,11 +13,10 @@ pub(super) async fn start_handler(
     Json(request): Json<StartPodRequest>,
 ) -> Json<StartPodResponse> {
     let pod_config = request.config;
-    let pod_metadata =
-        generate_pod_metadata(state.id_generator.clone(), request.name, pod_config.clone());
+    let pod_metadata = generate_pod_metadata(state.id_generator.clone(), pod_config.clone());
     let pod_id = pod_metadata.id.clone();
 
-    let pod = Arc::new(Pod::new(pod_config));
+    let pod = Arc::new(Pod::new(pod_config, pod_id.clone()));
     let pod_store_instance = PodStoreInstance {
         metadata: pod_metadata.clone(),
         instance: pod.clone(),

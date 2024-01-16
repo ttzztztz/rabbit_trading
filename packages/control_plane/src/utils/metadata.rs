@@ -6,7 +6,6 @@ use crate::model::pod::metadata::PodMetadata;
 
 pub fn generate_pod_metadata(
     id_generator: Arc<Box<dyn IdGeneratorTrait>>,
-    pod_name: String,
     config: PodConfig,
 ) -> PodMetadata {
     let pod_id = id_generator.generate();
@@ -14,7 +13,6 @@ pub fn generate_pod_metadata(
 
     PodMetadata {
         id: pod_id,
-        name: pod_name,
         created_at,
         config,
     }

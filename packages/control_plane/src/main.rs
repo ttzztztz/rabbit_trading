@@ -20,27 +20,6 @@ const DEFAULT_HOST: &'static str = "127.0.0.1";
 const DEFAULT_PORT: &'static str = "7000";
 const DEFAULT_AUTH: AuthConfig = AuthConfig::NoAuth;
 
-// let pod = Pod::new(PodConfig {
-//     pod_id: "DEMO_POD".to_owned(),
-//     broker_list: vec![BrokerConfig {
-//         identifier: "longbridge".to_owned(),
-//         config_map: HashMap::new(),
-//     }],
-//     persistent_kv_store: PersistentKVStoreConfig {
-//         identifier: "MemoryKVStore".to_owned(),
-//         config_map: HashMap::new(),
-//     },
-//     strategy: StrategyConfig {
-//         identifier: "ExamplePrintLivePriceStrategy".to_owned(),
-//         config_map: HashMap::new(),
-//     },
-//     metrics_registry: MetricsRegistryConfig {
-//         identifier: "NoOpMetricRegistryFactory".to_owned(),
-//         config_map: HashMap::new(),
-//     },
-//     event_listener_list: vec![],
-// });
-
 #[tokio::main]
 async fn main() {
     dotenv().unwrap();

@@ -22,10 +22,9 @@ pub struct Pod {
 }
 
 impl Pod {
-    pub fn new(pod_config: PodConfig) -> Self {
+    pub fn new(pod_config: PodConfig, pod_id: String) -> Self {
         const EMPTY_BROKER_ID: &'static str = "";
 
-        let pod_id = pod_config.pod_id.clone();
         Pod {
             pod_config,
             event_bus: EventBus::new(EMPTY_BROKER_ID.to_owned(), pod_id),

@@ -5,7 +5,6 @@ use super::metadata::PodMetadata;
 
 #[derive(Deserialize)]
 pub struct StartPodRequest {
-    pub name: String,
     pub config: PodConfig,
 }
 
