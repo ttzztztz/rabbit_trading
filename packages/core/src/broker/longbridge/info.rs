@@ -95,7 +95,7 @@ impl LongBridgeInfo {
 
 #[async_trait]
 impl InfoTrait for LongBridgeInfo {
-    async fn new(config_map: ConfigMap) -> Self {
+    async fn new(_config_map: ConfigMap) -> Self {
         let (longbridge_context, _) = LongBridgeBroker::create_quote_context().await.unwrap();
         LongBridgeInfo { longbridge_context }
     }

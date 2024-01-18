@@ -89,7 +89,7 @@ impl SubscriptionProxy {
 
 #[async_trait]
 impl SubscriptionTrait for SubscriptionProxy {
-    async fn new(config_map: ConfigMap) -> Self {
+    async fn new(_config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

@@ -15,20 +15,20 @@ pub struct InteractiveBrokersSubscription {
 
 #[async_trait]
 impl SubscriptionTrait for InteractiveBrokersSubscription {
-    async fn new(config_map: ConfigMap) -> Self {
+    async fn new(_config_map: ConfigMap) -> Self {
         todo!()
     }
 
     async fn real_time_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         todo!()
     }
 
     async fn depth_info(
         &self,
-        request: QueryInfoRequest,
+        _request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         todo!()
     }

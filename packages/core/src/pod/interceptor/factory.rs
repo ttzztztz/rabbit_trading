@@ -43,10 +43,8 @@ impl BrokerInterceptorFactoryTrait for PodBrokerInterceptorCollectionFactory {
     async fn create_subscription_interceptor(
         &self,
     ) -> Option<Box<dyn SubscriptionInterceptorTrait>> {
-        let subscription_interceptor = PodSubscriptionInterceptor::new(
-            self.event_bus.shallow_clone(Option::None),
-            self.metric_registry_factory.create().await,
-        );
+        let subscription_interceptor =
+            PodSubscriptionInterceptor::new(self.metric_registry_factory.create().await);
         Option::Some(Box::new(subscription_interceptor))
     }
 

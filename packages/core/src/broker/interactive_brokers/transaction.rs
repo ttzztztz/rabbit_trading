@@ -23,7 +23,7 @@ pub struct InteractiveBrokersTransaction {
 
 #[async_trait]
 impl TransactionTrait for InteractiveBrokersTransaction {
-    async fn new(config_map: ConfigMap) -> Self {
+    async fn new(_config_map: ConfigMap) -> Self {
         todo!()
     }
 
@@ -37,29 +37,29 @@ impl TransactionTrait for InteractiveBrokersTransaction {
 
     async fn estimate_max_buying_power(
         &self,
-        request: EstimateMaxBuyingPowerRequest,
+        _request: EstimateMaxBuyingPowerRequest,
     ) -> Result<BuyingPower, Error> {
         todo!()
     }
 
-    async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error> {
+    async fn order_detail(&self, _request: OrderDetailRequest) -> Result<OrderDetail, Error> {
         todo!()
     }
 
     async fn submit_order(
         &self,
-        request: SubmitOrderRequest,
+        _request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
         todo!()
     }
 
-    async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
+    async fn edit_order(&self, _request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
         todo!()
     }
 
     async fn cancel_order(
         &self,
-        request: CancelOrderRequest,
+        _request: CancelOrderRequest,
     ) -> Result<CancelOrderResponse, Error> {
         todo!()
     }

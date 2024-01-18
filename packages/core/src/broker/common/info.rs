@@ -90,7 +90,7 @@ impl InfoProxy {
 
 #[async_trait]
 impl InfoTrait for InfoProxy {
-    async fn new(config_map: ConfigMap) -> Self {
+    async fn new(_config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

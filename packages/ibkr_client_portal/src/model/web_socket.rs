@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use super::{contract::Contract, tick_types::TickType};
+use super::{tick_types::TickType};
 
 pub enum SubscriptionType {
     QuoteData {

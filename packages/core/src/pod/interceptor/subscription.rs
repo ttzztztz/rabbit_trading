@@ -8,20 +8,15 @@ use crate::{
         common::error::Error,
         trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
     },
-    pod::event::event_bus::EventBus,
 };
 
 pub struct PodSubscriptionInterceptor {
-    event_bus: EventBus,
     metric_registry: Box<dyn MetricRegistryTrait>,
 }
 
 impl PodSubscriptionInterceptor {
-    pub fn new(event_bus: EventBus, metric_registry: Box<dyn MetricRegistryTrait>) -> Self {
-        PodSubscriptionInterceptor {
-            event_bus,
-            metric_registry,
-        }
+    pub fn new(metric_registry: Box<dyn MetricRegistryTrait>) -> Self {
+        PodSubscriptionInterceptor { metric_registry }
     }
 }
 
