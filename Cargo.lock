@@ -1576,7 +1576,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rabbit_trading_control_plane"
+name = "rabbit_trading_api_server"
 version = "0.1.0"
 dependencies = [
  "axum",
