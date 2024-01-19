@@ -52,7 +52,7 @@ impl EventBus {
 
     pub fn create_event_context(&self) -> EventContext {
         EventContext {
-            // todo: add broker_id
+            broker_id: self.broker_id.clone(),
             pod_id: self.pod_id.clone(),
             timestamp: get_now_unix_timestamp(),
         }

@@ -94,6 +94,7 @@ mod test_log_container_event_listener {
     #[tokio::test]
     async fn test_whole_lifecycle() {
         const SYMBOL_IDENTIFIER: &'static str = "QQQ";
+        const BROKER_ID: &'static str = "broker_id_1";
         const ORDER_ID: &'static str = "order_id_1";
         const POD_ID: &'static str = "test_pod_1";
 
@@ -102,6 +103,7 @@ mod test_log_container_event_listener {
         log_container_event_listener.start(receiver);
         let event = RabbitTradingEvent::SubmitOrder {
             context: EventContext {
+                broker_id: BROKER_ID.to_owned(),
                 pod_id: POD_ID.to_owned(),
                 timestamp: get_now_unix_timestamp(),
             },

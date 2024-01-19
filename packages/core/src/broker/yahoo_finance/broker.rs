@@ -54,7 +54,7 @@ impl BrokerTrait for YahooFinanceBroker {
     }
 
     async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
-        todo!("Yahoo Finance cannot be used for trading")
+        panic!("Yahoo Finance cannot be used for trading")
     }
 
     async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {

@@ -10,6 +10,7 @@ use crate::model::{
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EventContext {
+    pub broker_id: String,
     pub pod_id: String,
     pub timestamp: u64,
 }
