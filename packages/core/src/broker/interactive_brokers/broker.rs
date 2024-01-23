@@ -1,14 +1,17 @@
 use async_trait::async_trait;
 use ibkr_client_portal::client::IBClientPortal;
 
-use super::heartbeat::InteractiveBrokersHeartbeat;
+use super::{
+    heartbeat::InteractiveBrokersHeartbeat, info::InteractiveBrokersInfo,
+    subscription::InteractiveBrokersSubscription, transaction::InteractiveBrokersTransaction,
+};
 use crate::{
     broker::common::{
         broker::{BrokerInterceptorFactoryTrait, BrokerTrait},
         heartbeat::HeartbeatTrait,
-        info::InfoTrait,
-        subscription::SubscriptionTrait,
-        transaction::TransactionTrait,
+        info::{InfoProxy, InfoTrait},
+        subscription::{SubscriptionProxy, SubscriptionTrait},
+        transaction::{TransactionProxy, TransactionTrait},
     },
     model::common::types::ConfigMap,
 };
@@ -56,15 +59,34 @@ impl BrokerTrait for InteractiveBrokersBroker {
     }
 
     async fn create_info(&self) -> Box<dyn InfoTrait> {
-        todo!()
+        let interactive_brokers_info =
+            Box::new(InteractiveBrokersInfo::new(self.config_map.clone()).await);
+        Box::new(InfoProxy::new(
+            interactive_brokers_info,
+            self.interceptor_factory.create_info_interceptor().await,
+        ))
     }
 
     async fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
-        todo!()
+        let interactive_brokers_subscription =
+            Box::new(InteractiveBrokersSubscription::new(self.config_map.clone()).await);
+        Box::new(SubscriptionProxy::new(
+            interactive_brokers_subscription,
+            self.interceptor_factory
+                .create_subscription_interceptor()
+                .await,
+        ))
     }
 
     async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
-        todo!()
+        let interactive_brokers_transaction =
+            Box::new(InteractiveBrokersTransaction::new(self.config_map.clone()).await);
+        Box::new(TransactionProxy::new(
+            interactive_brokers_transaction,
+            self.interceptor_factory
+                .create_transaction_interceptor()
+                .await,
+        ))
     }
 
     async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
