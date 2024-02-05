@@ -7,6 +7,12 @@ use super::{
     position::DisplayRule,
 };
 
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SecurityDefinitions {
+    pub secdef: Vec<Contract>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]

@@ -22,7 +22,7 @@ pub enum TickType {
     ///Unrealized PnL - Unrealized profit or loss. Unrealized PnL is calculated with real time market data (even when not subscribed to market data).
     UnrealizedPnL = 75,
     ///Formatted position
-    Formattedposition = 76,
+    FormattedPosition = 76,
     ///Formatted Unrealized PnL
     FormattedUnrealizedPnL = 77,
     ///Daily PnL - Your profit or loss of the day since prior close. Daily PnL is calculated with real time market data (even when not subscribed to market data).
@@ -48,7 +48,7 @@ pub enum TickType {
     ///Exchange
     Exchange = 6004,
     ///Conid - Contract identifier from IBKR's database.
-    Conid = 6008,
+    ConId = 6008,
     ///SecType - The asset class of the instrument.
     SecType = 6070,
     ///Months
@@ -56,9 +56,9 @@ pub enum TickType {
     ///Regular Expiry
     RegularExpiry = 6073,
     ///Marker for market data delivery method (similar to request id)
-    Markerformarketdatadeliverymethodsimilartorequestid = 6119,
+    MarkerForMarketDataDeliveryMethodSimilarToRequestId = 6119,
     ///Underlying Conid. Use /trsrv/secdef to get more information about the security
-    UnderlyingConidUsetrsrvsecdeftogetmoreinformationaboutthesecurity = 6457,
+    UnderlyingConIdUseTrsrvsecdefToGetMoreInformationAboutTheSecurity = 6457,
     ///Service Params.
     ServiceParams = 6508,
     ///Market Data Availability. The field may contain three chars. First char defines: R = RealTime, D = Delayed,
@@ -74,7 +74,7 @@ pub enum TickType {
     ///  * Book - Top of the book data is available for contract.
     MarketDataAvailability = 6509,
     ///Company name
-    Companyname = 7051,
+    CompanyName = 7051,
     ///Ask Exch - Displays the exchange(s) offering the SMART price. A=AMEX, C=CBOE, I=ISE, X=PHLX, N=PSE, B=BOX, Q=NASDAQOM, Z=BATS, W=CBOE2, T=NASDAQBX, M=MIAX, H=GEMINI, E=EDGX, J=MERCURY
     AskExch = 7057,
     ///Last Exch - Displays the exchange(s) offering the SMART price. A=AMEX, C=CBOE, I=ISE, X=PHLX, N=PSE, B=BOX, Q=NASDAQOM, Z=BATS, W=CBOE2, T=NASDAQBX, M=MIAX, H=GEMINI, E=EDGX, J=MERCURY
@@ -96,7 +96,7 @@ pub enum TickType {
     ///Opt. Volume - Option Volume
     OptVolume = 7089,
     ///Conid + Exchange
-    ConidExchange = 7094,
+    ConIdExchange = 7094,
     ///canBeTraded - If contract is a trade-able instrument. Returns 1(true) or 0(false).
     CanBeTraded = 7184,
     ///Contract Description
@@ -208,7 +208,7 @@ pub enum TickType {
     ///Recent Misc Event - The date and time of the most recent shareholder meeting, presentation or other event. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
     RecentMiscEvent = 7690,
     ///Probability of Max Return - Customer implied probability of maximum potential gain.
-    ProbabilityofMaxReturn = 7694,
+    ProbabilityOfMaxReturn = 7694,
     ///Break Even - Break even points
     BreakEven = 7695,
     ///SPX Delta - Beta Weighted Delta is calculated using the formula; Delta x dollar adjusted beta, where adjusted beta is adjusted by the ratio of the close price.
@@ -224,9 +224,9 @@ pub enum TickType {
     ///The yield to worst will be the lowest of the yield to maturity or yield to call (if the bond has prepayment provisions). Yield to worse may be the same as yield to maturity but never higher.
     BidYield = 7699,
     ///Probability of Max Return - Customer implied probability of maximum potential gain.
-    ProbabilityofMaxReturn2 = 7700,
+    ProbabilityOfMaxReturn2 = 7700,
     ///Probability of Max Loss - Customer implied probability of maximum potential loss.
-    ProbabilityofMaxLoss = 7702,
+    ProbabilityOfMaxLoss = 7702,
     ///Profit Probability - Customer implied probability of any gain.
     ProfitProbability = 7703,
     ///Organization Type

@@ -1,6 +1,9 @@
+pub mod account;
 pub mod contract_detail;
 pub mod contract;
 pub mod definition;
+pub mod futures;
+pub mod history;
 pub mod market_data;
 pub mod order_ticket;
 pub mod stock_contract;
