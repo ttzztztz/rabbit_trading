@@ -1,8 +1,7 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Default)]
-#[serde(default)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AccountLedger {
     #[serde(rename = "commoditymarketvalue")]
     pub commodity_market_value: Decimal,

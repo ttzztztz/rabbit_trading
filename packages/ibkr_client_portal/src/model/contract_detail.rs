@@ -2,8 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::contract::unpack_exchanges;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(default)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContractDetail {
     pub r_t_h: bool,
     #[serde(rename = r#"con_id"#)]

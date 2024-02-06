@@ -4,3 +4,5 @@ pub mod client;
 pub mod endpoints;
 pub mod model;
 pub mod web_socket;
+
+pub mod tests;

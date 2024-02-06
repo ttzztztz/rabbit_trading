@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::tick_types::TickType;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MarketDataRequest {
     pub conids: Vec<String>,
     pub since: Option<i64>,

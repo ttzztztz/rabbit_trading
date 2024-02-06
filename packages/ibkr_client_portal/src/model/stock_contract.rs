@@ -5,9 +5,8 @@ use super::{contract::Contract, definition::AssetClass};
 
 pub type StockContracts = HashMap<String, Vec<StockContractInfo>>;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(default)]
 pub struct StockContractInfo {
     pub asset_class: AssetClass,
     pub chinese_name: Option<String>,

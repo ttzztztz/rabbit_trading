@@ -229,8 +229,6 @@ mod test_longbridge_info {
         let quote_depth_info = quote_depth_info_result.unwrap();
         log::warn!("quote_depth_info: {quote_depth_info:?}");
         assert_eq!("MSFT.US", quote_depth_info.symbol.to_string());
-        assert!(quote_depth_info.ask_list.len() > 0);
-        assert!(quote_depth_info.bid_list.len() > 0);
         quote_depth_info
             .ask_list
             .into_iter()

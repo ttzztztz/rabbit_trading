@@ -7,9 +7,8 @@ use super::{
     definition::{AssetClass, OptionRight},
 };
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(default)]
 pub struct Position {
     pub acct_id: String,
     #[serde(with = "unpack_exchanges")]
@@ -31,8 +30,7 @@ pub struct Position {
     pub country_code: String,
     pub cross_currency: Option<bool>,
     pub currency: String,
-    #[serde(skip)]
-    pub display_rule: DisplayRule,
+    pub display_rule: Option<DisplayRule>,
     pub exchs: Value,
     pub exercise_style: Value,
     pub expiry: Option<String>,
@@ -68,14 +66,14 @@ pub struct Position {
     pub unrealized_pnl: Decimal,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DisplayRule {
     pub display_rule_step: Vec<DisplayRuleStep>,
     pub magnification: i64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DisplayRuleStep {
     pub decimal_digits: i64,

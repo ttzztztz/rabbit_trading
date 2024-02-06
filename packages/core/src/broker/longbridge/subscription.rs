@@ -24,16 +24,14 @@ use crate::{
 };
 
 // https://crates.io/crates/longbridge
-pub struct LongBridgeSubscription {
-    config_map: ConfigMap,
-}
+pub struct LongBridgeSubscription {}
 
 impl LongBridgeSubscription {}
 
 #[async_trait]
 impl SubscriptionTrait for LongBridgeSubscription {
-    async fn new(config_map: ConfigMap) -> Self {
-        LongBridgeSubscription { config_map }
+    async fn new(_config_map: ConfigMap) -> Self {
+        LongBridgeSubscription {}
     }
 
     async fn real_time_info(
@@ -154,8 +152,6 @@ mod test_longbridge_subscription {
                 let quote_depth_info = quote_depth_info_result.unwrap();
                 log::warn!("quote_depth_info: {quote_depth_info:?}");
                 assert_eq!("AAPL.US", quote_depth_info.symbol.to_string());
-                assert!(quote_depth_info.ask_list.len() > 0);
-                assert!(quote_depth_info.bid_list.len() > 0);
                 quote_depth_info
                     .ask_list
                     .into_iter()

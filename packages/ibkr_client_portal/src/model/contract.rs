@@ -7,46 +7,45 @@ use super::{
     position::DisplayRule,
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SecurityDefinitions {
     pub secdef: Vec<Contract>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(default)]
 pub struct Contract {
     #[serde(with = "unpack_exchanges", alias = "exchange")]
     pub all_exchanges: Vec<String>,
-    pub asset_class: AssetClass,
-    pub chinese_name: String,
+    pub asset_class: Option<AssetClass>,
+    pub chinese_name: Option<String>,
     pub conid: i64,
-    pub country_code: String,
-    pub currency: String,
-    pub display_rule: DisplayRule,
+    pub country_code: Option<String>,
+    pub currency: Option<String>,
+    pub display_rule: Option<DisplayRule>,
     pub expiry: Option<String>,
-    pub full_name: String,
+    pub full_name: Option<String>,
     pub group: Option<String>,
-    pub has_options: bool,
-    pub increment_rules: Vec<IncrementRule>,
-    pub is_event_contract: bool,
+    pub has_options: Option<bool>,
+    pub increment_rules: Option<Vec<IncrementRule>>,
+    pub is_event_contract: Option<bool>,
     #[serde(rename = "isUS")]
     pub is_us: Option<bool>,
     pub last_trading_day: Option<String>,
-    pub listing_exchange: String,
-    pub multiplier: Decimal,
+    pub listing_exchange: Option<String>,
+    pub multiplier: Option<Decimal>,
     pub name: Option<String>,
     pub page_size: Option<i64>,
     pub put_or_call: Option<OptionRight>,
     pub sector: Option<String>,
     pub sector_group: Option<String>,
-    pub strike: String,
-    pub ticker: String,
-    pub time: i64,
+    pub strike: Option<String>,
+    pub ticker: Option<String>,
+    pub time: Option<i64>,
     #[serde(rename = "type")]
-    pub type_field: String,
-    pub und_conid: i64,
+    pub type_field: Option<String>,
+    pub und_conid: Option<i64>,
     pub cross_currency: Option<bool>,
     pub und_comp: Option<Value>,
     pub und_sym: Option<String>,
@@ -78,7 +77,7 @@ pub mod unpack_exchanges {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IncrementRule {
     #[serde(with = "rust_decimal::serde::float")]
