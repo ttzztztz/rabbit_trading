@@ -34,3 +34,8 @@ pub struct OrderTicket {
     pub strategy: String,
     pub strategy_parameters: HashMap<String, Value>,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PlaceOrderRequest {
+    pub orders: Vec<OrderTicket>,
+}

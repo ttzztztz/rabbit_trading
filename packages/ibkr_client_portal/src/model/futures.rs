@@ -40,3 +40,7 @@ mod parse_date {
         Date::parse(&s, format_description).map_err(serde::de::Error::custom)
     }
 }
+
+pub struct GetFuturesBySymbolRequest {
+    pub symbols: Vec<String>,
+}

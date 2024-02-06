@@ -13,3 +13,7 @@ pub struct StockContractInfo {
     pub contracts: Vec<Contract>,
     pub name: String,
 }
+
+pub struct GetStocksBySymbolRequest {
+    pub symbols: Vec<String>,
+}

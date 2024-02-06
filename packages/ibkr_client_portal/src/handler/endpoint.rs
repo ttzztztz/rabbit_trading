@@ -1,22 +1,24 @@
 use reqwest::Error;
-use rust_decimal::Decimal;
-use serde_json::{json, Value};
-use std::collections::HashMap;
-use time::{macros::format_description, OffsetDateTime};
+use serde_json::Value;
+use time::macros::format_description;
 
 use crate::{
     client::IBClientPortal,
     model::{
-        account::AccountLedger,
+        account::{
+            GetAccountLedgerResponse, GetAccountsResponse, SwitchAccountRequest,
+            SwitchAccountResponse,
+        },
         contract::SecurityDefinitions,
-        contract_detail::ContractDetail,
-        definition::AssetClass,
-        futures::FuturesContracts,
-        history::MarketDataHistory,
-        market_data::MarketDataRequest,
-        order_ticket::OrderTicket,
-        position::Position,
-        stock_contract::StockContracts,
+        contract_detail::{ContractDetail, GetContractDetailRequest},
+        futures::{FuturesContracts, GetFuturesBySymbolRequest},
+        history::{GetMarketDataHistoryRequest, MarketDataHistory},
+        market_data::{MarketDataRequest, MarketDataResponse},
+        options::GetOptionsRequest,
+        order_ticket::PlaceOrderRequest,
+        position::{GetPositionsRequest, GetPositionsResponse},
+        security::{GetSecurityDefinitionByContractIdRequest, SearchForSecurityRequest},
+        stock_contract::{GetStocksBySymbolRequest, StockContracts},
         tickle::{AuthStatus, Tickle},
     },
 };
@@ -56,14 +58,15 @@ impl IBClientPortal {
 
     pub async fn get_stocks_by_symbol(
         &self,
-        symbols: Vec<String>,
+        request: GetStocksBySymbolRequest,
     ) -> Result<StockContracts, Error> {
         let path = "/trsrv/stocks";
-        let request = self
+        let response = self
             .client
             .get(self.get_url(path))
-            .query(&[("symbols", symbols.join(","))]);
-        let response = request.send().await?;
+            .query(&[("symbols", request.symbols.join(","))])
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -72,7 +75,7 @@ impl IBClientPortal {
     pub async fn market_data(
         &self,
         request: MarketDataRequest,
-    ) -> Result<Vec<HashMap<String, Value>>, Error> {
+    ) -> Result<MarketDataResponse, Error> {
         let path = "/iserver/marketdata/snapshot";
         let conids_query = ("conids", request.conids.join(",").to_string());
         let fields_query = (
@@ -90,16 +93,22 @@ impl IBClientPortal {
         if let Some(since_query) = since_query {
             query.push(since_query);
         }
-
-        let request = self.client.get(self.get_url(path)).query(&query);
-        let response = request.send().await?;
+        let response = self
+            .client
+            .get(self.get_url(path))
+            .query(&query)
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
     }
 
-    pub async fn get_positions(&self, page: i32) -> Result<Vec<Position>, Error> {
-        let path = format!("/portfolio/{}/positions/{}", self.account, page);
+    pub async fn get_positions(
+        &self,
+        request: GetPositionsRequest,
+    ) -> Result<GetPositionsResponse, Error> {
+        let path = format!("/portfolio/{}/positions/{}", self.account, request.page);
         let response = self.client.get(self.get_url(&path)).body("").send().await?;
 
         response.error_for_status_ref()?;
@@ -108,14 +117,15 @@ impl IBClientPortal {
 
     pub async fn get_security_definition_by_contract_id(
         &self,
-        contract_ids: Vec<i64>,
+        request: GetSecurityDefinitionByContractIdRequest,
     ) -> Result<SecurityDefinitions, Error> {
         let path = "/trsrv/secdef";
-        let payload = json!({
-            "conids" : contract_ids,
-        });
-        let request = self.client.post(self.get_url(path));
-        let response = request.body(payload.to_string()).send().await?;
+        let response = self
+            .client
+            .post(self.get_url(path))
+            .json(&request)
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -123,14 +133,15 @@ impl IBClientPortal {
 
     pub async fn get_futures_by_symbol(
         &self,
-        symbols: Vec<&str>,
+        request: GetFuturesBySymbolRequest,
     ) -> Result<FuturesContracts, Error> {
         let path = "/trsrv/futures";
-        let request = self
+        let response = self
             .client
             .get(self.get_url(path))
-            .query(&[("symbols", symbols.join(","))]);
-        let response = request.send().await?;
+            .query(&[("symbols", request.symbols.join(","))])
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -138,43 +149,33 @@ impl IBClientPortal {
 
     pub async fn search_for_security(
         &self,
-        symbol_or_name: &str,
-        is_name: bool,
-        sec_type: AssetClass,
+        request: SearchForSecurityRequest,
     ) -> Result<Value, Error> {
         let path = "/iserver/secdef/search";
-        let body = json!( {
-            "symbol": symbol_or_name,
-            "name": is_name,
-            "secType": sec_type,
-        });
-        let request = self.client.post(self.get_url(path)).body(body.to_string());
-        let response = request.send().await?;
+        let response = self
+            .client
+            .post(self.get_url(path))
+            .json(&request)
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
     }
 
-    pub async fn get_options(
-        &self,
-        underlying_con_id: i64,
-        sectype: AssetClass,
-        month: Option<String>,
-        exchange: Option<String>,
-        strike: Option<Decimal>,
-    ) -> Result<Value, Error> {
+    pub async fn get_options(&self, request: GetOptionsRequest) -> Result<Value, Error> {
         let path = "/iserver/secdef/info";
         let mut query = vec![
-            ("conid", underlying_con_id.to_string()),
-            ("sectype", sectype.to_string()),
+            ("conid", request.underlying_con_id.to_string()),
+            ("sectype", request.sectype.to_string()),
         ];
-        if let Some(month) = month {
+        if let Some(month) = request.month {
             query.push(("month", month));
         }
-        if let Some(exchange) = exchange {
+        if let Some(exchange) = request.exchange {
             query.push(("exchange", exchange));
         }
-        if let Some(strike) = strike {
+        if let Some(strike) = request.strike {
             query.push(("strike", strike.to_string()));
         }
         let response = self
@@ -204,7 +205,7 @@ impl IBClientPortal {
         response.json().await
     }
 
-    pub async fn get_account_ledger(&self) -> Result<HashMap<String, AccountLedger>, Error> {
+    pub async fn get_account_ledger(&self) -> Result<GetAccountLedgerResponse, Error> {
         let path = format!("/portfolio/{}/ledger", self.account);
         let response = self.client.get(self.get_url(&path)).body("").send().await?;
 
@@ -212,18 +213,24 @@ impl IBClientPortal {
         response.json().await
     }
 
-    pub async fn place_order(&self, orders: Vec<OrderTicket>) -> Result<Value, Error> {
+    pub async fn place_order(&self, request: PlaceOrderRequest) -> Result<Value, Error> {
         let path = format!("/iserver/account/{}/order", self.account);
-        let payload = json!({"orders":orders});
-        let request = self.client.post(self.get_url(&path));
-        let response = request.body(payload.to_string()).send().await?;
+        let response = self
+            .client
+            .post(self.get_url(&path))
+            .json(&request)
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
     }
 
-    pub async fn get_contract_detail(&self, conid: i64) -> Result<ContractDetail, Error> {
-        let path = format!("/iserver/contract/{}/info", conid);
+    pub async fn get_contract_detail(
+        &self,
+        request: GetContractDetailRequest,
+    ) -> Result<ContractDetail, Error> {
+        let path = format!("/iserver/contract/{}/info", request.conid);
         let response = self.client.get(self.get_url(&path)).body("").send().await?;
 
         response.error_for_status_ref()?;
@@ -232,17 +239,12 @@ impl IBClientPortal {
 
     pub async fn get_market_data_history(
         &self,
-        conid: i64,
-        exchange: Option<&str>,
-        period: &str,
-        bar: &str,
-        outside_rth: bool,
-        start_time: Option<OffsetDateTime>,
+        request: GetMarketDataHistoryRequest,
     ) -> Result<MarketDataHistory, Error> {
         let format_description =
             format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
         let path = "/iserver/marketdata/history";
-        let start_time_str = match start_time {
+        let start_time_str = match request.start_time {
             Some(start_time) => start_time
                 .format(format_description)
                 .unwrap() // todo: eliminate this unwrap
@@ -250,16 +252,40 @@ impl IBClientPortal {
             None => "".to_string(),
         };
 
-        let request = self
+        let response = self
             .client
             .get(self.get_url(path))
-            .query(&[("conid", conid)])
-            .query(&[("period", period)])
-            .query(&[("bar", bar)])
-            .query(&[("exchange", exchange.unwrap_or(""))])
-            .query(&[("outsideRth", outside_rth)])
-            .query(&[("startTime", start_time_str)]);
-        let response = request.send().await?;
+            .query(&[("conid", request.conid)])
+            .query(&[("period", request.period)])
+            .query(&[("bar", request.bar)])
+            .query(&[("exchange", request.exchange.unwrap_or("".to_owned()))])
+            .query(&[("outsideRth", request.outside_rth)])
+            .query(&[("startTime", start_time_str)])
+            .send()
+            .await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
+
+    pub async fn get_accounts(&self) -> Result<GetAccountsResponse, Error> {
+        let path = "/iserver/accounts";
+        let response = self.client.get(self.get_url(&path)).body("").send().await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
+
+    pub async fn switch_account(
+        &self,
+        request: SwitchAccountRequest,
+    ) -> Result<SwitchAccountResponse, Error> {
+        let response = self
+            .client
+            .post(self.get_url("/iserver/account"))
+            .json(&request)
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await

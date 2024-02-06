@@ -52,7 +52,8 @@ mod parse_datetime {
     where
         S: Serializer,
     {
-        let format_description = format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
+        let format_description =
+            format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
         let s = date_time
             .format(format_description)
             .map_err(serde::ser::Error::custom)?;
@@ -63,8 +64,19 @@ mod parse_datetime {
     where
         D: Deserializer<'de>,
     {
-        let format_description = format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
+        let format_description =
+            format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
         let s = String::deserialize(deserializer)?.to_string();
         OffsetDateTime::parse(&s, format_description).map_err(serde::de::Error::custom)
     }
+}
+
+
+pub struct GetMarketDataHistoryRequest {
+    pub conid: i64,
+    pub exchange: Option<String>,
+    pub period: String,
+    pub bar: String,
+    pub outside_rth: bool,
+    pub start_time: Option<OffsetDateTime>,
 }

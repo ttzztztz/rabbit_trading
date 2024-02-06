@@ -80,3 +80,10 @@ pub struct DisplayRuleStep {
     pub lower_edge: Decimal,
     pub whole_digits: i64,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct GetPositionsRequest {
+    pub page: i32,
+}
+
+pub type GetPositionsResponse = Vec<Position>;

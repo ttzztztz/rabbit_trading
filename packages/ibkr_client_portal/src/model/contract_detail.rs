@@ -30,3 +30,7 @@ pub struct ContractDetail {
     pub contract_month: Option<String>,
     pub classifier: Option<String>,
 }
+
+pub struct GetContractDetailRequest {
+    pub conid: i64,
+}
