@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -84,4 +86,67 @@ pub struct IncrementRule {
     pub increment: Decimal,
     #[serde(with = "rust_decimal::serde::float")]
     pub lower_edge: Decimal,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ContractDetail {
+    pub r_t_h: bool,
+    #[serde(rename = r#"con_id"#)]
+    pub conid: i64,
+    pub company_name: String,
+    pub exchange: String,
+    pub local_symbol: String,
+    pub instrument_type: String,
+    pub currency: String,
+    pub category: Option<String>,
+    pub industry: Option<String>,
+    pub symbol: String,
+    pub underlying_con_id: i64,
+    pub cusip: Option<String>,
+    pub expiry_full: Option<String>,
+    pub maturity_date: Option<String>,
+    pub multiplier: Option<String>,
+    pub underlying_issuer: Option<String>,
+    pub trading_class: Option<String>,
+    #[serde(with = "unpack_exchanges")]
+    pub valid_exchanges: Vec<String>,
+    pub allow_sell_long: bool,
+    pub is_zero_commission_security: bool,
+    pub contract_clarification_type: Option<String>,
+    pub contract_month: Option<String>,
+    pub classifier: Option<String>,
+}
+
+pub struct GetContractDetailRequest {
+    pub conid: i64,
+}
+
+pub type StockContracts = HashMap<String, Vec<StockContractInfo>>;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StockContractInfo {
+    pub asset_class: AssetClass,
+    pub chinese_name: Option<String>,
+    pub contracts: Vec<Contract>,
+    pub name: String,
+}
+
+pub struct GetStocksBySymbolRequest {
+    pub symbols: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchForSecurityRequest {
+    pub symbol: String,
+    #[serde(rename = "name")]
+    pub is_name: bool,
+    #[serde(rename = "secType")]
+    pub sec_type: AssetClass,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct GetSecurityDefinitionByContractIdRequest {
+    conids: Vec<i64>,
 }

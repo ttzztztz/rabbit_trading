@@ -4,7 +4,7 @@ use std::env;
 use crate::{
     client::IBClientPortal,
     model::{
-        tick_types::TickType,
+        definition::TickType,
         web_socket::{Subscription, SubscriptionType},
     },
 };

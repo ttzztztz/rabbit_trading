@@ -1,3 +1,5 @@
+// split different categories of endpoints into different mods https://www.interactivebrokers.com/api/doc.html
+
 pub mod account;
 pub mod alert;
 pub mod contract;
@@ -9,4 +11,3 @@ pub mod portfolio_analyst;
 pub mod scanner;
 pub mod session;
 pub mod streaming;
-pub mod utils;

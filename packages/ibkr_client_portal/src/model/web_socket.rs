@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use super::tick_types::TickType;
+use super::definition::TickType;
 
 pub enum SubscriptionType {
     QuoteData {

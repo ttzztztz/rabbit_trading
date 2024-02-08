@@ -24,9 +24,10 @@ pub struct AuthStatus {
     pub authenticated: bool,
     pub competing: bool,
     pub connected: bool,
-    pub message: String,
-    pub server_info: ServerInfo,
+    pub message: Option<String>,
+    pub server_info: Option<ServerInfo>,
     pub fail: Option<String>,
+    pub prompts: Option<Vec<String>>,    
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -34,4 +35,9 @@ pub struct AuthStatus {
 pub struct ServerInfo {
     pub server_name: String,
     pub server_version: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct LogoutResponse {
+    pub confirmed: bool,
 }
