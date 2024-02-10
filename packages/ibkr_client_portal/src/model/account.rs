@@ -64,3 +64,530 @@ pub struct SwitchAccountResponse {
 }
 
 pub type GetAccountLedgerResponse = HashMap<String, AccountLedger>;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AccountParent {
+    #[serde(rename = "mmc")]
+    mmc: Option<Vec<String>>,
+    /// Account Number for Money Manager Client
+    #[serde(rename = "accountId")]
+    account_id: Option<String>,
+    /// Is MM a Parent Account
+    #[serde(rename = "isMParent")]
+    is_m_parent: Option<bool>,
+    /// Is MM a Child Account
+    #[serde(rename = "isMChild")]
+    is_m_child: Option<bool>,
+    /// Is a Multiplex Account. These are account models with individual account being parent and managed account being child.
+    #[serde(rename = "isMultiplex")]
+    is_multiplex: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Account {
+    /// The account identification value
+    #[serde(rename = "id")]
+    id: Option<String>,
+    /// The account number
+    #[serde(rename = "accountId")]
+    account_id: Option<String>,
+    /// The accountAlias
+    #[serde(rename = "accountVan")]
+    account_van: Option<String>,
+    /// Title of the account
+    #[serde(rename = "accountTitle")]
+    account_title: Option<String>,
+    /// Whichever value is not null in this priority
+    #[serde(rename = "displayName")]
+    display_name: Option<String>,
+    /// User customizable account alias. Refer to [Configure Account Alias](https://guides.interactivebrokers.com/cp/cp.htm#am/settings/accountalias.htm) for details.
+    #[serde(rename = "accountAlias")]
+    account_alias: Option<String>,
+    /// When the account was opened in unix time.
+    #[serde(rename = "accountStatus")]
+    account_status: Option<f32>,
+    /// Base currency of the account.
+    #[serde(rename = "currency")]
+    currency: Option<String>,
+    /// Account Type
+    #[serde(rename = "type")]
+    _type: Option<String>,
+    /// UNI - Deprecated property
+    #[serde(rename = "tradingType")]
+    trading_type: Option<String>,
+    /// If an account is a sub-account to a Financial Advisor.
+    #[serde(rename = "faclient")]
+    faclient: Option<bool>,
+    /// Status of the Account   * O = Open   * P or N = Pending   * A = Abandoned   * R = Rejected   * C = Closed
+    #[serde(rename = "clearingStatus")]
+    clearing_status: Option<String>,
+    /// Is a Covestor Account
+    #[serde(rename = "covestor")]
+    covestor: Option<bool>,
+    #[serde(rename = "parent")]
+    parent: Option<AccountParent>,
+    /// Formatted \"accountId - accountAlias\"
+    #[serde(rename = "desc")]
+    desc: Option<String>,
+}
+
+pub type GetPortfolioAccountsResponse = Vec<Account>;
+pub type GetAccountMetadataResponse = Vec<Account>;
+
+pub struct GetSubAccountsV2Request {
+    pub page: i32,
+}
+
+pub struct GetAccountMetadataRequest {
+    pub account_id: String,
+}
+
+pub struct GetAccountSummaryRequest {
+    pub account_id: String,
+}
+
+pub struct GetAccountAllocationRequest {
+    pub account_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SubAccount {
+    /// The account identification value
+    #[serde(rename = "id")]
+    pub id: Option<String>,
+    /// The account number
+    #[serde(rename = "accountId")]
+    pub account_id: Option<String>,
+    /// The accountAlias
+    #[serde(rename = "accountVan")]
+    pub account_van: Option<String>,
+    /// Title of the account
+    #[serde(rename = "accountTitle")]
+    pub account_title: Option<String>,
+    /// Whichever value is not null in this priority
+    #[serde(rename = "displayName")]
+    pub display_name: Option<String>,
+    /// User customizable account alias. Refer to [Configure Account Alias](https://guides.interactivebrokers.com/cp/cp.htm#am/settings/accountalias.htm) for details.
+    #[serde(rename = "accountAlias")]
+    pub account_alias: Option<String>,
+    /// When the account was opened in unix time.
+    #[serde(rename = "accountStatus")]
+    pub account_status: Option<f32>,
+    /// Base currency of the account.
+    #[serde(rename = "currency")]
+    pub currency: Option<String>,
+    /// Account Type
+    #[serde(rename = "type")]
+    pub _type: Option<String>,
+    /// UNI - Deprecated property
+    #[serde(rename = "tradingType")]
+    pub trading_type: Option<String>,
+    /// If an account is a sub-account to a Financial Advisor.
+    #[serde(rename = "faclient")]
+    pub financial_advisor_client: Option<bool>,
+    /// Status of the Account   * O = Open   * P or N = Pending   * A = Abandoned   * R = Rejected   * C = Closed   covestor:     type: boolean     description: Is a Covestor Account   parent:     type: object     properties:       mmc:         type: array         items:           type: string           description: Money Manager Client (MMC) Account       accountId:         type: string         description: Account Number for Money Manager Client       isMParent:         type: boolean         description: Is MM a Parent Account       isMChild:         type: boolean         description: Is MM a Child Account       isMultiplex:         type: boolean         description: Is a Multiplex Account. These are account models with individual account being parent and managed account being child.   desc:     type: string     description: Formatted \"accountId - accountAlias\"
+    #[serde(rename = "clearingStatus")]
+    pub clearing_status: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetSubAccountsV2Response {
+    #[serde(rename = "metadata")]
+    pub metadata: Option<SubAccount>,
+    #[serde(rename = "subaccounts")]
+    pub sub_accounts: Option<Vec<Account>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Summary {
+    #[serde(rename = "amount")]
+    pub amount: Option<f32>,
+    #[serde(rename = "currency")]
+    pub currency: Option<String>,
+    #[serde(rename = "isNull")]
+    pub is_null: Option<bool>,
+    #[serde(rename = "timestamp")]
+    pub timestamp: Option<i32>,
+    #[serde(rename = "value")]
+    pub value: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetAccountSummaryResponse {
+    #[serde(rename = "accountready")]
+    pub account_ready: Option<Summary>,
+    #[serde(rename = "accounttype")]
+    pub account_type: Option<Summary>,
+    #[serde(rename = "accruedcash")]
+    pub accrued_cash: Option<Summary>,
+    #[serde(rename = "accruedcash-c")]
+    pub accrued_cash_c: Option<Summary>,
+    #[serde(rename = "accruedcash-f")]
+    pub accrued_cash_f: Option<Summary>,
+    #[serde(rename = "accruedcash-s")]
+    pub accrued_cash_s: Option<Summary>,
+    #[serde(rename = "accrueddividend")]
+    pub accrued_dividend: Option<Summary>,
+    #[serde(rename = "accrueddividend-c")]
+    pub accrued_dividend_c: Option<Summary>,
+    #[serde(rename = "accrueddividend-f")]
+    pub accrued_dividend_f: Option<Summary>,
+    #[serde(rename = "accrueddividend-s")]
+    pub accrued_dividend_s: Option<Summary>,
+    #[serde(rename = "availablefunds")]
+    pub available_funds: Option<Summary>,
+    #[serde(rename = "availablefunds-c")]
+    pub available_funds_c: Option<Summary>,
+    #[serde(rename = "availablefunds-f")]
+    pub available_funds_f: Option<Summary>,
+    #[serde(rename = "availablefunds-s")]
+    pub available_funds_s: Option<Summary>,
+    #[serde(rename = "billable")]
+    pub billable: Option<Summary>,
+    #[serde(rename = "billable-c")]
+    pub billable_c: Option<Summary>,
+    #[serde(rename = "billable-f")]
+    pub billable_f: Option<Summary>,
+    #[serde(rename = "billable-s")]
+    pub billable_s: Option<Summary>,
+    #[serde(rename = "buyingpower")]
+    pub buying_power: Option<Summary>,
+    #[serde(rename = "cushion")]
+    pub cushion: Option<Summary>,
+    #[serde(rename = "daytradesremaining")]
+    pub day_trades_remaining: Option<Summary>,
+    #[serde(rename = "daytradesremainingt+1")]
+    pub day_trades_remaining_t1: Option<Summary>,
+    #[serde(rename = "daytradesremainingt+2")]
+    pub day_trades_remaining_t2: Option<Summary>,
+    #[serde(rename = "daytradesremainingt+3")]
+    pub day_trades_remaining_t3: Option<Summary>,
+    #[serde(rename = "daytradesremainingt+4")]
+    pub day_trades_remaining_t4: Option<Summary>,
+    #[serde(rename = "equitywithloanvalue")]
+    pub equity_with_loan_value: Option<Summary>,
+    #[serde(rename = "equitywithloanvalue-c")]
+    pub equity_with_loan_value_c: Option<Summary>,
+    #[serde(rename = "equitywithloanvalue-f")]
+    pub equity_with_loan_value_f: Option<Summary>,
+    #[serde(rename = "equitywithloanvalue-s")]
+    pub equity_with_loan_value_s: Option<Summary>,
+    #[serde(rename = "excessliquidity")]
+    pub excess_liquidity: Option<Summary>,
+    #[serde(rename = "excessliquidity-c")]
+    pub excess_liquidity_c: Option<Summary>,
+    #[serde(rename = "excessliquidity-f")]
+    pub excess_liquidity_f: Option<Summary>,
+    #[serde(rename = "excessliquidity-s")]
+    pub excess_liquidity_s: Option<Summary>,
+    #[serde(rename = "fullavailablefunds")]
+    pub full_available_funds: Option<Summary>,
+    #[serde(rename = "fullavailablefunds-c")]
+    pub full_available_funds_c: Option<Summary>,
+    #[serde(rename = "fullavailablefunds-f")]
+    pub full_available_funds_f: Option<Summary>,
+    #[serde(rename = "fullavailablefunds-s")]
+    pub full_available_funds_s: Option<Summary>,
+    #[serde(rename = "fullexcessliquidity")]
+    pub full_excess_liquidity: Option<Summary>,
+    #[serde(rename = "fullexcessliquidity-c")]
+    pub full_excess_liquidity_c: Option<Summary>,
+    #[serde(rename = "fullexcessliquidity-f")]
+    pub full_excess_liquidity_f: Option<Summary>,
+    #[serde(rename = "fullexcessliquidity-s")]
+    pub full_excess_liquidity_s: Option<Summary>,
+    #[serde(rename = "fullinitmarginreq")]
+    pub full_init_margin_req: Option<Summary>,
+    #[serde(rename = "fullinitmarginreq-c")]
+    pub full_init_margin_req_c: Option<Summary>,
+    #[serde(rename = "fullinitmarginreq-f")]
+    pub full_init_margin_req_f: Option<Summary>,
+    #[serde(rename = "fullinitmarginreq-s")]
+    pub full_init_margin_req_s: Option<Summary>,
+    #[serde(rename = "fullmaintmarginreq")]
+    pub full_maintenance_margin_req: Option<Summary>,
+    #[serde(rename = "fullmaintmarginreq-c")]
+    pub full_maintenance_margin_req_c: Option<Summary>,
+    #[serde(rename = "fullmaintmarginreq-f")]
+    pub full_maintenance_margin_req_f: Option<Summary>,
+    #[serde(rename = "fullmaintmarginreq-s")]
+    pub full_maintenance_margin_req_s: Option<Summary>,
+    #[serde(rename = "grosspositionvalue")]
+    pub gross_position_value: Option<Summary>,
+    #[serde(rename = "grosspositionvalue-c")]
+    pub gross_position_value_c: Option<Summary>,
+    #[serde(rename = "grosspositionvalue-f")]
+    pub gross_position_value_f: Option<Summary>,
+    #[serde(rename = "grosspositionvalue-s")]
+    pub gross_position_value_s: Option<Summary>,
+    #[serde(rename = "guarantee")]
+    pub guarantee: Option<Summary>,
+    #[serde(rename = "guarantee-c")]
+    pub guarantee_c: Option<Summary>,
+    #[serde(rename = "guarantee-f")]
+    pub guarantee_f: Option<Summary>,
+    #[serde(rename = "guarantee-s")]
+    pub guarantee_s: Option<Summary>,
+    #[serde(rename = "highestseverity")]
+    pub highest_severity: Option<Summary>,
+    #[serde(rename = "highestseverity-c")]
+    pub highest_severity_c: Option<Summary>,
+    #[serde(rename = "highestseverity-f")]
+    pub highest_severity_f: Option<Summary>,
+    #[serde(rename = "highestseverity-s")]
+    pub highest_severity_s: Option<Summary>,
+    #[serde(rename = "indianstockhaircut")]
+    pub indian_stock_haircut: Option<Summary>,
+    #[serde(rename = "indianstockhaircut-c")]
+    pub indian_stock_haircut_c: Option<Summary>,
+    #[serde(rename = "indianstockhaircut-f")]
+    pub indian_stock_haircut_f: Option<Summary>,
+    #[serde(rename = "indianstockhaircut-s")]
+    pub indian_stock_haircut_s: Option<Summary>,
+    #[serde(rename = "initmarginreq")]
+    pub init_margin_req: Option<Summary>,
+    #[serde(rename = "initmarginreq-c")]
+    pub init_margin_req_c: Option<Summary>,
+    #[serde(rename = "initmarginreq-f")]
+    pub init_margin_req_f: Option<Summary>,
+    #[serde(rename = "initmarginreq-s")]
+    pub init_margin_req_s: Option<Summary>,
+    #[serde(rename = "leverage")]
+    pub leverage: Option<Summary>,
+    #[serde(rename = "leverage-c")]
+    pub leverage_c: Option<Summary>,
+    #[serde(rename = "leverage-f")]
+    pub leverage_f: Option<Summary>,
+    #[serde(rename = "leverage-s")]
+    pub leverage_s: Option<Summary>,
+    #[serde(rename = "lookaheadavailablefunds")]
+    pub look_ahead_available_funds: Option<Summary>,
+    #[serde(rename = "lookaheadavailablefunds-c")]
+    pub look_ahead_available_funds_c: Option<Summary>,
+    #[serde(rename = "lookaheadavailablefunds-f")]
+    pub look_ahead_available_funds_f: Option<Summary>,
+    #[serde(rename = "lookaheadavailablefunds-s")]
+    pub look_ahead_available_funds_s: Option<Summary>,
+    #[serde(rename = "lookaheadexcessliquidity")]
+    pub look_ahead_excess_liquidity: Option<Summary>,
+    #[serde(rename = "lookaheadexcessliquidity-c")]
+    pub look_ahead_excess_liquidity_c: Option<Summary>,
+    #[serde(rename = "lookaheadexcessliquidity-f")]
+    pub look_ahead_excess_liquidity_f: Option<Summary>,
+    #[serde(rename = "lookaheadexcessliquidity-s")]
+    pub look_ahead_excess_liquidity_s: Option<Summary>,
+    #[serde(rename = "lookaheadinitmarginreq")]
+    pub look_ahead_init_marginreq: Option<Summary>,
+    #[serde(rename = "lookaheadinitmarginreq-c")]
+    pub look_ahead_init_marginreq_c: Option<Summary>,
+    #[serde(rename = "lookaheadinitmarginreq-f")]
+    pub look_ahead_init_marginreq_f: Option<Summary>,
+    #[serde(rename = "lookaheadinitmarginreq-s")]
+    pub look_ahead_init_marginreq_s: Option<Summary>,
+    #[serde(rename = "lookaheadmaintmarginreq")]
+    pub look_ahead_maintenance_marginreq: Option<Summary>,
+    #[serde(rename = "lookaheadmaintmarginreq-c")]
+    pub look_ahead_maintenance_marginreq_c: Option<Summary>,
+    #[serde(rename = "lookaheadmaintmarginreq-f")]
+    pub look_ahead_maintenance_margin_req_f: Option<Summary>,
+    #[serde(rename = "lookaheadmaintmarginreq-s")]
+    pub look_ahead_maintenance_margin_req_s: Option<Summary>,
+    #[serde(rename = "lookaheadnextchange")]
+    pub look_ahead_next_change: Option<Summary>,
+    #[serde(rename = "maintmarginreq")]
+    pub maintenance_marginreq: Option<Summary>,
+    #[serde(rename = "maintmarginreq-c")]
+    pub maintenance_marginreq_c: Option<Summary>,
+    #[serde(rename = "maintmarginreq-f")]
+    pub maintenance_marginreq_f: Option<Summary>,
+    #[serde(rename = "maintmarginreq-s")]
+    pub maintenance_marginreq_s: Option<Summary>,
+    #[serde(rename = "netliquidation")]
+    pub net_liquidation: Option<Summary>,
+    #[serde(rename = "netliquidation-c")]
+    pub net_liquidation_c: Option<Summary>,
+    #[serde(rename = "netliquidation-f")]
+    pub net_liquidation_f: Option<Summary>,
+    #[serde(rename = "netliquidation-s")]
+    pub net_liquidation_s: Option<Summary>,
+    #[serde(rename = "netliquidationuncertainty")]
+    pub net_liquidation_uncertainty: Option<Summary>,
+    #[serde(rename = "nlvandmargininreview")]
+    pub nlvandmargininreview: Option<Summary>,
+    #[serde(rename = "pasharesvalue")]
+    pub pashares_value: Option<Summary>,
+    #[serde(rename = "pasharesvalue-c")]
+    pub pashares_value_c: Option<Summary>,
+    #[serde(rename = "pasharesvalue-f")]
+    pub pashares_value_f: Option<Summary>,
+    #[serde(rename = "pasharesvalue-s")]
+    pub pashares_value_s: Option<Summary>,
+    #[serde(rename = "postexpirationexcess")]
+    pub post_expiration_excess: Option<Summary>,
+    #[serde(rename = "postexpirationexcess-c")]
+    pub post_expiration_excess_c: Option<Summary>,
+    #[serde(rename = "postexpirationexcess-f")]
+    pub post_expiration_excess_f: Option<Summary>,
+    #[serde(rename = "postexpirationexcess-s")]
+    pub post_expiration_excess_s: Option<Summary>,
+    #[serde(rename = "postexpirationmargin")]
+    pub post_expiration_margin: Option<Summary>,
+    #[serde(rename = "postexpirationmargin-c")]
+    pub post_expiration_margin_c: Option<Summary>,
+    #[serde(rename = "postexpirationmargin-f")]
+    pub post_expiration_margin_f: Option<Summary>,
+    #[serde(rename = "postexpirationmargin-s")]
+    pub post_expiration_margin_s: Option<Summary>,
+    #[serde(rename = "previousdayequitywithloanvalue")]
+    pub previous_day_equity_with_loan_value: Option<Summary>,
+    #[serde(rename = "previousdayequitywithloanvalue-c")]
+    pub previous_day_equity_with_loan_value_c: Option<Summary>,
+    #[serde(rename = "previousdayequitywithloanvalue-f")]
+    pub previous_day_equity_with_loan_value_f: Option<Summary>,
+    #[serde(rename = "previousdayequitywithloanvalue-s")]
+    pub previous_day_equity_with_loan_value_s: Option<Summary>,
+    #[serde(rename = "segmenttitle-c")]
+    pub segment_title_c: Option<Summary>,
+    #[serde(rename = "segmenttitle-f")]
+    pub segment_title_f: Option<Summary>,
+    #[serde(rename = "segmenttitle-s")]
+    pub segment_title_s: Option<Summary>,
+    #[serde(rename = "totalcashvalue")]
+    pub total_cashvalue: Option<Summary>,
+    #[serde(rename = "totalcashvalue-c")]
+    pub total_cashvalue_c: Option<Summary>,
+    #[serde(rename = "totalcashvalue-f")]
+    pub total_cashvalue_f: Option<Summary>,
+    #[serde(rename = "totalcashvalue-s")]
+    pub total_cashvalue_s: Option<Summary>,
+    #[serde(rename = "totaldebitcardpendingcharges")]
+    pub total_debit_card_pending_charges: Option<Summary>,
+    #[serde(rename = "totaldebitcardpendingcharges-c")]
+    pub total_debit_card_pending_charges_c: Option<Summary>,
+    #[serde(rename = "totaldebitcardpendingcharges-f")]
+    pub total_debit_card_pending_charges_f: Option<Summary>,
+    #[serde(rename = "totaldebitcardpendingcharges-s")]
+    pub total_debit_card_pending_charges_s: Option<Summary>,
+    #[serde(rename = "tradingtype-f")]
+    pub trading_type_f: Option<Summary>,
+    #[serde(rename = "tradingtype-s")]
+    pub trading_type_s: Option<Summary>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationAssetClassLong {
+    #[serde(rename = "STK")]
+    pub stock: Option<f32>,
+    #[serde(rename = "OPT")]
+    pub options: Option<f32>,
+    #[serde(rename = "FUT")]
+    pub futures: Option<f32>,
+    #[serde(rename = "WAR")]
+    pub warrants: Option<f32>,
+    #[serde(rename = "BOND")]
+    pub bonds: Option<f32>,
+    #[serde(rename = "CASH")]
+    pub cash: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationAssetClassShort {
+    #[serde(rename = "STK")]
+    pub stock: Option<f32>,
+    #[serde(rename = "OPT")]
+    pub options: Option<f32>,
+    #[serde(rename = "FUT")]
+    pub futures: Option<f32>,
+    #[serde(rename = "WAR")]
+    pub warrants: Option<f32>,
+    #[serde(rename = "BOND")]
+    pub bonds: Option<f32>,
+    #[serde(rename = "CASH")]
+    pub cash: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationAssetClass {
+    #[serde(rename = "long")]
+    pub long: Option<AllocationAssetClassLong>,
+    #[serde(rename = "short")]
+    pub short: Option<AllocationAssetClassShort>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationSectorLong {
+    #[serde(rename = "Others")]
+    pub others: Option<f32>,
+    #[serde(rename = "Utilities")]
+    pub utilities: Option<f32>,
+    #[serde(rename = "Energy")]
+    pub energy: Option<f32>,
+    #[serde(rename = "Technology")]
+    pub technology: Option<f32>,
+    #[serde(rename = "Financial")]
+    pub financial: Option<f32>,
+    #[serde(rename = "Communications")]
+    pub communications: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationSectorShort {
+    #[serde(rename = "Industrial")]
+    pub industrial: Option<f32>,
+    #[serde(rename = "Consumer")]
+    pub consumer: Option<f32>,
+    #[serde(rename = "Diversified")]
+    pub diversified: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationSector {
+    #[serde(rename = "long")]
+    pub long: Option<AllocationSectorLong>,
+    #[serde(rename = "short")]
+    pub short: Option<AllocationSectorShort>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationGroupLong {
+    #[serde(rename = "Computers")]
+    pub computers: Option<f32>,
+    #[serde(rename = "Semiconductors")]
+    pub semiconductors: Option<f32>,
+    #[serde(rename = "Others")]
+    pub others: Option<f32>,
+    #[serde(rename = "Chemicals")]
+    pub chemicals: Option<f32>,
+    #[serde(rename = "Apparel")]
+    pub apparel: Option<f32>,
+    #[serde(rename = "Communications")]
+    pub communications: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationInnerGroupShort {
+    #[serde(rename = "Banks")]
+    pub banks: Option<f32>,
+    #[serde(rename = "Airlines")]
+    pub airlines: Option<f32>,
+    #[serde(rename = "Internet")]
+    pub internet: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllocationGroup {
+    #[serde(rename = "long")]
+    pub long: Option<AllocationGroupLong>,
+    #[serde(rename = "short")]
+    pub short: Option<AllocationInnerGroupShort>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Allocation {
+    #[serde(rename = "assetClass")]
+    pub asset_class: Option<AllocationAssetClass>,
+    #[serde(rename = "sector")]
+    pub sector: Option<AllocationSector>,
+    #[serde(rename = "group")]
+    pub group: Option<AllocationGroup>,
+}

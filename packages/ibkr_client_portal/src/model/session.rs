@@ -27,7 +27,7 @@ pub struct AuthStatus {
     pub message: Option<String>,
     pub server_info: Option<ServerInfo>,
     pub fail: Option<String>,
-    pub prompts: Option<Vec<String>>,    
+    pub prompts: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -40,4 +40,26 @@ pub struct ServerInfo {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LogoutResponse {
     pub confirmed: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SSOValidateResponse {
+    /// 1 for Live, 2 for Paper
+    #[serde(rename = "LOGIN_TYPE")]
+    pub login_type: Option<f32>,
+    /// Username
+    #[serde(rename = "USER_NAME")]
+    pub user_name: Option<String>,
+    /// User ID
+    #[serde(rename = "USER_ID")]
+    pub user_id: Option<f32>,
+    /// Time in milliseconds until session expires. Caller needs to call the again to re-validate session
+    #[serde(rename = "expire")]
+    pub expire: Option<f32>,
+    /// true if session was validated; false if not.
+    #[serde(rename = "RESULT")]
+    pub result: Option<bool>,
+    /// Time of session validation
+    #[serde(rename = "AUTH_TIME")]
+    pub auth_time: Option<f32>,
 }

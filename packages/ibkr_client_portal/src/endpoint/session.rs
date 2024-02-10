@@ -4,7 +4,7 @@ use reqwest::Error;
 
 use crate::{
     client::IBClientPortal,
-    model::session::{AuthStatus, LogoutResponse, Tickle},
+    model::session::{AuthStatus, LogoutResponse, SSOValidateResponse, Tickle},
 };
 
 impl IBClientPortal {
@@ -56,7 +56,24 @@ impl IBClientPortal {
         response.json().await
     }
 
-    // todo-list:
-    // /sso/validate
-    // /iserver/reauthenticate
+    pub async fn sso_validate(&self) -> Result<SSOValidateResponse, Error> {
+        let path = "/sso/validate";
+        let response = self.client.get(self.get_url(&path)).body("").send().await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
+
+    pub async fn reauthenticate(&self) -> Result<AuthStatus, Error> {
+        let path = "/iserver/reauthenticate";
+        let response = self
+            .client
+            .post(self.get_url(&path))
+            .body("")
+            .send()
+            .await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
 }

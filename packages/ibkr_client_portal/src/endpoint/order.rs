@@ -27,6 +27,6 @@ impl IBClientPortal {
     // /iserver/reply/{replyid}
     // /iserver/account/{accountId}/orders/whatif
     // /iserver/account/order/status/{orderId}
-    // /iserver/account/{accountId}/order/{orderId}
-    // /iserver/account/{accountId}/order/{orderId}
+    // POST /iserver/account/{accountId}/order/{orderId}
+    // DELETE /iserver/account/{accountId}/order/{orderId}
 }
