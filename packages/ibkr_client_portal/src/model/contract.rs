@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use super::{
     definition::{AssetClass, OptionRight},
-    position::DisplayRule,
+    portfolio::DisplayRule,
 };
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

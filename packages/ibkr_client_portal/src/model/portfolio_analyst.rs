@@ -79,7 +79,7 @@ pub struct GetPortfolioPerformanceResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetPortfolioPerformanceRequest {
     #[serde(rename = "acctIds")]
-    pub acct_ids: Option<Vec<String>>,
+    pub account_id_list: Option<Vec<String>>,
     /// Frequency of cumulative performance data points: 'D'aily, 'M'onthly,'Q'uarterly.
     #[serde(rename = "freq")]
     pub freq: Option<String>,
@@ -88,7 +88,7 @@ pub struct GetPortfolioPerformanceRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetPortfolioTransactionsRequest {
     #[serde(rename = "acctIds")]
-    pub acct_ids: Option<Vec<String>>,
+    pub account_id_list: Option<Vec<String>>,
     #[serde(rename = "conids")]
     pub conids: Option<Vec<i64>>,
     /// optional defaults to USD.

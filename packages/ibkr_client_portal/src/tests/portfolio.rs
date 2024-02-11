@@ -1,6 +1,6 @@
 use crate::{
     client::IBClientPortal,
-    model::position::GetPositionsRequest,
+    model::portfolio::GetPortfolioPositionsRequest,
     tests::utils::{get_test_account, TEST_HOST},
 };
 
@@ -9,11 +9,11 @@ use crate::{
 async fn test_get_positions() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
-        .get_positions(GetPositionsRequest { page: 1 })
+        .get_portfolio_positions(GetPortfolioPositionsRequest { page: 1 })
         .await;
     assert!(response_result.is_ok());
     let response = response_result.unwrap();
     response.into_iter().for_each(|position| {
-        assert!(position.conid > 0);
+        assert!(position.conid.is_some());
     });
 }

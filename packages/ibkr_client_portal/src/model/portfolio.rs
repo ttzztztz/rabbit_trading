@@ -1,8 +1,11 @@
+use std::collections::HashMap;
+
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use super::{
+    account::Allocation,
     contract::{unpack_exchanges, IncrementRule},
     definition::{AssetClass, OptionRight},
 };
@@ -19,49 +22,37 @@ pub struct Position {
     pub base_avg_cost: Option<Decimal>,
     pub base_avg_price: Option<Decimal>,
     pub base_mkt_price: Option<Decimal>,
-    pub base_mkt_value: Option<Decimal>,
-    pub base_realized_pnl: Option<Decimal>,
-    pub base_unrealized_pnl: Option<Decimal>,
-    #[serde(skip)]
-    pub chinese_name: String,
-    pub con_exch_map: Vec<Value>,
-    pub conid: i64,
-    pub contract_desc: String,
-    pub country_code: String,
-    pub cross_currency: Option<bool>,
-    pub currency: String,
-    pub display_rule: Option<DisplayRule>,
-    pub exchs: Value,
-    pub exercise_style: Value,
+    pub conid: Option<i32>,
+    pub exercise_style: Option<String>,
     pub expiry: Option<String>,
-    pub full_name: String,
-    pub group: String,
-    pub has_options: bool,
+    pub full_name: Vec<String>,
+    pub group: Vec<String>,
+    pub has_options: Vec<bool>,
     #[serde(skip)]
     pub increment_rules: Vec<IncrementRule>,
-    pub is_event_contract: bool,
+    pub is_event_contract: Vec<bool>,
     #[serde(rename = "isUS")]
-    pub is_us: bool,
+    pub is_us: Vec<bool>,
     pub last_trading_day: Option<String>,
     pub listing_exchange: Option<String>,
     pub mkt_price: Decimal,
     pub mkt_value: Decimal,
-    pub model: String,
+    pub model: Vec<String>,
     pub multiplier: Option<Decimal>,
     pub name: Option<String>,
-    pub page_size: i64,
+    pub page_size: Vec<i64>,
     pub position: Decimal,
     pub put_or_call: Option<OptionRight>,
     pub realized_pnl: Decimal,
-    pub sector: String,
+    pub sector: Vec<String>,
     pub sector_group: Option<String>,
-    pub strike: Value,
-    pub ticker: String,
-    pub time: i64,
+    pub strike: Vec<Value>,
+    pub ticker: Vec<String>,
+    pub time: Vec<i64>,
     #[serde(rename = "type")]
-    pub type_field: String,
+    pub type_field: Vec<String>,
     pub und_comp: Option<Value>,
-    pub und_conid: i64,
+    pub und_conid: Vec<i64>,
     pub und_sym: Option<String>,
     pub unrealized_pnl: Decimal,
 }
@@ -82,8 +73,33 @@ pub struct DisplayRuleStep {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct GetPositionsRequest {
+pub struct GetPortfolioPositionsRequest {
     pub page: i32,
 }
 
-pub type GetPositionsResponse = Vec<Position>;
+pub type GetPortfolioPositionsResponse = Vec<Position>;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetPortfolioAllocationRequest {
+    #[serde(rename = "acctIds")]
+    pub account_id_list: Option<Vec<String>>,
+}
+
+pub type GetPortfolioAllocationResponse = Vec<Allocation>;
+
+pub struct GetPortfolioPositionByAccountAndConIdRequest {
+    pub account_id: String,
+    pub conid: i64,
+}
+
+pub type GetPortfolioPositionByAccountAndConIdResponse = Vec<Position>;
+
+pub struct InvalidatePortfolioCacheRequest {
+    pub account_id: String,
+}
+
+pub struct GetPortfolioPositionByConIdRequest {
+    pub conid: i64,
+}
+
+pub type GetPortfolioPositionByConIdResponse = HashMap<String, Position>;
