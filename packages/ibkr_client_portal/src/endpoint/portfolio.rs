@@ -14,6 +14,7 @@ use crate::{
 };
 
 impl IBClientPortal {
+    /// Returns a list of positions for the given account. The endpoint supports paging, page's default size is 30 positions. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
     pub async fn get_portfolio_positions(
         &self,
         request: GetPortfolioPositionsRequest,
@@ -25,6 +26,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Information about the account's portfolio allocation by Asset Class, Industry and Category. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
     pub async fn get_portfolio_allocation(
         &self,
         request: GetPortfolioAllocationRequest,
@@ -41,6 +43,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Returns a list of all positions matching the conid. For portfolio models the conid could be in more than one model, returning an array with the name of the model it belongs to. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
     pub async fn get_portfolio_position_by_account_and_conid(
         &self,
         request: GetPortfolioPositionByAccountAndConIdRequest,
@@ -55,6 +58,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Invalidates the backend cache of the Portfolio
     pub async fn invalidate_portfolio_cache(
         &self,
         request: InvalidatePortfolioCacheRequest,
@@ -66,6 +70,7 @@ impl IBClientPortal {
         Result::Ok(())
     }
 
+    /// Returns an object of all positions matching the conid for all the selected accounts. For portfolio models the conid could be in more than one model, returning an array with the name of the model it belongs to. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
     pub async fn get_portfolio_position_by_conid(
         &self,
         request: GetPortfolioPositionByConIdRequest,

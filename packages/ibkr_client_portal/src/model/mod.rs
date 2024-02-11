@@ -1,4 +1,5 @@
 pub mod account;
+pub mod alert;
 pub mod contract;
 pub mod definition;
 pub mod futures;

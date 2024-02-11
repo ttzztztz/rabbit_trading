@@ -11,6 +11,7 @@ use crate::{
 };
 
 impl IBClientPortal {
+    /// Returns an object contains four lists contain all parameters for scanners
     pub async fn get_scanner_parameters(&self) -> Result<GetScannerParametersResponse, Error> {
         let path = "/iserver/scanner/params";
         let response = self.client.get(self.get_url(&path)).send().await?;
@@ -19,7 +20,7 @@ impl IBClientPortal {
         response.json().await
     }
 
-    /// (Beta)
+    /// (Beta) Using a direct connection to the market data farm, will provide results to the requested scanner.
     pub async fn run_scanner_beta(
         &self,
         request: RunScannerBetaRequest,
@@ -36,6 +37,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Searches for contracts according to the filters specified in scanner/params endpoint
     pub async fn scanner_run(
         &self,
         request: ScannerRunRequest,
