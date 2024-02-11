@@ -159,7 +159,7 @@ impl IBClientPortal {
     ) -> Result<GetSecurityStrikesResponse, Error> {
         let path = "/iserver/secdef/strikes";
         let mut query = vec![
-            ("conid", request.conid),
+            ("conid", request.conid.to_string()),
             ("sectype", request.sectype),
             ("month", request.month),
         ];
@@ -219,7 +219,7 @@ impl IBClientPortal {
         request: GetIBAlgorithmParametersRequest,
     ) -> Result<GetIBAlgorithmParametersResponse, Error> {
         let path = format!("/iserver/contract/{}/algos", request.conid);
-        let mut query = vec![("conid", request.conid)];
+        let mut query = vec![("conid", request.conid.to_string())];
         if let Some(algos) = request.algos {
             query.push(("algos", algos));
         }

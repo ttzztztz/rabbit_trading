@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use super::{
     definition::{AssetClass, OptionRight},
@@ -49,7 +48,7 @@ pub struct Contract {
     pub type_field: Option<String>,
     pub und_conid: Option<i64>,
     pub cross_currency: Option<bool>,
-    pub und_comp: Option<Value>,
+    pub und_comp: Option<String>,
     pub und_sym: Option<String>,
 }
 
@@ -172,7 +171,7 @@ pub struct SearchForSecurityResponseSection {
 pub struct SearchForSecurityResponse {
     /// Contract Identifier
     #[serde(rename = "conid")]
-    pub conid: Option<i32>,
+    pub conid: Option<i64>,
     /// Company Name - Exchange
     #[serde(rename = "companyHeader")]
     pub company_header: Option<String>,
@@ -260,7 +259,7 @@ pub struct GetSecurityTradingScheduleResponse {
 }
 
 pub struct GetSecurityStrikesRequest {
-    pub conid: String,
+    pub conid: i64,
     pub sectype: String,
     pub month: String,
     pub exchange: Option<String>,
@@ -552,7 +551,7 @@ pub struct SecurityTradingRule {
 }
 
 pub struct GetInfoAndRulesByConIdRequest {
-    pub conid: String,
+    pub conid: i64,
     pub is_buy: bool,
 }
 
@@ -568,7 +567,7 @@ pub struct GetContractRulesResponse {
 pub struct GetContractRulesRequest {
     /// IBKR contract identifier
     #[serde(rename = "conid")]
-    pub conid: String,
+    pub conid: i64,
     /// Side of the market rules apply too. Set to **true** for Buy Orders, set to **false** for Sell Orders
     #[serde(rename = "isBuy")]
     pub is_buy: bool,
@@ -629,7 +628,7 @@ pub struct AlgorithmParametersObject {
 pub type GetIBAlgorithmParametersResponse = Vec<AlgorithmParametersObject>;
 
 pub struct GetIBAlgorithmParametersRequest {
-    pub conid: String,
+    pub conid: i64,
     pub algos: Option<String>,
     pub add_description: Option<String>,
     pub add_params: Option<String>,

@@ -6,17 +6,19 @@ use time::macros::format_description;
 use crate::{
     client::IBClientPortal,
     model::market_data::{
-        GetMarketDataHistoryRequest, MarketDataHistory, MarketDataRequest, MarketDataResponse,
-        UnsubscribeAllMarketDataResponse, UnsubscribeMarketDataRequest,
+        GetMarketDataHistoryBetaRequest, GetMarketDataHistoryBetaResponse,
+        GetMarketDataHistoryRequest, GetMarketDataRequest, GetMarketDataResponse,
+        MarketDataHistory, UnsubscribeAllMarketDataResponse, UnsubscribeMarketDataRequest,
         UnsubscribeMarketDataResponse,
     },
 };
 
 impl IBClientPortal {
+    /// Get Market Data for the given conid(s). The endpoint will return by default bid, ask, last, change, change pct, close, listing exchange. See response fields for a list of available fields that can be request via fields argument. The endpoint /iserver/accounts must be called prior to /iserver/marketdata/snapshot. For derivative contracts the endpoint /iserver/secdef/search must be called first. First /snapshot endpoint call for given conid will initiate the market data request. To receive all available fields the /snapshot endpoint will need to be called several times. To receive streaming market data the endpoint /ws can be used. Refer to Streaming WebSocket Data for details.
     pub async fn get_market_data(
         &self,
-        request: MarketDataRequest,
-    ) -> Result<MarketDataResponse, Error> {
+        request: GetMarketDataRequest,
+    ) -> Result<GetMarketDataResponse, Error> {
         let path = "/iserver/marketdata/snapshot";
         let conids_query = (
             "conids",
@@ -53,6 +55,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Get historical market Data for given conid, length of data is controlled by 'period' and 'bar'. Formatted as: min=minute, h=hour, d=day, w=week, m=month, y=year e.g. period =1y with bar =1w returns 52 data points (Max of 1000 data points supported). Note: There's a limit of 5 concurrent requests. Excessive requests will return a 'Too many requests' status 429 response.
     pub async fn get_market_data_history(
         &self,
         request: GetMarketDataHistoryRequest,
@@ -107,7 +110,36 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Using a direct connection to the market data farm, will provide a list of historical market data for given conid.
+    pub async fn get_market_data_history_beta(
+        &self,
+        request: GetMarketDataHistoryBetaRequest,
+    ) -> Result<GetMarketDataHistoryBetaResponse, Error> {
+        let path = "/hmds/history";
+        let mut query = vec![
+            ("conid", request.conid.to_string()),
+            ("period", request.period),
+        ];
+        if let Some(bar) = request.bar {
+            query.push(("bar", bar));
+        }
+        if let Some(outside_regular_trading_hours) = request.outside_regular_trading_hours {
+            query.push((
+                "outside_regular_trading_hours",
+                outside_regular_trading_hours.to_string(),
+            ));
+        }
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .query(&query)
+            .send()
+            .await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
+
     // todo
-    // (beta) /hmds/history
     // (beta) /md/snapshot
 }

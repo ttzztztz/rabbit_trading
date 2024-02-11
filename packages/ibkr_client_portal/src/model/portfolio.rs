@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use super::{
     account::Allocation,
@@ -13,7 +12,8 @@ use super::{
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Position {
-    pub acct_id: String,
+    #[serde(rename = "acct_id")]
+    pub account_id: i64,
     #[serde(with = "unpack_exchanges")]
     pub all_exchanges: Vec<String>,
     pub asset_class: AssetClass,
@@ -22,7 +22,7 @@ pub struct Position {
     pub base_avg_cost: Option<Decimal>,
     pub base_avg_price: Option<Decimal>,
     pub base_mkt_price: Option<Decimal>,
-    pub conid: Option<i32>,
+    pub conid: Option<i64>,
     pub exercise_style: Option<String>,
     pub expiry: Option<String>,
     pub full_name: Vec<String>,
@@ -46,12 +46,12 @@ pub struct Position {
     pub realized_pnl: Decimal,
     pub sector: Vec<String>,
     pub sector_group: Option<String>,
-    pub strike: Vec<Value>,
+    pub strike: Vec<Decimal>,
     pub ticker: Vec<String>,
     pub time: Vec<i64>,
     #[serde(rename = "type")]
     pub type_field: Vec<String>,
-    pub und_comp: Option<Value>,
+    pub und_comp: Option<String>,
     pub und_conid: Vec<i64>,
     pub und_sym: Option<String>,
     pub unrealized_pnl: Decimal,
@@ -88,14 +88,14 @@ pub struct GetPortfolioAllocationRequest {
 pub type GetPortfolioAllocationResponse = Vec<Allocation>;
 
 pub struct GetPortfolioPositionByAccountAndConIdRequest {
-    pub account_id: String,
+    pub account_id: i64,
     pub conid: i64,
 }
 
 pub type GetPortfolioPositionByAccountAndConIdResponse = Vec<Position>;
 
 pub struct InvalidatePortfolioCacheRequest {
-    pub account_id: String,
+    pub account_id: i64,
 }
 
 pub struct GetPortfolioPositionByConIdRequest {

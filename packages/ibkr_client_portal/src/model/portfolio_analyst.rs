@@ -102,7 +102,7 @@ pub struct GetPortfolioTransactionsRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PortfolioTransactions {
     #[serde(rename = "acctid")]
-    pub account_id: Option<String>,
+    pub account_id: Option<i64>,
     #[serde(rename = "conid")]
     pub conid: Option<i64>,
     /// currency code

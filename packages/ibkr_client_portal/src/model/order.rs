@@ -6,10 +6,10 @@ use serde_json::Value;
 pub struct OrderTicket {
     /// acctId is optional. It should be one of the accounts returned by /iserver/accounts. If not passed, the first one in the list is selected.
     #[serde(rename = "acctId")]
-    pub account_id: Option<String>,
+    pub account_id: Option<i64>,
     /// conid is the identifier of the security you want to trade, you can find the conid with /iserver/secdef/search.
     #[serde(rename = "conid")]
-    pub conid: Option<i32>,
+    pub conid: Option<i64>,
     /// Conid and Exchange - Can be used instead of conid when specifying the contract identifier of a security.
     #[serde(rename = "conidex")]
     pub conidex: Option<String>,
@@ -21,7 +21,7 @@ pub struct OrderTicket {
     pub c_oid: Option<String>,
     /// Only specify for child orders when placing bracket orders. The parentId for the child order(s) must be equal to the cOId (customer order id) of the parent.
     #[serde(rename = "parentId")]
-    pub parent_id: Option<String>,
+    pub parent_id: Option<i64>,
     /// The order-type determines what type of order you want to send.   * LMT - A limit order is an order to buy or sell at the specified price or better.   * MKT - A market order is an order to buy or sell at the markets current NBBO.   * STP - A stop order becomes a market order once the specified stop price is attained or penetrated.   * STOP_LIMIT - A stop limit order becomes a limit order once the specified stop price is attained or penetrated.   * MIDPRICE - A MidPrice order attempts to fill at the current midpoint of the NBBO or better.   * TRAIL - A sell trailing stop order sets the stop price at a fixed amount below the market price with an attached \"trailing\" amount. See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=605   * TRAILLMT - A trailing stop limit order is designed to allow an investor to specify a limit on the maximum possible loss, without setting a limit on the maximum possible gain.     See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=606
     #[serde(rename = "orderType")]
     pub order_type: Option<String>,

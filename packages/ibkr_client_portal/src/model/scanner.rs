@@ -70,7 +70,7 @@ pub struct ScannerResultContract {
     #[serde(rename = "distance")]
     pub distance: Option<i32>,
     #[serde(rename = "contractID")]
-    pub contract_id: Option<i32>,
+    pub contract_id: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

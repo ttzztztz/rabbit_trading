@@ -1,6 +1,5 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -54,14 +53,14 @@ pub struct GetAccountsResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SwitchAccountRequest {
     #[serde(rename = "acctId")]
-    pub account_id: String,
+    pub account_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SwitchAccountResponse {
     pub set: bool,
     #[serde(rename = "acctId")]
-    pub account_id: String,
+    pub account_id: i64,
 }
 
 pub type GetAccountLedgerResponse = HashMap<String, AccountLedger>;
@@ -72,7 +71,7 @@ pub struct AccountParent {
     mmc: Option<Vec<String>>,
     /// Account Number for Money Manager Client
     #[serde(rename = "accountId")]
-    account_id: Option<String>,
+    account_id: Option<i64>,
     /// Is MM a Parent Account
     #[serde(rename = "isMParent")]
     is_m_parent: Option<bool>,
@@ -91,7 +90,7 @@ pub struct Account {
     id: Option<String>,
     /// The account number
     #[serde(rename = "accountId")]
-    account_id: Option<String>,
+    account_id: Option<i64>,
     /// The accountAlias
     #[serde(rename = "accountVan")]
     account_van: Option<String>,
@@ -140,15 +139,15 @@ pub struct GetSubAccountsV2Request {
 }
 
 pub struct GetAccountMetadataRequest {
-    pub account_id: String,
+    pub account_id: i64,
 }
 
 pub struct GetAccountSummaryRequest {
-    pub account_id: String,
+    pub account_id: i64,
 }
 
 pub struct GetAccountAllocationRequest {
-    pub account_id: String,
+    pub account_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -158,7 +157,7 @@ pub struct SubAccount {
     pub id: Option<String>,
     /// The account number
     #[serde(rename = "accountId")]
-    pub account_id: Option<String>,
+    pub account_id: Option<i64>,
     /// The accountAlias
     #[serde(rename = "accountVan")]
     pub account_van: Option<String>,
@@ -596,7 +595,7 @@ pub struct Allocation {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetAccountPnLPartitionedResponse {
     #[serde(rename = "acctId")]
-    pub account_id: Option<Value>,
+    pub account_id: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -657,7 +656,7 @@ pub struct AccountTrade {
     pub sec_type: Option<String>,
     /// IBKR's contract identifier
     #[serde(rename = "conid")]
-    pub conid: Option<String>,
+    pub conid: Option<i64>,
     /// conid and exchange. Format supports conid or conid@exchange
     #[serde(rename = "conidex")]
     pub conidex: Option<String>,
