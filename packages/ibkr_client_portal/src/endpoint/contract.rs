@@ -1,18 +1,17 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Contract
 
 use reqwest::Error;
-use serde_json::Value;
 
 use crate::{
     client::IBClientPortal,
     model::{
         contract::{
             ContractDetail, GetContractDetailRequest, GetSecurityDefinitionByContractIdRequest,
-            GetStocksBySymbolRequest, SearchForSecurityRequest, SecurityDefinitions,
-            StockContracts,
+            GetStocksBySymbolRequest, SearchForSecurityRequest, SearchForSecurityResponse,
+            SecurityDefinitions, StockContracts,
         },
         futures::{FuturesContracts, GetFuturesBySymbolRequest},
-        options::GetOptionsRequest,
+        security::{SecurityDefinitionsRequest, SecurityDefinitionsResponse},
     },
 };
 
@@ -70,7 +69,7 @@ impl IBClientPortal {
         request: GetContractDetailRequest,
     ) -> Result<ContractDetail, Error> {
         let path = format!("/iserver/contract/{}/info", request.conid);
-        let response = self.client.get(self.get_url(&path)).body("").send().await?;
+        let response = self.client.get(self.get_url(&path)).send().await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -79,7 +78,7 @@ impl IBClientPortal {
     pub async fn search_for_security(
         &self,
         request: SearchForSecurityRequest,
-    ) -> Result<Value, Error> {
+    ) -> Result<SearchForSecurityResponse, Error> {
         let path = "/iserver/secdef/search";
         let response = self
             .client
@@ -92,7 +91,10 @@ impl IBClientPortal {
         response.json().await
     }
 
-    pub async fn get_options(&self, request: GetOptionsRequest) -> Result<Value, Error> {
+    pub async fn get_options(
+        &self,
+        request: SecurityDefinitionsRequest,
+    ) -> Result<SecurityDefinitionsResponse, Error> {
         let path = "/iserver/secdef/info";
         let mut query = vec![
             ("conid", request.underlying_con_id.to_string()),

@@ -1,5 +1,6 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -105,7 +106,7 @@ pub struct Account {
     account_alias: Option<String>,
     /// When the account was opened in unix time.
     #[serde(rename = "accountStatus")]
-    account_status: Option<f32>,
+    account_status: Option<i64>,
     /// Base currency of the account.
     #[serde(rename = "currency")]
     currency: Option<String>,
@@ -172,7 +173,7 @@ pub struct SubAccount {
     pub account_alias: Option<String>,
     /// When the account was opened in unix time.
     #[serde(rename = "accountStatus")]
-    pub account_status: Option<f32>,
+    pub account_status: Option<i64>,
     /// Base currency of the account.
     #[serde(rename = "currency")]
     pub currency: Option<String>,
@@ -201,7 +202,7 @@ pub struct GetSubAccountsV2Response {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Summary {
     #[serde(rename = "amount")]
-    pub amount: Option<f32>,
+    pub amount: Option<i64>,
     #[serde(rename = "currency")]
     pub currency: Option<String>,
     #[serde(rename = "isNull")]
@@ -477,33 +478,33 @@ pub struct GetAccountSummaryResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationAssetClassLong {
     #[serde(rename = "STK")]
-    pub stock: Option<f32>,
+    pub stock: Option<i64>,
     #[serde(rename = "OPT")]
-    pub options: Option<f32>,
+    pub options: Option<i64>,
     #[serde(rename = "FUT")]
-    pub futures: Option<f32>,
+    pub futures: Option<i64>,
     #[serde(rename = "WAR")]
-    pub warrants: Option<f32>,
+    pub warrants: Option<i64>,
     #[serde(rename = "BOND")]
-    pub bonds: Option<f32>,
+    pub bonds: Option<i64>,
     #[serde(rename = "CASH")]
-    pub cash: Option<f32>,
+    pub cash: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationAssetClassShort {
     #[serde(rename = "STK")]
-    pub stock: Option<f32>,
+    pub stock: Option<i64>,
     #[serde(rename = "OPT")]
-    pub options: Option<f32>,
+    pub options: Option<i64>,
     #[serde(rename = "FUT")]
-    pub futures: Option<f32>,
+    pub futures: Option<i64>,
     #[serde(rename = "WAR")]
-    pub warrants: Option<f32>,
+    pub warrants: Option<i64>,
     #[serde(rename = "BOND")]
-    pub bonds: Option<f32>,
+    pub bonds: Option<i64>,
     #[serde(rename = "CASH")]
-    pub cash: Option<f32>,
+    pub cash: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -517,27 +518,27 @@ pub struct AllocationAssetClass {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationSectorLong {
     #[serde(rename = "Others")]
-    pub others: Option<f32>,
+    pub others: Option<i64>,
     #[serde(rename = "Utilities")]
-    pub utilities: Option<f32>,
+    pub utilities: Option<i64>,
     #[serde(rename = "Energy")]
-    pub energy: Option<f32>,
+    pub energy: Option<i64>,
     #[serde(rename = "Technology")]
-    pub technology: Option<f32>,
+    pub technology: Option<i64>,
     #[serde(rename = "Financial")]
-    pub financial: Option<f32>,
+    pub financial: Option<i64>,
     #[serde(rename = "Communications")]
-    pub communications: Option<f32>,
+    pub communications: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationSectorShort {
     #[serde(rename = "Industrial")]
-    pub industrial: Option<f32>,
+    pub industrial: Option<i64>,
     #[serde(rename = "Consumer")]
-    pub consumer: Option<f32>,
+    pub consumer: Option<i64>,
     #[serde(rename = "Diversified")]
-    pub diversified: Option<f32>,
+    pub diversified: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -551,27 +552,27 @@ pub struct AllocationSector {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationGroupLong {
     #[serde(rename = "Computers")]
-    pub computers: Option<f32>,
+    pub computers: Option<i64>,
     #[serde(rename = "Semiconductors")]
-    pub semiconductors: Option<f32>,
+    pub semiconductors: Option<i64>,
     #[serde(rename = "Others")]
-    pub others: Option<f32>,
+    pub others: Option<i64>,
     #[serde(rename = "Chemicals")]
-    pub chemicals: Option<f32>,
+    pub chemicals: Option<i64>,
     #[serde(rename = "Apparel")]
-    pub apparel: Option<f32>,
+    pub apparel: Option<i64>,
     #[serde(rename = "Communications")]
-    pub communications: Option<f32>,
+    pub communications: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationInnerGroupShort {
     #[serde(rename = "Banks")]
-    pub banks: Option<f32>,
+    pub banks: Option<i64>,
     #[serde(rename = "Airlines")]
-    pub airlines: Option<f32>,
+    pub airlines: Option<i64>,
     #[serde(rename = "Internet")]
-    pub internet: Option<f32>,
+    pub internet: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -591,3 +592,87 @@ pub struct Allocation {
     #[serde(rename = "group")]
     pub group: Option<AllocationGroup>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetAccountPnLPartitionedResponse {
+    #[serde(rename = "acctId")]
+    pub account_id: Option<Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AccountTrade {
+    /// execution identifier for the order
+    #[serde(rename = "execution_id")]
+    pub execution_id: Option<String>,
+    /// Underlying Symbol
+    #[serde(rename = "symbol")]
+    pub symbol: Option<String>,
+    /// The side of the market of the order.   * B - Buy contract near posted ask price   * S - Sell contract near posted bid price   * X - Option expired
+    #[serde(rename = "side")]
+    pub side: Option<String>,
+    /// Formatted description of the order \"%side% %size% @ %price% on %exchange%\".
+    #[serde(rename = "order_description")]
+    pub order_description: Option<String>,
+    /// Time of Status update in format \"YYYYMMDD-hh:mm:ss\".
+    #[serde(rename = "trade_time")]
+    pub trade_time: Option<String>,
+    /// Time of status update in format unix time.
+    #[serde(rename = "trade_time_r")]
+    pub trade_time_r: Option<i64>,
+    /// Quantity of the order
+    #[serde(rename = "size")]
+    pub size: Option<String>,
+    /// Average Price
+    #[serde(rename = "price")]
+    pub price: Option<String>,
+    /// User defined string used to identify the order. Value is set using \"cOID\" field while placing an order.
+    #[serde(rename = "order_ref")]
+    pub order_ref: Option<String>,
+    /// User that submitted order
+    #[serde(rename = "submitter")]
+    pub submitter: Option<String>,
+    /// Exchange or venue of order
+    #[serde(rename = "exchange")]
+    pub exchange: Option<String>,
+    /// Commission of the order
+    #[serde(rename = "commission")]
+    pub commission: Option<Decimal>,
+    /// Net cost of the order, including contract multiplier and quantity.
+    #[serde(rename = "net_amount")]
+    pub net_amount: Option<Decimal>,
+    /// accountCode
+    #[serde(rename = "account")]
+    pub account: Option<String>,
+    /// Account Number
+    #[serde(rename = "acountCode")]
+    pub acount_code: Option<String>,
+    /// Contracts company name
+    #[serde(rename = "company_name")]
+    pub company_name: Option<String>,
+    /// Format contract name
+    #[serde(rename = "contract_description_1")]
+    pub contract_description_1: Option<String>,
+    /// Asset class
+    #[serde(rename = "sec_type")]
+    pub sec_type: Option<String>,
+    /// IBKR's contract identifier
+    #[serde(rename = "conid")]
+    pub conid: Option<String>,
+    /// conid and exchange. Format supports conid or conid@exchange
+    #[serde(rename = "conidex")]
+    pub conidex: Option<String>,
+    /// Total quantity owned for this contract
+    #[serde(rename = "position")]
+    pub position: Option<String>,
+    /// Firm which will settle the trade. For IBExecution customers only.
+    #[serde(rename = "clearing_id")]
+    pub clearing_id: Option<String>,
+    /// Specifies the true beneficiary of the order. For IBExecution customers only.
+    #[serde(rename = "clearing_name")]
+    pub clearing_name: Option<String>,
+    /// If order adds liquidity to the market.
+    #[serde(rename = "liquidation_trade")]
+    pub liquidation_trade: Option<i64>,
+}
+
+pub type GetAccountTradesResponse = Vec<AccountTrade>;

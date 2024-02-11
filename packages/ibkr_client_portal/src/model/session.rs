@@ -46,20 +46,20 @@ pub struct LogoutResponse {
 pub struct SSOValidateResponse {
     /// 1 for Live, 2 for Paper
     #[serde(rename = "LOGIN_TYPE")]
-    pub login_type: Option<f32>,
+    pub login_type: Option<i64>,
     /// Username
     #[serde(rename = "USER_NAME")]
     pub user_name: Option<String>,
     /// User ID
     #[serde(rename = "USER_ID")]
-    pub user_id: Option<f32>,
+    pub user_id: Option<i64>,
     /// Time in milliseconds until session expires. Caller needs to call the again to re-validate session
     #[serde(rename = "expire")]
-    pub expire: Option<f32>,
+    pub expire: Option<i64>,
     /// true if session was validated; false if not.
     #[serde(rename = "RESULT")]
     pub result: Option<bool>,
     /// Time of session validation
     #[serde(rename = "AUTH_TIME")]
-    pub auth_time: Option<f32>,
+    pub auth_time: Option<i64>,
 }

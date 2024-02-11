@@ -16,7 +16,16 @@ impl IBClientPortal {
         request: MarketDataRequest,
     ) -> Result<MarketDataResponse, Error> {
         let path = "/iserver/marketdata/snapshot";
-        let conids_query = ("conids", request.conids.join(",").to_string());
+        let conids_query = (
+            "conids",
+            request
+                .conids
+                .into_iter()
+                .map(|conid| conid.to_string())
+                .collect::<Vec<String>>()
+                .join(",")
+                .to_string(),
+        );
         let fields_query = (
             "fields",
             request

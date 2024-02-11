@@ -13,7 +13,7 @@ use crate::{
 impl IBClientPortal {
     pub async fn get_scanner_parameters(&self) -> Result<GetScannerParametersResponse, Error> {
         let path = "/iserver/scanner/params";
-        let response = self.client.get(self.get_url(&path)).body("").send().await?;
+        let response = self.client.get(self.get_url(&path)).send().await?;
 
         response.error_for_status_ref()?;
         response.json().await

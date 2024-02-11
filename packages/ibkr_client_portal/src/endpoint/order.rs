@@ -1,13 +1,18 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Order
 
 use reqwest::Error;
-use serde_json::Value;
 
-use crate::{client::IBClientPortal, model::order::PlaceOrderRequest};
+use crate::{
+    client::IBClientPortal,
+    model::order::{PlaceOrderRequest, PlaceOrderResponse},
+};
 
 impl IBClientPortal {
-    // deprecated
-    pub async fn place_order(&self, request: PlaceOrderRequest) -> Result<Value, Error> {
+    /// deprecated
+    pub async fn place_order(
+        &self,
+        request: PlaceOrderRequest,
+    ) -> Result<PlaceOrderResponse, Error> {
         let path = format!("/iserver/account/{}/order", self.account);
         let response = self
             .client

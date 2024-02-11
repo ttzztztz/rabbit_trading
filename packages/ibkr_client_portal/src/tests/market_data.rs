@@ -1,6 +1,6 @@
 use crate::{
     client::IBClientPortal,
-    model::{market_data::MarketDataRequest, definition::TickType},
+    model::{definition::TickType, market_data::MarketDataRequest},
     tests::utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
 };
 
@@ -10,7 +10,7 @@ async fn test_market_data() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
         .market_data(MarketDataRequest {
-            conids: vec![CONTRACT_ID_AAPL.to_string()],
+            conids: vec![CONTRACT_ID_AAPL],
             since: Option::None,
             fields: Option::Some(vec![TickType::LastPrice, TickType::Low, TickType::High]),
         })

@@ -113,7 +113,7 @@ pub struct RunScannerBetaResponse {
     #[serde(rename = "scanTime")]
     pub scan_time: Option<String>,
     #[serde(rename = "id")]
-    pub id: Option<f32>,
+    pub id: Option<i64>,
     #[serde(rename = "position")]
     pub position: Option<String>,
     #[serde(rename = "Contracts")]
@@ -133,7 +133,7 @@ pub struct ScannerRunResponse {
     #[serde(rename = "conidex")]
     pub conid_and_exchange: Option<String>,
     #[serde(rename = "con_id")]
-    pub con_id: Option<f32>,
+    pub con_id: Option<i64>,
     /// List of available chart periods
     #[serde(rename = "available_chart_periods")]
     pub available_chart_periods: Option<String>,
@@ -154,7 +154,7 @@ pub struct ScannerFilter {
     #[serde(rename = "code")]
     pub code: Option<String>,
     #[serde(rename = "value")]
-    pub value: Option<f32>,
+    pub value: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

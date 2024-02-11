@@ -139,11 +139,64 @@ pub struct GetStocksBySymbolRequest {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchForSecurityRequest {
+    /// symbol or name to be searched
     pub symbol: String,
     #[serde(rename = "name")]
+    /// should be true if the search is to be performed by name. false by default.
     pub is_name: bool,
+    /// If search is done by name, only the assets provided in this field will be returned. Currently, only STK is supported.
     #[serde(rename = "secType")]
     pub sec_type: AssetClass,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SearchForSecurityResponseSection {
+    /// Asset Class
+    #[serde(rename = "secType")]
+    sec_type: Option<String>,
+    /// List of expiration month(s) and year(s) in MMMYY format separated by semicolon
+    #[serde(rename = "months")]
+    months: Option<String>,
+    /// Underlying symbol
+    #[serde(rename = "symbol")]
+    symbol: Option<String>,
+    /// Listing Exchange
+    #[serde(rename = "exchange")]
+    exchange: Option<String>,
+    /// For combo's defines the asset class for each leg
+    #[serde(rename = "legSecType")]
+    leg_sec_type: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SearchForSecurityResponse {
+    /// Contract Identifier
+    #[serde(rename = "conid")]
+    pub conid: Option<i32>,
+    /// Company Name - Exchange
+    #[serde(rename = "companyHeader")]
+    pub company_header: Option<String>,
+    #[serde(rename = "companyName")]
+    pub company_name: Option<String>,
+    /// Underlying symbol
+    #[serde(rename = "symbol")]
+    pub symbol: Option<String>,
+    /// Exchange
+    #[serde(rename = "description")]
+    pub description: Option<String>,
+    #[serde(rename = "restricted")]
+    pub restricted: Option<String>,
+    /// List of Future Option expirations in YYYMMDD format separated by semicolon
+    #[serde(rename = "fop")]
+    pub future_option_expirations: Option<String>,
+    /// List of Option expirations in YYYYMMDD format separated by semicolon
+    #[serde(rename = "opt")]
+    pub option_expirations: Option<String>,
+    /// List of Warrant expirations in YYYYMMDD format separated by semicolon
+    #[serde(rename = "war")]
+    pub warrant_expirations: Option<String>,
+    #[serde(rename = "sections")]
+    pub sections: Option<Vec<SearchForSecurityResponseSection>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

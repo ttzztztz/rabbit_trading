@@ -7,7 +7,7 @@ use super::definition::TickType;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MarketDataRequest {
-    pub conids: Vec<String>,
+    pub conids: Vec<i64>,
     pub since: Option<i64>,
     pub fields: Option<Vec<TickType>>,
 }

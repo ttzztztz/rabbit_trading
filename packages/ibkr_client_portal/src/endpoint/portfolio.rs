@@ -13,7 +13,7 @@ impl IBClientPortal {
         request: GetPositionsRequest,
     ) -> Result<GetPositionsResponse, Error> {
         let path = format!("/portfolio/{}/positions/{}", self.account, request.page);
-        let response = self.client.get(self.get_url(&path)).body("").send().await?;
+        let response = self.client.get(self.get_url(&path)).send().await?;
 
         response.error_for_status_ref()?;
         response.json().await

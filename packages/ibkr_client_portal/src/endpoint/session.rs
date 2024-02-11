@@ -12,11 +12,10 @@ impl IBClientPortal {
         let response = self
             .client
             .post(self.get_url("/tickle"))
-            .header(
-                reqwest::header::CONTENT_LENGTH,
-                reqwest::header::HeaderValue::from_static("0"),
-            )
-            .body("")
+            // .header(
+            //     reqwest::header::CONTENT_LENGTH,
+            //     reqwest::header::HeaderValue::from_static("0"),
+            // )
             .send()
             .await?;
 
@@ -28,11 +27,10 @@ impl IBClientPortal {
         let response = self
             .client
             .post(self.get_url("/iserver/auth/status"))
-            .header(
-                reqwest::header::CONTENT_LENGTH,
-                reqwest::header::HeaderValue::from_static("0"),
-            )
-            .body("")
+            // .header(
+            //     reqwest::header::CONTENT_LENGTH,
+            //     reqwest::header::HeaderValue::from_static("0"),
+            // )
             .send()
             .await?;
 
@@ -44,11 +42,10 @@ impl IBClientPortal {
         let response = self
             .client
             .post(self.get_url("/logout"))
-            .header(
-                reqwest::header::CONTENT_LENGTH,
-                reqwest::header::HeaderValue::from_static("0"),
-            )
-            .body("")
+            // .header(
+            //     reqwest::header::CONTENT_LENGTH,
+            //     reqwest::header::HeaderValue::from_static("0"),
+            // )
             .send()
             .await?;
 
@@ -58,7 +55,7 @@ impl IBClientPortal {
 
     pub async fn sso_validate(&self) -> Result<SSOValidateResponse, Error> {
         let path = "/sso/validate";
-        let response = self.client.get(self.get_url(&path)).body("").send().await?;
+        let response = self.client.get(self.get_url(&path)).send().await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -66,12 +63,7 @@ impl IBClientPortal {
 
     pub async fn reauthenticate(&self) -> Result<AuthStatus, Error> {
         let path = "/iserver/reauthenticate";
-        let response = self
-            .client
-            .post(self.get_url(&path))
-            .body("")
-            .send()
-            .await?;
+        let response = self.client.post(self.get_url(&path)).send().await?;
 
         response.error_for_status_ref()?;
         response.json().await
