@@ -15,7 +15,7 @@ use crate::{
 
 impl IBClientPortal {
     /// Information regarding settled cash, cash balances, etc. in the account's base currency and any other cash balances hold in other currencies. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint. The list of supported currencies is available at https://www.interactivebrokers.com/en/index.php?f=3185.
-    pub async fn account_ledger(&self) -> Result<GetAccountLedgerResponse, Error> {
+    pub async fn get_account_ledger(&self) -> Result<GetAccountLedgerResponse, Error> {
         let path = format!("/portfolio/{}/ledger", self.account);
         let response = self.client.get(self.get_url(&path)).send().await?;
 
@@ -24,7 +24,7 @@ impl IBClientPortal {
     }
 
     /// Returns a list of accounts the user has trading access to, their respective aliases and the currently selected account. Note this endpoint must be called before modifying an order or querying open orders.
-    pub async fn brokerage_accounts(&self) -> Result<GetAccountsResponse, Error> {
+    pub async fn get_brokerage_accounts(&self) -> Result<GetAccountsResponse, Error> {
         let path = "/iserver/accounts";
         let response = self.client.get(self.get_url(&path)).send().await?;
 
@@ -33,7 +33,7 @@ impl IBClientPortal {
     }
 
     /// In non-tiered account structures, returns a list of accounts for which the user can view position and account information. This endpoint must be called prior to calling other /portfolio endpoints for those accounts. For querying a list of accounts which the user can trade, see /iserver/accounts. For a list of subaccounts in tiered account structures (e.g. financial advisor or ibroker accounts) see /portfolio/subaccounts.
-    pub async fn portfolio_accounts(&self) -> Result<GetPortfolioAccountsResponse, Error> {
+    pub async fn get_portfolio_accounts(&self) -> Result<GetPortfolioAccountsResponse, Error> {
         let path = "/portfolio/accounts";
         let response = self.client.get(self.get_url(&path)).send().await?;
 
@@ -42,7 +42,7 @@ impl IBClientPortal {
     }
 
     /// Used in tiered account structures (such as Financial Advisor and IBroker Accounts) to return a list of up to 100 sub-accounts for which the user can view position and account-related information. This endpoint must be called prior to calling other /portfolio endpoints for those sub-accounts. If you have more than 100 sub-accounts use /portfolio/subaccounts2. To query a list of accounts the user can trade, see /iserver/accounts.
-    pub async fn sub_accounts(&self) -> Result<Account, Error> {
+    pub async fn get_sub_accounts(&self) -> Result<Account, Error> {
         let path = "/portfolio/subaccounts";
         let response = self.client.get(self.get_url(&path)).send().await?;
 
@@ -51,7 +51,7 @@ impl IBClientPortal {
     }
 
     /// Used in tiered account structures (such as Financial Advisor and IBroker Accounts) to return a list of sub-accounts, paginated up to 20 accounts per page, for which the user can view position and account-related information. This endpoint must be called prior to calling other /portfolio endpoints for those sub-accounts. If you have less than 100 sub-accounts use /portfolio/subaccounts. To query a list of accounts the user can trade, see /iserver/accounts.
-    pub async fn sub_accounts_v2(
+    pub async fn get_sub_accounts_v2(
         &self,
         request: GetSubAccountsV2Request,
     ) -> Result<GetSubAccountsV2Response, Error> {
@@ -68,7 +68,7 @@ impl IBClientPortal {
     }
 
     /// Account information related to account Id /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
-    pub async fn account_metadata(
+    pub async fn get_account_metadata(
         &self,
         request: GetAccountMetadataRequest,
     ) -> Result<GetAccountMetadataResponse, Error> {
@@ -80,7 +80,7 @@ impl IBClientPortal {
     }
 
     /// Account information related to account Id /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
-    pub async fn account_summary(
+    pub async fn get_account_summary(
         &self,
         request: GetAccountSummaryRequest,
     ) -> Result<GetAccountSummaryResponse, Error> {
@@ -92,7 +92,7 @@ impl IBClientPortal {
     }
 
     /// Information about the account's portfolio allocation by Asset Class, Industry and Category. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
-    pub async fn account_allocations(
+    pub async fn get_account_allocations(
         &self,
         request: GetAccountAllocationRequest,
     ) -> Result<Allocation, Error> {

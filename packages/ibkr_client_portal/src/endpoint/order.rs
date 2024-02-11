@@ -8,7 +8,7 @@ use crate::{
 };
 
 impl IBClientPortal {
-    /// deprecated
+    /// @deprecated
     pub async fn place_order(
         &self,
         request: PlaceOrderRequest,

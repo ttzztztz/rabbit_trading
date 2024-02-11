@@ -9,7 +9,7 @@ async fn test_accounts_operation() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let test_account = get_test_account();
 
-    let response_result = ib_cp_client.brokerage_accounts().await;
+    let response_result = ib_cp_client.get_brokerage_accounts().await;
     assert!(response_result.is_ok());
     let response = response_result.unwrap();
     assert!(response.accounts.contains(&test_account));

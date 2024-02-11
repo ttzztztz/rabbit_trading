@@ -92,3 +92,21 @@ pub struct GetMarketDataHistoryRequest {
     pub outside_rth: bool,
     pub start_time: Option<OffsetDateTime>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UnsubscribeAllMarketDataResponse {
+    /// true means market data is cancelled, false means it is not.
+    #[serde(rename = "confirmed")]
+    pub confirmed: Option<bool>,
+}
+
+pub struct UnsubscribeMarketDataRequest {
+    pub conid: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UnsubscribeMarketDataResponse {
+    /// true means market data is cancelled, false means it is not.
+    #[serde(rename = "confirmed")]
+    pub confirmed: Option<bool>,
+}

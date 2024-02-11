@@ -12,7 +12,7 @@ use crate::{
 
 impl IBClientPortal {
     /// Returns the performance (MTM) for the given accounts, if more than one account is passed, the result is consolidated.
-    pub async fn portfolio_analyst_performance(
+    pub async fn get_portfolio_analyst_performance(
         &self,
         request: GetPortfolioPerformanceRequest,
     ) -> Result<GetPortfolioPerformanceResponse, Error> {
@@ -30,7 +30,7 @@ impl IBClientPortal {
 
     /// Transaction history for a given number of conids and accounts.
     /// Types of transactions include dividend payments, buy and sell transactions, transfers.
-    pub async fn portfolio_analyst_transactions(
+    pub async fn get_portfolio_analyst_transactions(
         &self,
         request: GetPortfolioTransactionsRequest,
     ) -> Result<GetPortfolioTransactionsResponse, Error> {

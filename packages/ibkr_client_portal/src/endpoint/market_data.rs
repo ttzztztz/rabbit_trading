@@ -7,11 +7,13 @@ use crate::{
     client::IBClientPortal,
     model::market_data::{
         GetMarketDataHistoryRequest, MarketDataHistory, MarketDataRequest, MarketDataResponse,
+        UnsubscribeAllMarketDataResponse, UnsubscribeMarketDataRequest,
+        UnsubscribeMarketDataResponse,
     },
 };
 
 impl IBClientPortal {
-    pub async fn market_data(
+    pub async fn get_market_data(
         &self,
         request: MarketDataRequest,
     ) -> Result<MarketDataResponse, Error> {
@@ -82,9 +84,30 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Cancel all market data request(s). To cancel market data for given conid, see /iserver/marketdata/{conid}/unsubscribe.
+    pub async fn unsubscribe_all_market_data(
+        &self,
+    ) -> Result<UnsubscribeAllMarketDataResponse, Error> {
+        let path = "/iserver/marketdata/unsubscribeall";
+        let response = self.client.get(self.get_url(&path)).send().await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
+
+    /// Cancel market data for given conid. To cancel all market data request(s), see /iserver/marketdata/unsubscribeall.
+    pub async fn unsubscribe_market_data(
+        &self,
+        request: UnsubscribeMarketDataRequest,
+    ) -> Result<UnsubscribeMarketDataResponse, Error> {
+        let path = format!("/iserver/marketdata/{}/unsubscribe", request.conid);
+        let response = self.client.get(self.get_url(&path)).send().await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
+
     // todo
     // (beta) /hmds/history
     // (beta) /md/snapshot
-    // /iserver/marketdata/unsubscribeall
-    // /iserver/marketdata/unsubscribeall
 }

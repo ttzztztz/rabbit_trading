@@ -25,7 +25,7 @@ impl IBClientPortal {
     }
 
     /// Current Authentication status to the Brokerage system. Market Data and Trading is not possible if not authenticated, e.g. authenticated shows false
-    pub async fn auth_status(&self) -> Result<AuthStatus, Error> {
+    pub async fn get_auth_status(&self) -> Result<AuthStatus, Error> {
         let response = self
             .client
             .post(self.get_url("/iserver/auth/status"))
