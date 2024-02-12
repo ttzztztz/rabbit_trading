@@ -66,7 +66,7 @@ pub struct MarketDataHistory {
     pub mkt_data_delay: Option<i32>,
     /// The historical data returned includes outside of regular trading hours
     #[serde(rename = "outsideRth")]
-    pub outside_rth: Option<bool>,
+    pub outside_regular_trading_hours: Option<bool>,
     /// The number of seconds in the trading day
     #[serde(rename = "tradingDayDuration")]
     pub trading_day_duration: Option<i32>,
@@ -121,7 +121,7 @@ pub struct GetMarketDataHistoryRequest {
     pub exchange: Option<String>,
     pub period: String,
     pub bar: String,
-    pub outside_rth: bool,
+    pub outside_regular_trading_hours: bool,
     pub start_time: Option<OffsetDateTime>,
 }
 

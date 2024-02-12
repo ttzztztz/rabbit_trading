@@ -55,7 +55,7 @@ pub struct Alert {
     pub alert_send_message: Option<i32>,
     /// time in force, can only be GTC or GTD
     #[serde(rename = "tif")]
-    pub tif: Option<String>,
+    pub time_in_force: Option<String>,
     /// format, YYYYMMDD-HH:mm:ss
     #[serde(rename = "expire_time")]
     pub expire_time: Option<String>,
@@ -64,7 +64,7 @@ pub struct Alert {
     pub order_status: Option<String>,
     /// value can only be 0 or 1, set to 1 if the alert can be triggered outside regular trading hours.
     #[serde(rename = "outsideRth")]
-    pub outside_rth: Option<i32>,
+    pub outside_regular_trading_hours: Option<i32>,
     /// value can only be 0 or 1, set to 1 to enable the alert only in IBKR mobile
     #[serde(rename = "itws_orders_only")]
     pub itws_orders_only: Option<i32>,
@@ -99,8 +99,8 @@ pub struct Alert {
     #[serde(rename = "condition_size")]
     pub condition_size: Option<i32>,
     /// whether allowing the condition can be triggered outside of regular trading hours, 1 means allow
-    #[serde(rename = "condition_outside_rth")]
-    pub condition_outside_rth: Option<i32>,
+    #[serde(rename = "condition_outside_regular_trading_hours")]
+    pub condition_outside_regular_trading_hours: Option<i32>,
     #[serde(rename = "conditions")]
     pub conditions: Option<Vec<AlertCondition>>,
 }
@@ -235,13 +235,13 @@ pub struct UpsertAlertRequest {
     pub send_message: Option<i32>,
     /// time in force, can only be GTC or GTD
     #[serde(rename = "tif")]
-    pub tif: Option<String>,
+    pub time_in_force: Option<String>,
     /// format, YYYYMMDD-HH:mm:ss, please NOTE this will only work when tif is GTD
     #[serde(rename = "expireTime")]
     pub expire_time: Option<String>,
     /// value can only be 0 or 1, set to 1 if the alert can be triggered outside regular trading hours.
     #[serde(rename = "outsideRth")]
-    pub outside_rth: Option<i32>,
+    pub outside_regular_trading_hours: Option<i32>,
     /// value can only be 0 or 1, set to 1 to enable the alert only in IBKR mobile
     #[serde(rename = "iTWSOrdersOnly")]
     pub i_tws_orders_only: Option<i32>,

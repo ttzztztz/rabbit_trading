@@ -350,7 +350,7 @@ pub struct TradingRule {
     pub tif_types: Option<Vec<String>>,
     /// Default time in force value
     #[serde(rename = "defaultTIF")]
-    pub default_tif: Option<String>,
+    pub default_time_in_force: Option<String>,
     /// Limit price
     #[serde(rename = "limitPrice")]
     pub limit_price: Option<i64>,
@@ -512,7 +512,7 @@ pub struct SecurityTradingRule {
     pub tif_types: Option<Vec<String>>,
     /// Default time in force value
     #[serde(rename = "defaultTIF")]
-    pub default_tif: Option<String>,
+    pub default_time_in_force: Option<String>,
     /// Limit price
     #[serde(rename = "limitPrice")]
     pub limit_price: Option<i64>,

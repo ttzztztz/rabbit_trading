@@ -21,6 +21,7 @@ use crate::{
 };
 
 impl IBClientPortal {
+    /// Returns a list of security definitions for the given conids
     pub async fn get_security_definition_by_contract_id(
         &self,
         request: GetSecurityDefinitionByConIdRequest,
@@ -37,6 +38,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Returns a list of non-expired future contracts for given symbol(s)
     pub async fn get_futures_by_symbol(
         &self,
         request: GetFuturesBySymbolRequest,
@@ -53,6 +55,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Returns an object contains all stock contracts for given symbol(s)
     pub async fn get_stocks_by_symbol(
         &self,
         request: GetStocksBySymbolRequest,
@@ -69,6 +72,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Using the Contract Identifier get contract info. You can use this to prefill your order before you submit an order
     pub async fn get_contract_detail(
         &self,
         request: GetContractDetailRequest,
@@ -80,6 +84,7 @@ impl IBClientPortal {
         response.json().await
     }
 
+    /// Search by underlying symbol or company name. Relays back what derivative contract(s) it has. This endpoint must be called before using /secdef/info. If company name is specified will only receive limited response: conid, companyName, companyHeader and symbol.
     pub async fn search_for_security(
         &self,
         request: SearchForSecurityRequest,
@@ -96,7 +101,8 @@ impl IBClientPortal {
         response.json().await
     }
 
-    pub async fn get_options(
+    /// Provides Contract Details of Futures, Options, Warrants, Cash and CFDs based on conid. To get the strike price for Options/Warrants use "/iserver/secdef/strikes" endpoint. Must call /secdef/search for the underlying contract first.
+    pub async fn get_contract_details_of_futures_options_warrants_cash_cfds(
         &self,
         request: SecurityDefinitionsRequest,
     ) -> Result<SecurityDefinitionsResponse, Error> {

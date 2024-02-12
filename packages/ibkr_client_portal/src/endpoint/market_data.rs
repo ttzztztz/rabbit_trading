@@ -78,7 +78,7 @@ impl IBClientPortal {
             .query(&[("period", request.period)])
             .query(&[("bar", request.bar)])
             .query(&[("exchange", request.exchange.unwrap_or("".to_owned()))])
-            .query(&[("outsideRth", request.outside_rth)])
+            .query(&[("outsideRth", request.outside_regular_trading_hours)])
             .query(&[("startTime", start_time_str)])
             .send()
             .await?;
