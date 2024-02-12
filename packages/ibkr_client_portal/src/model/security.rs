@@ -4,11 +4,18 @@ use serde::{Deserialize, Serialize};
 use super::definition::AssetClass;
 
 pub struct SecurityDefinitionsRequest {
+    /// underlying contract id
     pub underlying_con_id: i64,
+    /// FUT/OPT/WAR/CASH/CFD
     pub sectype: AssetClass,
+    /// contract month, only required for FUT/OPT/WAR in the format MMMYY, example JAN00
     pub month: Option<String>,
+    /// optional, default is SMART
     pub exchange: Option<String>,
+    /// optional, only required for OPT/WAR
     pub strike: Option<Decimal>,
+    /// C for call, P for put
+    pub right: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

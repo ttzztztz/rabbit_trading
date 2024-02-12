@@ -120,6 +120,9 @@ impl IBClientPortal {
         if let Some(strike) = request.strike {
             query.push(("strike", strike.to_string()));
         }
+        if let Some(right) = request.right {
+            query.push(("right", right.to_string()));
+        }
         let response = self
             .client
             .get(self.get_url(path))
@@ -138,14 +141,14 @@ impl IBClientPortal {
     ) -> Result<GetSecurityTradingScheduleResponse, Error> {
         let path = "/trsrv/secdef/schedule";
         let mut query = vec![
-            ("asset_class", request.asset_class),
+            ("assetClass", request.asset_class),
             ("symbol", request.symbol),
         ];
         if let Some(exchange) = request.exchange {
             query.push(("exchange", exchange));
         }
         if let Some(exchange_filter) = request.exchange_filter {
-            query.push(("exchange_filter", exchange_filter));
+            query.push(("exchangeFilter", exchange_filter));
         }
         let response = self
             .client

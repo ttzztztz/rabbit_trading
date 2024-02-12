@@ -8,7 +8,8 @@ use crate::{
     model::market_data::{
         GetMarketDataHistoryBetaRequest, GetMarketDataHistoryBetaResponse,
         GetMarketDataHistoryRequest, GetMarketDataRequest, GetMarketDataResponse,
-        MarketDataHistory, UnsubscribeAllMarketDataResponse, UnsubscribeMarketDataRequest,
+        GetMarketDataSnapshotRequest, GetMarketDataSnapshotResponse, MarketDataHistory,
+        UnsubscribeAllMarketDataResponse, UnsubscribeMarketDataRequest,
         UnsubscribeMarketDataResponse,
     },
 };
@@ -124,10 +125,7 @@ impl IBClientPortal {
             query.push(("bar", bar));
         }
         if let Some(outside_regular_trading_hours) = request.outside_regular_trading_hours {
-            query.push((
-                "outside_regular_trading_hours",
-                outside_regular_trading_hours.to_string(),
-            ));
+            query.push(("outsideRth", outside_regular_trading_hours.to_string()));
         }
         let response = self
             .client
@@ -140,6 +138,31 @@ impl IBClientPortal {
         response.json().await
     }
 
-    // todo
-    // (beta) /md/snapshot
+    /// Get a snapshot of Market Data for the given conid(s).See response for a list of available fields that can be requested from the fields argument. Must be connected to a brokerage session before can query snapshot data. First /snapshot endpoint call for given conid(s) will initiate the market data request, make an additional request to receive field values back. To receive all available fields the /snapshot endpoint will need to be called several times. To receive streaming market data the endpoint /ws can be used. Refer to Streaming WebSocket Data for details.
+    pub async fn get_market_data_snapshot_beta(
+        &self,
+        request: GetMarketDataSnapshotRequest,
+    ) -> Result<GetMarketDataSnapshotResponse, Error> {
+        let path = "/md/snapshot";
+        let query: Vec<(&str, String)> = request
+            .conid_list
+            .into_iter()
+            .map(|conid| ("conids", conid))
+            .chain(
+                request
+                    .field_list
+                    .into_iter()
+                    .map(|field| ("fields", field)),
+            )
+            .collect();
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .query(&query)
+            .send()
+            .await?;
+
+        response.error_for_status_ref()?;
+        response.json().await
+    }
 }

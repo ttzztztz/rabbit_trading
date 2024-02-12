@@ -79,7 +79,7 @@ pub struct CCPOrderData {
     pub listing_exchange: Option<String>,
     /// error message
     #[serde(rename = "text")]
-    pub text: Option<f32>,
+    pub text: Option<String>,
     #[serde(rename = "warnings")]
     pub warnings: Option<CCPOrderDataWarning>,
     /// Commission currency
@@ -91,6 +91,13 @@ pub struct CCPOrderData {
     /// Realized PnL
     #[serde(rename = "realizedPnl")]
     pub realized_pnl: Option<String>,
+}
+
+pub struct GetCCPTradesRequest {
+    /// From Date (YYYYMMDD-HH:mm:ss) or offset (-1,-2,-3..)
+    pub from: Option<String>,
+    /// To Date (YYYYMMDD-HH:mm:ss) or offset (-1,-2,-3..). To value should be bigger than from value.
+    pub to: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -123,7 +130,7 @@ pub struct GetCCPAccountListResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetCCPPositionDataResponse {
+pub struct GetCCPPositionResponse {
     /// Contract identifier from IBKR's database.
     #[serde(rename = "conid")]
     pub conid: i64,
@@ -133,6 +140,13 @@ pub struct GetCCPPositionDataResponse {
     /// Average cost of the position.
     #[serde(rename = "avgCost")]
     pub avg_cost: Option<Decimal>,
+}
+
+pub struct GetCCPOrderStatusRequest {
+    /// User Account
+    pub account: String,
+    /// Return only Rejected or Cancelled orders since today midnight
+    pub cancelled: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -162,3 +176,74 @@ pub struct StartCCPSessionResponse {
     #[serde(rename = "challenge")]
     pub challenge: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CompleteCCPSessionRequest {
+    #[serde(rename = "response")]
+    pub response: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CompleteCCPSessionResponse {
+    /// If sso authentication completed
+    #[serde(rename = "passed")]
+    pub passed: Option<bool>,
+    /// If connection is authenticated
+    #[serde(rename = "authenticated")]
+    pub authenticated: Option<bool>,
+    /// Connected to CCP session
+    #[serde(rename = "connected")]
+    pub connected: Option<bool>,
+    /// If user already has an existing brokerage session running.
+    #[serde(rename = "competing")]
+    pub competing: Option<bool>,
+}
+
+pub struct SubmitCCPOrderRequest {
+    /// User Account
+    pub account: String,
+    /// Contract identifier from IBKR's database.
+    pub conid: i64,
+    /// Enum: "USD" "GBP" "EUR"
+    /// Contract Currency
+    pub contract_currency: String,
+    /// Enum: "NYSE" "CBOE" "NYMEX"
+    /// Exchange
+    pub exchange: String,
+    /// Order Quantity
+    pub quantity: Decimal,
+    /// Enum: "limit" "market"
+    /// Order Price; required if order type is limit
+    pub _type: Option<String>,
+    /// Enum: "sell" "buy"
+    /// Side
+    pub side: Option<String>,
+    /// Order Price; required if order type is limit
+    pub price: Option<Decimal>,
+    /// Enum: "IOC" "GTC"
+    /// Time in Force
+    pub time_in_force: Option<String>,
+}
+pub type SubmitCCPOrderResponse = CCPOrderData;
+
+pub struct DeleteCCPOrderRequest {
+    /// Account Number
+    pub account: String,
+    /// Order Identifier of original submit order
+    pub id: i64,
+}
+pub type DeleteCCPOrderResponse = CCPOrderData;
+
+pub struct UpdateCCPOrderRequest {
+    /// User Account
+    pub account: String,
+    /// Order ID to be modified
+    pub id: i64,
+
+    // todo: validate the parameters below
+    /// Order Quantity
+    pub quantity: Option<Decimal>,
+    /// Order Price; required if order type is limit
+    pub price: Option<Decimal>,
+}
+pub type UpdateCCPOrderResponse = CCPOrderData;
