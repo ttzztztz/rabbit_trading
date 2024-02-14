@@ -27,7 +27,7 @@ impl MemoryKVStore {
 impl PersistentKVStoreTrait for MemoryKVStore {
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "MemoryKVStore";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     async fn new(_: ConfigMap) -> Self {

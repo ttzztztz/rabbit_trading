@@ -39,7 +39,7 @@ impl FileSystemKVStore {
 impl PersistentKVStoreTrait for FileSystemKVStore {
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "FileSystemKVStore";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     async fn new(config_map: ConfigMap) -> Self {

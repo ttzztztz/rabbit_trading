@@ -17,7 +17,7 @@ impl StrategyTrait for GridTradingStrategy {
 
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "ExampleGridTradingStrategy";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     async fn start(&self) -> Result<(), Error> {
@@ -25,6 +25,6 @@ impl StrategyTrait for GridTradingStrategy {
     }
 
     async fn stop(&self) -> Result<(), Error> {
-        todo!() // todo: provide an approach to stop gracefully
+        todo!()
     }
 }

@@ -12,7 +12,7 @@ pub struct NoOpMetricRegistryFactory {}
 impl MetricRegistryFactoryTrait for NoOpMetricRegistryFactory {
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "NoOpMetricRegistryFactory";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     fn new(_config_map: ConfigMap) -> Self {

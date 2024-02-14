@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use ibkr_client_portal::client::IBClientPortal;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{
     heartbeat::InteractiveBrokersHeartbeat, info::InteractiveBrokersInfo,
@@ -19,6 +20,7 @@ use crate::{
 pub struct InteractiveBrokersBroker {
     config_map: ConfigMap,
     interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
+    stopped_indicator: Arc<AtomicBool>,
 }
 
 impl InteractiveBrokersBroker {
@@ -46,16 +48,18 @@ impl BrokerTrait for InteractiveBrokersBroker {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
         config_map: ConfigMap,
+        stopped_indicator: Arc<AtomicBool>,
     ) -> Self {
         InteractiveBrokersBroker {
             config_map,
             interceptor_factory,
+            stopped_indicator,
         }
     }
 
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "interactive_brokers";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     async fn create_info(&self) -> Box<dyn InfoTrait> {
@@ -91,7 +95,11 @@ impl BrokerTrait for InteractiveBrokersBroker {
 
     async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
         Option::Some(Box::new(
-            InteractiveBrokersHeartbeat::new(self.config_map.clone()).await,
+            InteractiveBrokersHeartbeat::new(
+                self.config_map.clone(),
+                self.stopped_indicator.clone(),
+            )
+            .await,
         ))
     }
 }

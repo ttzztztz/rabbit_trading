@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use crate::{
     broker::common::broker::BrokerTrait,
@@ -10,6 +11,7 @@ pub struct StrategyContext {
     pub broker_list: Vec<Box<dyn BrokerTrait>>,
     pub persistent_kv_store: Box<dyn PersistentKVStoreTrait>,
     pub config_map: ConfigMap,
+    pub stopped_indicator: Arc<AtomicBool>,
 }
 
 #[async_trait]

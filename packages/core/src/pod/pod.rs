@@ -1,4 +1,10 @@
-use std::collections::LinkedList;
+use std::{
+    collections::LinkedList,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+};
 use tokio::sync::RwLockReadGuard;
 
 use super::event::{event_bus::EventBus, listener::initializer::get_event_listener};
@@ -19,6 +25,7 @@ use crate::{
 pub struct Pod {
     pod_config: PodConfig,
     event_bus: EventBus,
+    stopped_indicator: Arc<AtomicBool>,
 }
 
 impl Pod {
@@ -28,6 +35,7 @@ impl Pod {
         Pod {
             pod_config,
             event_bus: EventBus::new(EMPTY_BROKER_ID.to_owned(), pod_id),
+            stopped_indicator: Arc::new(AtomicBool::new(false)),
         }
     }
 
@@ -53,6 +61,7 @@ impl Pod {
                         metrics_registry_factory,
                     )),
                     broker_config.config_map.clone(),
+                    self.stopped_indicator.clone(),
                 )
                 .ok()
             })
@@ -96,6 +105,7 @@ impl Pod {
                 broker_list,
                 persistent_kv_store,
                 config_map: self.pod_config.strategy.config_map.clone(),
+                stopped_indicator: self.stopped_indicator.clone(),
             },
         )
     }
@@ -137,10 +147,12 @@ impl Pod {
 
     pub async fn start(&self) -> Result<(), Error> {
         let strategy_instance = self.initialize().await?;
-        strategy_instance.start().await
+        tokio::task::spawn(async move { strategy_instance.start().await });
+        Result::Ok(())
     }
 
     pub async fn stop(&self) -> Result<(), Error> {
-        todo!() // gracefully exit
+        self.stopped_indicator.store(true, Ordering::Relaxed);
+        Result::Ok(())
     }
 }

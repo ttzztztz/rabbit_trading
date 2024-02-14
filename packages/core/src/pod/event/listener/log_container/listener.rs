@@ -1,4 +1,10 @@
-use std::{collections::LinkedList, sync::Arc};
+use std::{
+    collections::LinkedList,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+};
 use tokio::sync::{broadcast::Receiver, RwLock, RwLockReadGuard};
 
 use crate::{
@@ -10,15 +16,22 @@ use crate::{
 };
 
 pub struct LogContainerEventListener {
+    config_map: ConfigMap,
     data: Arc<RwLock<LinkedList<RabbitTradingEvent>>>,
+    stopped_indicator: Arc<AtomicBool>,
 }
 
 impl LogContainerEventListener {
     async fn async_log_task(
         mut receiver: Receiver<RabbitTradingEvent>,
         data_container: Arc<RwLock<LinkedList<RabbitTradingEvent>>>,
+        stopped_indicator: Arc<AtomicBool>,
     ) {
         loop {
+            if stopped_indicator.load(Ordering::Relaxed) {
+                return;
+            }
+
             match receiver.recv().await {
                 Ok(event) => {
                     let mut write_guard = data_container.write().await;
@@ -38,30 +51,40 @@ impl LogContainerEventListener {
 }
 
 impl EventListenerTrait for LogContainerEventListener {
-    fn new(_config_map: ConfigMap) -> Self {
+    fn new(config_map: ConfigMap) -> Self {
         LogContainerEventListener {
+            config_map,
             data: Arc::new(RwLock::new(LinkedList::new())),
+            stopped_indicator: Arc::new(AtomicBool::new(false)),
         }
     }
 
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "LogContainerEventListener";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     fn start(&self, receiver: Receiver<RabbitTradingEvent>) {
-        tokio::task::spawn(Self::async_log_task(receiver, self.data.clone()));
+        tokio::task::spawn(Self::async_log_task(
+            receiver,
+            self.data.clone(),
+            self.stopped_indicator.clone(),
+        ));
     }
 
     fn stop(&self) -> Result<(), Error> {
-        todo!()
+        self.stopped_indicator.store(true, Ordering::Relaxed);
+        Result::Ok(())
     }
 }
 
 impl Clone for LogContainerEventListener {
     fn clone(&self) -> Self {
         Self {
-            data: self.data.clone(), // shallow clone the Arc pointer
+            config_map: self.config_map.clone(),
+            // shallow clone the Arc pointer
+            data: self.data.clone(),
+            stopped_indicator: self.stopped_indicator.clone(),
         }
     }
 }
@@ -131,7 +154,6 @@ mod test_log_container_event_listener {
         assert!(container_log_option.is_some());
         let container_log = container_log_option.unwrap();
         assert_eq!(event, container_log.clone());
-        // log_container_event_listener.stop().unwrap();
-        // todo: support gracefully stop
+        log_container_event_listener.stop().unwrap();
     }
 }

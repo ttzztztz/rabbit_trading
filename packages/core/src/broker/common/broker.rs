@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{
     heartbeat::HeartbeatTrait,
@@ -13,6 +14,7 @@ pub trait BrokerTrait: Send + Sync {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
         config_map: ConfigMap,
+        stopped_indicator: Arc<AtomicBool>,
     ) -> Self
     where
         Self: Sized;

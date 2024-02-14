@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{
     info::LongBridgeInfo, subscription::LongBridgeSubscription, transaction::LongBridgeTransaction,
@@ -17,6 +18,7 @@ use crate::{
 pub struct LongBridgeBroker {
     config_map: ConfigMap,
     interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
+    stopped_indicator: Arc<AtomicBool>,
 }
 
 #[async_trait]
@@ -24,16 +26,18 @@ impl BrokerTrait for LongBridgeBroker {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
         config_map: ConfigMap,
+        stopped_indicator: Arc<AtomicBool>,
     ) -> Self {
         LongBridgeBroker {
             config_map,
             interceptor_factory,
+            stopped_indicator,
         }
     }
 
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "longbridge";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     async fn create_info(&self) -> Box<dyn InfoTrait> {

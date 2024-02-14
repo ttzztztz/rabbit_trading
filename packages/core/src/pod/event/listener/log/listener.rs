@@ -33,7 +33,7 @@ impl EventListenerTrait for LogEventListener {
 
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "LogEventListener";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     fn start(&self, receiver: Receiver<RabbitTradingEvent>) {

@@ -15,7 +15,7 @@ pub struct StatsDMetricRegistryFactory {
 impl MetricRegistryFactoryTrait for StatsDMetricRegistryFactory {
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "StatsDMetricRegistryFactory";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     fn new(config_map: ConfigMap) -> Self {

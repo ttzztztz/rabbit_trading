@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{info::YahooFinanceInfo, subscription::YahooFinanceSubscription};
 use crate::{
@@ -15,6 +16,7 @@ use crate::{
 pub struct YahooFinanceBroker {
     interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
     config_map: ConfigMap,
+    stopped_indicator: Arc<AtomicBool>,
 }
 
 #[async_trait]
@@ -22,16 +24,18 @@ impl BrokerTrait for YahooFinanceBroker {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
         config_map: ConfigMap,
+        stopped_indicator: Arc<AtomicBool>,
     ) -> Self {
         YahooFinanceBroker {
             interceptor_factory,
             config_map,
+            stopped_indicator,
         }
     }
 
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "yahoo_finance";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     async fn create_info(&self) -> Box<dyn InfoTrait> {

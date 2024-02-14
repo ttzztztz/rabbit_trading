@@ -1,3 +1,5 @@
+use std::sync::atomic::Ordering;
+
 use async_trait::async_trait;
 use time::{format_description, OffsetDateTime};
 use tokio::select;
@@ -26,7 +28,7 @@ impl StrategyTrait for PrintLivePriceStrategy {
 
     fn get_identifier() -> String {
         const IDENTIFIER: &'static str = "ExamplePrintLivePriceStrategy";
-        return IDENTIFIER.to_owned();
+        IDENTIFIER.to_owned()
     }
 
     async fn start(&self) -> Result<(), Error> {
@@ -49,6 +51,10 @@ impl StrategyTrait for PrintLivePriceStrategy {
         let format = format_description::parse("[year]-[month]-[day] [hour]:[minute]:[second] [offset_hour sign:mandatory]:[offset_minute]:[offset_second]").unwrap();
 
         loop {
+            if self.strategy_context.stopped_indicator.load(Ordering::Relaxed) {
+                return Result::Ok(());
+            }
+
             select! {
                 result = receiver.recv() => {
                     match result {
@@ -77,6 +83,9 @@ impl StrategyTrait for PrintLivePriceStrategy {
     }
 
     async fn stop(&self) -> Result<(), Error> {
-        todo!() // todo: provide an approach to stop gracefully
+        self.strategy_context
+            .stopped_indicator
+            .store(true, Ordering::Relaxed);
+        Result::Ok(())
     }
 }
