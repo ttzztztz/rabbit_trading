@@ -14,7 +14,12 @@ impl IBClientPortal {
     /// Returns an object contains four lists contain all parameters for scanners
     pub async fn get_scanner_parameters(&self) -> Result<GetScannerParametersResponse, Error> {
         let path = "/iserver/scanner/params";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await

@@ -35,7 +35,12 @@ impl IBClientPortal {
     /// The endpoint is meant to be used in polling mode, e.g. requesting every x seconds. The response will contain two objects, one is notification, the other is orders. Orders is the list of live orders (cancelled, filled, submitted). Notifications contains information about execute orders as they happen, see status field. To receive streaming live orders the endpoint /ws can be used. Refer to Streaming WebSocket Data for details.
     pub async fn get_live_orders(&self) -> Result<GetLiveOrderResponse, Error> {
         let path = "/iserver/account/orders";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -46,7 +51,12 @@ impl IBClientPortal {
         request: GetOrderStatusRequest,
     ) -> Result<GetLiveOrderResponse, Error> {
         let path = format!("/iserver/account/order/status/{}", request.order_id);
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -78,7 +88,12 @@ impl IBClientPortal {
             "/iserver/account/{}/order/{}",
             request.account_id, request.order_id
         );
-        let response = self.client.delete(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .delete(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await

@@ -78,7 +78,12 @@ impl IBClientPortal {
         request: GetContractDetailRequest,
     ) -> Result<ContractDetail, Error> {
         let path = format!("/iserver/contract/{}/info", request.conid);
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await

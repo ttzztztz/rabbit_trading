@@ -20,7 +20,12 @@ impl IBClientPortal {
     /// Returns the total number of unread FYIs
     pub async fn get_fyi_unread_number(&self) -> Result<GetFYIUnreadNumberResponse, Error> {
         let path = "/fyi/unreadnumber";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -29,7 +34,12 @@ impl IBClientPortal {
     /// Return the current choices of subscriptions, we can toggle the option
     pub async fn get_fyi_settings(&self) -> Result<GetFYISettingsResponse, Error> {
         let path = "/fyi/settings";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -55,7 +65,12 @@ impl IBClientPortal {
         request: GetFYIDisclaimerRequest,
     ) -> Result<GetFYIDisclaimerResponse, Error> {
         let path = format!("/fyi/disclaimer/{}", request.type_code);
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -67,7 +82,12 @@ impl IBClientPortal {
         request: ReadFYIDisclaimerRequest,
     ) -> Result<ReadFYIDisclaimerResponse, Error> {
         let path = format!("/fyi/disclaimer/{}", request.type_code);
-        let response = self.client.put(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .put(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -91,6 +111,7 @@ impl IBClientPortal {
             .client
             .get(self.get_url(&path))
             .query(&query)
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -108,6 +129,7 @@ impl IBClientPortal {
             .client
             .get(self.get_url(&path))
             .query(&[("id", request.id)])
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -118,7 +140,12 @@ impl IBClientPortal {
     /// Options for sending FYIe to email and other devices
     pub async fn get_fyi_delivery_options(&self) -> Result<GetFYIDisclaimerResponse, Error> {
         let path = "/fyi/deliveryoptions";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -134,6 +161,7 @@ impl IBClientPortal {
             .client
             .put(self.get_url(&path))
             .query(&["enabled", request.enabled.to_string().as_str()])
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -150,6 +178,7 @@ impl IBClientPortal {
         let response = self
             .client
             .post(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .json(&request)
             .send()
             .await?;
@@ -164,7 +193,12 @@ impl IBClientPortal {
         request: DeleteFYIDeliveryOptionsForDeviceRequest,
     ) -> Result<(), Error> {
         let path = format!("/fyi/deliveryoptions/{}", request.device_id);
-        let response = self.client.delete(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .delete(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         Result::Ok(())
@@ -173,7 +207,12 @@ impl IBClientPortal {
     /// mark a notification read
     pub async fn read_notification(&self, request: ReadNotificationRequest) -> Result<(), Error> {
         let path = format!("/fyi/notifications/{}", request.id);
-        let response = self.client.put(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .put(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await

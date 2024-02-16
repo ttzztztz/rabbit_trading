@@ -52,7 +52,12 @@ impl IBClientPortal {
     /// Provide the current CCP session status. When using the Gateway this endpoint will also initiate a brokerage session to CCP by sending /auth/init and response.
     pub async fn get_ccp_status(&self) -> Result<GetCCPStatusResponse, Error> {
         let path = "/ccp/status";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -61,7 +66,12 @@ impl IBClientPortal {
     /// Provides the list of tradeable accounts
     pub async fn get_ccp_account_list(&self) -> Result<GetCCPAccountListResponse, Error> {
         let path = "/ccp/account";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -70,7 +80,12 @@ impl IBClientPortal {
     /// List of positions
     pub async fn get_ccp_position(&self) -> Result<GetCCPPositionResponse, Error> {
         let path = "/ccp/positions";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -89,6 +104,7 @@ impl IBClientPortal {
                 ("acct", request.account),
                 ("cancelled", request.cancelled.to_string()),
             ])
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -114,6 +130,7 @@ impl IBClientPortal {
             .client
             .get(self.get_url(&path))
             .query(&query)
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -151,6 +168,7 @@ impl IBClientPortal {
             .client
             .post(self.get_url(&path))
             .query(&query)
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -170,6 +188,7 @@ impl IBClientPortal {
             .client
             .delete(self.get_url(&path))
             .query(&query)
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -195,6 +214,7 @@ impl IBClientPortal {
             .client
             .put(self.get_url(&path))
             .query(&query)
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 

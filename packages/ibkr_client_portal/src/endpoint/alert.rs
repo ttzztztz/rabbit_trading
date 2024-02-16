@@ -18,7 +18,12 @@ impl IBClientPortal {
         request: GetListOfAvailableAlertsRequest,
     ) -> Result<GetListOfAvailableAlertsResponse, Error> {
         let path = format!("/iserver/account/{}/alerts", request.account_id);
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -27,7 +32,12 @@ impl IBClientPortal {
     /// Each login user only has one mobile trading assistant (MTA) alert with it's own unique tool id. The tool id cannot be changed. When modified a new order Id is generated. MTA alerts can not be created or deleted. If you call delete /iserver/account/:accountId/alert/:alertId, it will reset MTA to default. See here for more information on MTA alerts.
     pub async fn get_mobile_trading_assistant_alert(&self) -> Result<GetMTAAlertResponse, Error> {
         let path = "/iserver/account/mta";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -39,7 +49,12 @@ impl IBClientPortal {
         request: GetAlertDetailsRequest,
     ) -> Result<GetAlertDetailsResponse, Error> {
         let path = format!("/iserver/account/alert/{}", request.alert_id);
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -54,7 +69,12 @@ impl IBClientPortal {
             "/iserver/account/{}/alert/{}",
             request.account_id, request.alert_id
         );
-        let response = self.client.delete(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .delete(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await

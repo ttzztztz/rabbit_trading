@@ -48,6 +48,7 @@ impl IBClientPortal {
         let response = self
             .client
             .get(self.get_url(path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .query(&query)
             .send()
             .await?;

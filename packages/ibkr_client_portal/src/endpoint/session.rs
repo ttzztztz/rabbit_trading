@@ -13,10 +13,7 @@ impl IBClientPortal {
         let response = self
             .client
             .post(self.get_url("/tickle"))
-            // .header(
-            //     reqwest::header::CONTENT_LENGTH,
-            //     reqwest::header::HeaderValue::from_static("0"),
-            // )
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -29,10 +26,7 @@ impl IBClientPortal {
         let response = self
             .client
             .post(self.get_url("/iserver/auth/status"))
-            // .header(
-            //     reqwest::header::CONTENT_LENGTH,
-            //     reqwest::header::HeaderValue::from_static("0"),
-            // )
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -45,10 +39,7 @@ impl IBClientPortal {
         let response = self
             .client
             .post(self.get_url("/logout"))
-            // .header(
-            //     reqwest::header::CONTENT_LENGTH,
-            //     reqwest::header::HeaderValue::from_static("0"),
-            // )
+            .header(reqwest::header::CONTENT_LENGTH, "0")
             .send()
             .await?;
 
@@ -59,7 +50,12 @@ impl IBClientPortal {
     /// Validates the current session for the SSO user
     pub async fn sso_validate(&self) -> Result<SSOValidateResponse, Error> {
         let path = "/sso/validate";
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -68,7 +64,12 @@ impl IBClientPortal {
     /// When using the CP Gateway, this endpoint provides a way to reauthenticate to the Brokerage system as long as there is a valid SSO session, see /sso/validate.
     pub async fn reauthenticate(&self) -> Result<AuthStatus, Error> {
         let path = "/iserver/reauthenticate";
-        let response = self.client.post(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .post(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await

@@ -20,7 +20,12 @@ impl IBClientPortal {
         request: GetPortfolioPositionsRequest,
     ) -> Result<GetPortfolioPositionsResponse, Error> {
         let path = format!("/portfolio/{}/positions/{}", self.account, request.page);
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -52,7 +57,12 @@ impl IBClientPortal {
             "/portfolio/{}/position/{}",
             request.account_id, request.conid,
         );
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
@@ -64,7 +74,12 @@ impl IBClientPortal {
         request: InvalidatePortfolioCacheRequest,
     ) -> Result<(), Error> {
         let path = format!("/portfolio/{}/positions/invalidate", request.account_id,);
-        let response = self.client.post(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .post(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         Result::Ok(())
@@ -76,7 +91,12 @@ impl IBClientPortal {
         request: GetPortfolioPositionByConIdRequest,
     ) -> Result<GetPortfolioPositionByConIdResponse, Error> {
         let path = format!("/portfolio/positions/{}", request.conid);
-        let response = self.client.get(self.get_url(&path)).send().await?;
+        let response = self
+            .client
+            .get(self.get_url(&path))
+            .header(reqwest::header::CONTENT_LENGTH, "0")
+            .send()
+            .await?;
 
         response.error_for_status_ref()?;
         response.json().await
