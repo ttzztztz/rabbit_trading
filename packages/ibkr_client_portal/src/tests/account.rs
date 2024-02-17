@@ -1,9 +1,12 @@
+use serial_test::serial;
+
 use crate::{
     client::IBClientPortal,
     tests::utils::{get_test_account, TEST_HOST},
 };
 
 #[tokio::test]
+#[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_accounts_operation() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);

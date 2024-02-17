@@ -8,7 +8,7 @@ pub struct GetFYIUnreadNumberResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetFYISettingsResponse {
+pub struct FYISetting {
     /// optional, if A doesn't exist, it means user can't toggle this option. 0-off, 1-on.
     #[serde(rename = "A")]
     pub A: Option<i32>,
@@ -25,6 +25,8 @@ pub struct GetFYISettingsResponse {
     #[serde(rename = "FN")]
     pub title: Option<String>,
 }
+
+pub type GetFYISettingsResponse = Vec<FYISetting>;
 
 pub struct GetFYIDisclaimerRequest {
     pub type_code: String,
@@ -93,7 +95,7 @@ pub struct GetMoreNotificationListRequest {
 }
 
 pub struct GetNotificationListRequest {
-    /// max number of fyis in response
+    /// max number of fyis in response, max <= 10
     pub max: i64,
     /// if set, don't set include
     pub exclude: Option<String>,

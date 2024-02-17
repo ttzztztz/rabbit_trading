@@ -1,3 +1,5 @@
+use serial_test::serial;
+
 use crate::{
     client::IBClientPortal,
     model::portfolio::GetPortfolioPositionsRequest,
@@ -5,6 +7,7 @@ use crate::{
 };
 
 #[tokio::test]
+#[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_positions() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
