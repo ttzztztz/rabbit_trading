@@ -4,19 +4,15 @@ use reqwest::Error;
 
 use crate::{
     client::IBClientPortal,
-    model::{
-        contract::{
-            ContractDetail, GetContractDetailRequest, GetContractRulesRequest,
-            GetContractRulesResponse, GetIBAlgorithmParametersRequest,
-            GetIBAlgorithmParametersResponse, GetInfoAndRulesByConIdRequest,
-            GetInfoAndRulesByConIdResponse, GetSecurityDefinitionByConIdRequest,
-            GetSecurityStrikesRequest, GetSecurityStrikesResponse,
-            GetSecurityTradingScheduleRequest, GetSecurityTradingScheduleResponse,
-            GetStocksBySymbolRequest, SearchForSecurityRequest, SearchForSecurityResponse,
-            SecurityDefinitions, StockContracts,
-        },
-        futures::{FuturesContracts, GetFuturesBySymbolRequest},
-        security::{SecurityDefinitionsRequest, SecurityDefinitionsResponse},
+    model::contract::{
+        ContractDetail, FuturesContracts, GetContractDetailRequest, GetContractRulesRequest,
+        GetContractRulesResponse, GetFuturesBySymbolRequest, GetIBAlgorithmParametersRequest,
+        GetIBAlgorithmParametersResponse, GetInfoAndRulesByConIdRequest,
+        GetInfoAndRulesByConIdResponse, GetSecurityDefinitionByConIdRequest,
+        GetSecurityStrikesRequest, GetSecurityStrikesResponse, GetSecurityTradingScheduleRequest,
+        GetSecurityTradingScheduleResponse, GetStocksBySymbolRequest, SearchForSecurityRequest,
+        SearchForSecurityResponse, SecurityDefinitions, SecurityDefinitionsRequest,
+        SecurityDefinitionsResponse, StockContracts,
     },
 };
 

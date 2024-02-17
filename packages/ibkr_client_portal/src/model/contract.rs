@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use time::Date;
 
 use super::{
     definition::{AssetClass, OptionRight},
@@ -632,4 +633,114 @@ pub struct GetIBAlgorithmParametersRequest {
     pub algos: Option<String>,
     pub add_description: Option<String>,
     pub add_params: Option<String>,
+}
+
+pub type FuturesContracts = HashMap<String, Vec<FuturesContract>>;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FuturesContract {
+    pub conid: i64,
+    #[serde(with = "parse_date")]
+    pub expiration_date: Date,
+    #[serde(with = "parse_date", rename = "ltd")]
+    pub last_trading_day: Date,
+    pub symbol: String,
+    pub underlying_conid: i64,
+}
+
+mod parse_date {
+    use serde::{self, Deserialize, Deserializer, Serializer};
+    use time::{macros::format_description, Date};
+
+    pub fn serialize<S>(date: &Date, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let format_description = format_description!("[year][month][day]");
+        let s = date
+            .format(format_description)
+            .map_err(serde::ser::Error::custom)?;
+        serializer.serialize_str(&s)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Date, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let format_description = format_description!("[year][month][day]");
+        let s = String::deserialize(deserializer)?.to_string();
+        Date::parse(&s, format_description).map_err(serde::de::Error::custom)
+    }
+}
+
+pub struct GetFuturesBySymbolRequest {
+    pub symbols: Vec<String>,
+}
+
+pub struct SecurityDefinitionsRequest {
+    /// underlying contract id
+    pub underlying_con_id: i64,
+    /// FUT/OPT/WAR/CASH/CFD
+    pub sectype: AssetClass,
+    /// contract month, only required for FUT/OPT/WAR in the format MMMYY, example JAN00
+    pub month: Option<String>,
+    /// optional, default is SMART
+    pub exchange: Option<String>,
+    /// optional, only required for OPT/WAR
+    pub strike: Option<Decimal>,
+    /// C for call, P for put
+    pub right: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SecurityDefinitionsResponse {
+    /// IBKR contract identifier
+    #[serde(rename = "conid")]
+    pub conid: Option<i64>,
+    /// Underlying symbol
+    #[serde(rename = "symbol")]
+    pub symbol: Option<String>,
+    /// Security type
+    #[serde(rename = "secType")]
+    pub sec_type: Option<String>,
+    /// Primary Exchange, Routing or Trading Venue
+    #[serde(rename = "exchange")]
+    pub exchange: Option<String>,
+    /// Main Trading Venue
+    #[serde(rename = "listingExchange")]
+    pub listing_exchange: Option<String>,
+    /// Put or Call of the option. C = Call Option, P = Put Option
+    #[serde(rename = "right")]
+    pub right: Option<String>,
+    /// Set price at which a derivative contract can be bought or sold. The strike price also known as exercise price.
+    #[serde(rename = "strike")]
+    pub strike: Option<i64>,
+    /// Currency the contract trades in
+    #[serde(rename = "currency")]
+    pub currency: Option<String>,
+    /// Committee on Uniform Securities Identification Procedures number
+    #[serde(rename = "cusip")]
+    pub cusip: Option<String>,
+    /// Annual interest rate paid on a bond
+    #[serde(rename = "coupon")]
+    pub coupon: Option<String>,
+    /// Currency pairs for Forex e.g. EUR.AUD, EUR.CAD, EUR.CHF etc.
+    #[serde(rename = "desc1")]
+    pub desc1: Option<String>,
+    /// Formatted expiration, strike and right
+    #[serde(rename = "desc2")]
+    pub desc2: Option<String>,
+    /// Format YYYYMMDD, the date on which the underlying transaction settles if the option is exercised
+    #[serde(rename = "maturityDate")]
+    pub maturity_date: Option<i64>,
+    /// Multiplier for total premium paid or received for derivative contract.
+    #[serde(rename = "multiplier")]
+    pub multiplier: Option<String>,
+    /// Designation of the contract.
+    #[serde(rename = "tradingClass")]
+    pub trading_class: Option<String>,
+    /// Comma separated list of exchanges or trading venues.
+    #[serde(rename = "validExchanges")]
+    pub valid_exchanges: Option<String>,
 }
