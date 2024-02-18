@@ -54,13 +54,13 @@ pub struct LocationTree {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetScannerParametersResponse {
     #[serde(rename = "scan_type_list")]
-    pub scan_type_list: Option<Vec<ScannerType>>,
+    pub scan_type_list: Vec<ScannerType>,
     #[serde(rename = "instrument_list")]
-    pub instrument_list: Option<Vec<Instrument>>,
+    pub instrument_list: Vec<Instrument>,
     #[serde(rename = "filter_list")]
-    pub filter_list: Option<Vec<Filter>>,
+    pub filter_list: Vec<Filter>,
     #[serde(rename = "location_tree")]
-    pub location_tree: Option<Vec<LocationTree>>,
+    pub location_tree: Vec<LocationTree>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -99,7 +99,7 @@ pub struct RunScannerBetaRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScannerResultContracts {
     #[serde(rename = "Contract")]
-    pub contract: Option<Vec<ScannerResultContract>>,
+    pub contract: Vec<ScannerResultContract>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -121,7 +121,7 @@ pub struct RunScannerBetaResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ScannerRunResponse {
+pub struct ScannerRunContract {
     #[serde(rename = "server_id")]
     pub server_id: Option<String>,
     #[serde(rename = "column_name")]
@@ -150,11 +150,16 @@ pub struct ScannerRunResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ScannerRunResponse {
+    pub contracts: Vec<ScannerRunContract>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ScannerFilter {
     #[serde(rename = "code")]
     pub code: Option<String>,
     #[serde(rename = "value")]
-    pub value: Option<i64>,
+    pub value: Option<Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

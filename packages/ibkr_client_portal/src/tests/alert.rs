@@ -10,7 +10,6 @@ use crate::{
 #[tokio::test]
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
-/// this api is unstable
 async fn test_get_mobile_trading_assistant_alert() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client.get_mobile_trading_assistant_alert().await;

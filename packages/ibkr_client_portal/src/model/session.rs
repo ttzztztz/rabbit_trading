@@ -20,10 +20,10 @@ pub struct Iserver {
 #[serde(rename_all = "camelCase")]
 pub struct AuthStatus {
     #[serde(rename = "MAC")]
-    pub mac: String,
-    pub authenticated: bool,
-    pub competing: bool,
-    pub connected: bool,
+    pub mac: Option<String>,
+    pub authenticated: Option<bool>,
+    pub competing: Option<bool>,
+    pub connected: Option<bool>,
     pub message: Option<String>,
     pub server_info: Option<ServerInfo>,
     pub fail: Option<String>,
