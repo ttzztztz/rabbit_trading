@@ -6,10 +6,9 @@ use crate::{
     tests::utils::{get_test_account, TEST_HOST},
 };
 
-// #[tokio::test]
-// #[serial]
-// #[cfg_attr(feature = "ci", ignore)]
-/// this test suite is flaky
+#[tokio::test]
+#[serial]
+#[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_get_fyi_unread_number() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client.get_fyi_unread_number().await;

@@ -9,7 +9,7 @@ use crate::{
 #[tokio::test]
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
-async fn test_get_positions() {
+async fn test_get_portfolio_positions() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
         .get_portfolio_positions(GetPortfolioPositionsRequest { page: 1 })
@@ -20,3 +20,5 @@ async fn test_get_positions() {
         assert!(position.conid.is_some());
     });
 }
+
+// todo: test get_portfolio_allocation, get_portfolio_position_by_account_and_conid, invalidate_portfolio_cache, get_portfolio_position_by_conid

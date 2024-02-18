@@ -201,7 +201,7 @@ pub struct SearchForSecurityResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GetSecurityDefinitionByConIdRequest {
-    conids: Vec<i64>,
+    conid_list: Vec<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

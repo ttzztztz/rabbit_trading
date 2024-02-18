@@ -82,7 +82,7 @@ pub type GetPortfolioPositionsResponse = Vec<Position>;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetPortfolioAllocationRequest {
     #[serde(rename = "acctIds")]
-    pub account_id_list: Option<Vec<String>>,
+    pub account_id_list: Vec<String>,
 }
 
 pub type GetPortfolioAllocationResponse = Vec<Allocation>;

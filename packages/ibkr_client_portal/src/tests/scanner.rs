@@ -21,10 +21,9 @@ async fn test_get_scanner_parameters() {
     assert!(response.scan_type_list.len() > 0);
 }
 
-// #[tokio::test]
-// #[serial]
-// #[cfg_attr(feature = "ci", ignore)]
-/// this test suite is flaky
+#[tokio::test]
+#[serial]
+#[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_run_scanner_beta() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
@@ -44,7 +43,7 @@ async fn test_run_scanner_beta() {
 
 #[tokio::test]
 #[serial]
-#[cfg_attr(feature = "ci", ignore)]
+#[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_scanner_run() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client

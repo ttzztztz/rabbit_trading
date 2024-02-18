@@ -8,7 +8,7 @@ use super::definition::TickType;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GetMarketDataRequest {
-    pub conids: Vec<i64>,
+    pub conid_list: Vec<i64>,
     pub since: Option<i64>,
     pub fields: Option<Vec<TickType>>,
 }
@@ -123,11 +123,16 @@ mod parse_datetime {
 }
 
 pub struct GetMarketDataHistoryRequest {
+    /// contract id
     pub conid: i64,
+    /// Exchange of the conid (e.g. ISLAND, NYSE, etc.). Default value is empty which corresponds to primary exchange of the conid.
     pub exchange: Option<String>,
+    /// available time period-- {1-30}min, {1-8}h, {1-1000}d, {1-792}w, {1-182}m, {1-15}y
     pub period: String,
-    pub bar: String,
-    pub outside_regular_trading_hours: bool,
+    /// possible value-- 1min, 2min, 3min, 5min, 10min, 15min, 30min, 1h, 2h, 3h, 4h, 8h, 1d, 1w, 1m
+    pub bar: Option<String>,
+    /// For contracts that support it, will determine if historical data includes outside of regular trading hours.
+    pub outside_regular_trading_hours: Option<bool>,
     pub start_time: Option<OffsetDateTime>,
 }
 
@@ -179,7 +184,6 @@ pub struct MarketHistoryDataBars {
 pub struct GetMarketDataHistoryBetaRequest {
     /// contract id
     pub conid: i64,
-    pub period: String,
     /// Enum: "min" "h" "d" "w" "m" "y"
     /// Time period for history request.
     ///
@@ -189,6 +193,16 @@ pub struct GetMarketDataHistoryBetaRequest {
     /// w: Weeks
     /// m: Months
     /// y: Years
+    pub period: String,
+    /// Enum: "min" "h" "d" "w" "m"
+    ///
+    /// Duration of time for each candlestick bar.
+    ///
+    /// min: Minutes
+    /// h: Hours
+    /// d: Days
+    /// w: Weeks
+    /// m: Months
     pub bar: Option<String>,
     /// For contracts that support it, will determine if history data includes outside of regular trading hours.
     pub outside_regular_trading_hours: Option<bool>,
@@ -506,8 +520,8 @@ pub struct GetMarketDataSnapshotRequest {
     /// conid: IBKR Contract Identifier
     /// exchange: Exchange or venue
     /// instrType: Instrument Type supported values: CS (Stocks), OPT (Options), FUT (Futures), FOP (Future Options), WAR (Warrants), BOND (Bonds), FUND (Mutual Funds), CASH (Forex), CFD (Contract for difference), IND (Index)
-    pub conid_list: Vec<String>,
+    pub conid_list: Vec<i64>,
     /// Example: fields=31&fields=84&fields=85&fields=86&fields=88
     /// list of fields separated by comma
-    pub field_list: Vec<String>,
+    pub field_list: Vec<TickType>,
 }

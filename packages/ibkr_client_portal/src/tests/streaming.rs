@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use serial_test::serial;
 use std::env;
 
 use crate::{
@@ -19,8 +20,9 @@ fn get_test_account() -> String {
     env::var(ENV_KEY_TEST_ACCOUNT).unwrap_or(TEST_ACCOUNT.to_owned())
 }
 
-// #[tokio::test]
-// #[cfg_attr(feature = "ci", ignore)]
+#[tokio::test]
+#[serial]
+#[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_connect_to_websocket() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     ib_cp_client

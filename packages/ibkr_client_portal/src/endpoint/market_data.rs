@@ -24,7 +24,7 @@ impl IBClientPortal {
         let conids_query = (
             "conids",
             request
-                .conids
+                .conid_list
                 .into_iter()
                 .map(|conid| conid.to_string())
                 .collect::<Vec<String>>()
@@ -148,14 +148,15 @@ impl IBClientPortal {
         let query: Vec<(&str, String)> = request
             .conid_list
             .into_iter()
-            .map(|conid| ("conids", conid))
+            .map(|conid| ("conids", conid.to_string()))
             .chain(
                 request
                     .field_list
                     .into_iter()
-                    .map(|field| ("fields", field)),
+                    .map(|field| ("fields", field.to_string())),
             )
             .collect();
+
         let response = self
             .client
             .get(self.get_url(&path))

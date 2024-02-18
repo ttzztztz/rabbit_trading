@@ -90,7 +90,7 @@ pub struct GetPortfolioTransactionsRequest {
     #[serde(rename = "acctIds")]
     pub account_id_list: Option<Vec<String>>,
     #[serde(rename = "conids")]
-    pub conids: Option<Vec<i64>>,
+    pub conid_list: Option<Vec<i64>>,
     /// optional defaults to USD.
     #[serde(rename = "currency")]
     pub currency: Option<String>,
