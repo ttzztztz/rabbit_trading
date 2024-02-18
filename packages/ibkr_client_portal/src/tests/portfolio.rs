@@ -2,7 +2,7 @@ use serial_test::serial;
 
 use crate::{
     client::IBClientPortal,
-    model::portfolio::GetPortfolioPositionsRequest,
+    model::portfolio::{GetPortfolioAllocationRequest, GetPortfolioPositionsRequest},
     tests::utils::{get_test_account, TEST_HOST},
 };
 
@@ -21,4 +21,17 @@ async fn test_get_portfolio_positions() {
     });
 }
 
-// todo: test get_portfolio_allocation, get_portfolio_position_by_account_and_conid, invalidate_portfolio_cache, get_portfolio_position_by_conid
+#[tokio::test]
+#[serial]
+#[cfg_attr(feature = "ci", ignore)]
+async fn test_get_portfolio_allocation() {
+    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let response_result = ib_cp_client
+        .get_portfolio_allocation(GetPortfolioAllocationRequest {
+            account_id_list: vec![get_test_account()],
+        })
+        .await;
+    assert!(response_result.is_ok());
+}
+
+// todo: test get_portfolio_position_by_account_and_conid, invalidate_portfolio_cache, get_portfolio_position_by_conid

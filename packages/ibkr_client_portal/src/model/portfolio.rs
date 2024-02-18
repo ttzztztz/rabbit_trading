@@ -13,7 +13,7 @@ use super::{
 #[serde(rename_all = "camelCase")]
 pub struct Position {
     #[serde(rename = "acct_id")]
-    pub account_id: i64,
+    pub account_id: String,
     #[serde(with = "unpack_exchanges")]
     pub all_exchanges: Vec<String>,
     pub asset_class: AssetClass,
@@ -85,17 +85,17 @@ pub struct GetPortfolioAllocationRequest {
     pub account_id_list: Vec<String>,
 }
 
-pub type GetPortfolioAllocationResponse = Vec<Allocation>;
+pub type GetPortfolioAllocationResponse = Allocation;
 
 pub struct GetPortfolioPositionByAccountAndConIdRequest {
-    pub account_id: i64,
+    pub account_id: String,
     pub conid: i64,
 }
 
 pub type GetPortfolioPositionByAccountAndConIdResponse = Vec<Position>;
 
 pub struct InvalidatePortfolioCacheRequest {
-    pub account_id: i64,
+    pub account_id: String,
 }
 
 pub struct GetPortfolioPositionByConIdRequest {

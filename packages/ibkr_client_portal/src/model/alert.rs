@@ -136,13 +136,13 @@ pub struct AlertSummary {
 }
 
 pub struct GetListOfAvailableAlertsRequest {
-    pub account_id: i64,
+    pub account_id: String,
 }
 
 pub type GetListOfAvailableAlertsResponse = Vec<AlertSummary>;
 
 pub struct DeleteAlertRequest {
-    pub account_id: i64,
+    pub account_id: String,
     pub alert_id: i64,
 }
 
@@ -161,7 +161,7 @@ pub struct DeleteAlertResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TogglerAlertActivationRequest {
     #[serde(skip)]
-    pub account_id: i64,
+    pub account_id: String,
     /// alert id(order id)
     #[serde(rename = "alertId")]
     pub alert_id: i64,
@@ -214,7 +214,7 @@ pub struct UpsertAlertCondition {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpsertAlertRequest {
     #[serde(skip)]
-    pub account_id: i64,
+    pub account_id: String,
     /// orderId is required when modifying alert. You can get it from /iserver/account/:accountId/alerts
     #[serde(rename = "orderId")]
     pub order_id: Option<i64>,

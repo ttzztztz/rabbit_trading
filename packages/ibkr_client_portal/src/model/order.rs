@@ -7,7 +7,7 @@ use serde_json::Value;
 pub struct OrderTicket {
     /// acctId is optional. It should be one of the accounts returned by /iserver/accounts. If not passed, the first one in the list is selected.
     #[serde(rename = "acctId")]
-    pub account_id: Option<i64>,
+    pub account_id: Option<String>,
     /// conid is the identifier of the security you want to trade, you can find the conid with /iserver/secdef/search.
     #[serde(rename = "conid")]
     pub conid: Option<i64>,
@@ -431,7 +431,7 @@ pub struct OrderRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PreviewOrderRequest {
     #[serde(skip)]
-    pub account_id: i64,
+    pub account_id: String,
 
     /// Notes for bracket orders: 1. Children orders will not have its own \"cOID\", so please donot pass \"cOID\" parameter in child order.Instead, they will have a \"parentId\" which must be equal to \"cOID\" of parent. 2. When you cancel a parent order, it will cancel all bracket orders, when you cancel one child order, it will also cancel its sibling order.
     #[serde(rename = "orders")]
@@ -455,7 +455,7 @@ pub struct PreviewOrderResponse {
 }
 
 pub struct CancelOrderRequest {
-    pub account_id: i64,
+    pub account_id: String,
     pub order_id: i64,
 }
 
@@ -493,7 +493,7 @@ pub struct PlaceOrderReplyResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PlaceOrdersRequest {
     #[serde(skip)]
-    pub account_id: i64,
+    pub account_id: String,
     /// Notes for bracket orders: 1. Children orders will not have its own \"cOID\", so please donot pass \"cOID\" parameter in child order.Instead, they will have a \"parentId\" which must be equal to \"cOID\" of parent. 2. When you cancel a parent order, it will cancel all bracket orders, when you cancel one child order, it will also cancel its sibling order.
     #[serde(rename = "orders")]
     pub orders: Option<Vec<OrderRequest>>,

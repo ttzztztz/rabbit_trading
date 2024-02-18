@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -14,7 +15,7 @@ pub struct PerformanceCpsData {
     pub base_currency: Option<String>,
     /// each value stands for price change percent of corresponding date in dates array
     #[serde(rename = "returns")]
-    pub returns: Option<Vec<i64>>,
+    pub returns: Option<Vec<Decimal>>,
     /// end date-- yyyyMMdd
     #[serde(rename = "end")]
     pub end: Option<String>,
@@ -88,9 +89,9 @@ pub struct GetPortfolioPerformanceRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetPortfolioTransactionsRequest {
     #[serde(rename = "acctIds")]
-    pub account_id_list: Option<Vec<String>>,
+    pub account_id_list: Vec<String>,
     #[serde(rename = "conids")]
-    pub conid_list: Option<Vec<i64>>,
+    pub conid_list: Vec<i64>,
     /// optional defaults to USD.
     #[serde(rename = "currency")]
     pub currency: Option<String>,
@@ -102,7 +103,7 @@ pub struct GetPortfolioTransactionsRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PortfolioTransactions {
     #[serde(rename = "acctid")]
-    pub account_id: Option<i64>,
+    pub account_id: Option<String>,
     #[serde(rename = "conid")]
     pub conid: Option<i64>,
     /// currency code
@@ -110,7 +111,7 @@ pub struct PortfolioTransactions {
     pub cur: Option<String>,
     /// Conversion rate from asset currency to response currency
     #[serde(rename = "fxRate")]
-    pub fx_rate: Option<i64>,
+    pub fx_rate: Option<Decimal>,
     /// Transaction description
     #[serde(rename = "desc")]
     pub desc: Option<String>,
@@ -122,13 +123,13 @@ pub struct PortfolioTransactions {
     pub _type: Option<String>,
     /// Not applicable for all transaction types
     #[serde(rename = "qty")]
-    pub quantity: Option<i64>,
+    pub quantity: Option<Decimal>,
     /// In asset currency. Not be applicable for all transaction types.
     #[serde(rename = "pr")]
-    pub pr: Option<i64>,
+    pub pr: Option<Decimal>,
     /// Raw value, no formatting. Net transaction amount (may include commission, tax). In asset currency
     #[serde(rename = "amt")]
-    pub amount: Option<i64>,
+    pub amount: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
