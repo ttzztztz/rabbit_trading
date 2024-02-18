@@ -1,5 +1,6 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -53,14 +54,14 @@ pub struct GetAccountsResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SwitchAccountRequest {
     #[serde(rename = "acctId")]
-    pub account_id: i64,
+    pub account_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SwitchAccountResponse {
     pub set: bool,
     #[serde(rename = "acctId")]
-    pub account_id: i64,
+    pub account_id: String,
 }
 
 pub type GetAccountLedgerResponse = HashMap<String, AccountLedger>;
@@ -71,7 +72,7 @@ pub struct AccountParent {
     mmc: Option<Vec<String>>,
     /// Account Number for Money Manager Client
     #[serde(rename = "accountId")]
-    account_id: Option<i64>,
+    account_id: Option<String>,
     /// Is MM a Parent Account
     #[serde(rename = "isMParent")]
     is_m_parent: Option<bool>,
@@ -90,7 +91,7 @@ pub struct Account {
     id: Option<String>,
     /// The account number
     #[serde(rename = "accountId")]
-    account_id: Option<i64>,
+    account_id: Option<String>,
     /// The accountAlias
     #[serde(rename = "accountVan")]
     account_van: Option<String>,
@@ -132,22 +133,22 @@ pub struct Account {
 }
 
 pub type GetPortfolioAccountsResponse = Vec<Account>;
-pub type GetAccountMetadataResponse = Vec<Account>;
+pub type GetAccountMetadataResponse = Account;
 
 pub struct GetSubAccountsV2Request {
     pub page: i32,
 }
 
 pub struct GetAccountMetadataRequest {
-    pub account_id: i64,
+    pub account_id: String,
 }
 
 pub struct GetAccountSummaryRequest {
-    pub account_id: i64,
+    pub account_id: String,
 }
 
 pub struct GetAccountAllocationRequest {
-    pub account_id: i64,
+    pub account_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -157,7 +158,7 @@ pub struct SubAccount {
     pub id: Option<String>,
     /// The account number
     #[serde(rename = "accountId")]
-    pub account_id: Option<i64>,
+    pub account_id: Option<String>,
     /// The accountAlias
     #[serde(rename = "accountVan")]
     pub account_van: Option<String>,
@@ -190,6 +191,8 @@ pub struct SubAccount {
     pub clearing_status: Option<String>,
 }
 
+pub type GetSubAccountsResponse = Vec<Account>;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetSubAccountsV2Response {
     #[serde(rename = "metadata")]
@@ -201,13 +204,13 @@ pub struct GetSubAccountsV2Response {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Summary {
     #[serde(rename = "amount")]
-    pub amount: Option<i64>,
+    pub amount: Option<Decimal>,
     #[serde(rename = "currency")]
     pub currency: Option<String>,
     #[serde(rename = "isNull")]
     pub is_null: Option<bool>,
     #[serde(rename = "timestamp")]
-    pub timestamp: Option<i32>,
+    pub timestamp: Option<i64>,
     #[serde(rename = "value")]
     pub value: Option<String>,
 }
@@ -477,33 +480,33 @@ pub struct GetAccountSummaryResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationAssetClassLong {
     #[serde(rename = "STK")]
-    pub stock: Option<i64>,
+    pub stock: Option<Decimal>,
     #[serde(rename = "OPT")]
-    pub options: Option<i64>,
+    pub options: Option<Decimal>,
     #[serde(rename = "FUT")]
-    pub futures: Option<i64>,
+    pub futures: Option<Decimal>,
     #[serde(rename = "WAR")]
-    pub warrants: Option<i64>,
+    pub warrants: Option<Decimal>,
     #[serde(rename = "BOND")]
-    pub bonds: Option<i64>,
+    pub bonds: Option<Decimal>,
     #[serde(rename = "CASH")]
-    pub cash: Option<i64>,
+    pub cash: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationAssetClassShort {
     #[serde(rename = "STK")]
-    pub stock: Option<i64>,
+    pub stock: Option<Decimal>,
     #[serde(rename = "OPT")]
-    pub options: Option<i64>,
+    pub options: Option<Decimal>,
     #[serde(rename = "FUT")]
-    pub futures: Option<i64>,
+    pub futures: Option<Decimal>,
     #[serde(rename = "WAR")]
-    pub warrants: Option<i64>,
+    pub warrants: Option<Decimal>,
     #[serde(rename = "BOND")]
-    pub bonds: Option<i64>,
+    pub bonds: Option<Decimal>,
     #[serde(rename = "CASH")]
-    pub cash: Option<i64>,
+    pub cash: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -517,27 +520,27 @@ pub struct AllocationAssetClass {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationSectorLong {
     #[serde(rename = "Others")]
-    pub others: Option<i64>,
+    pub others: Option<Decimal>,
     #[serde(rename = "Utilities")]
-    pub utilities: Option<i64>,
+    pub utilities: Option<Decimal>,
     #[serde(rename = "Energy")]
-    pub energy: Option<i64>,
+    pub energy: Option<Decimal>,
     #[serde(rename = "Technology")]
-    pub technology: Option<i64>,
+    pub technology: Option<Decimal>,
     #[serde(rename = "Financial")]
-    pub financial: Option<i64>,
+    pub financial: Option<Decimal>,
     #[serde(rename = "Communications")]
-    pub communications: Option<i64>,
+    pub communications: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationSectorShort {
     #[serde(rename = "Industrial")]
-    pub industrial: Option<i64>,
+    pub industrial: Option<Decimal>,
     #[serde(rename = "Consumer")]
-    pub consumer: Option<i64>,
+    pub consumer: Option<Decimal>,
     #[serde(rename = "Diversified")]
-    pub diversified: Option<i64>,
+    pub diversified: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -551,27 +554,27 @@ pub struct AllocationSector {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationGroupLong {
     #[serde(rename = "Computers")]
-    pub computers: Option<i64>,
+    pub computers: Option<Decimal>,
     #[serde(rename = "Semiconductors")]
-    pub semiconductors: Option<i64>,
+    pub semiconductors: Option<Decimal>,
     #[serde(rename = "Others")]
-    pub others: Option<i64>,
+    pub others: Option<Decimal>,
     #[serde(rename = "Chemicals")]
-    pub chemicals: Option<i64>,
+    pub chemicals: Option<Decimal>,
     #[serde(rename = "Apparel")]
-    pub apparel: Option<i64>,
+    pub apparel: Option<Decimal>,
     #[serde(rename = "Communications")]
-    pub communications: Option<i64>,
+    pub communications: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllocationInnerGroupShort {
     #[serde(rename = "Banks")]
-    pub banks: Option<i64>,
+    pub banks: Option<Decimal>,
     #[serde(rename = "Airlines")]
-    pub airlines: Option<i64>,
+    pub airlines: Option<Decimal>,
     #[serde(rename = "Internet")]
-    pub internet: Option<i64>,
+    pub internet: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -592,11 +595,8 @@ pub struct Allocation {
     pub group: Option<AllocationGroup>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GetAccountPnLPartitionedResponse {
-    #[serde(rename = "acctId")]
-    pub account_id: Option<i64>,
-}
+// todo: add data definitions for this response -- missing in the official docs
+pub type GetAccountPnLPartitionedResponse = HashMap<String, Value>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AccountTrade {

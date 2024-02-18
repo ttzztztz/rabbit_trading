@@ -215,7 +215,7 @@ pub struct GetMarketDataHistoryBetaResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetMarketDataSnapshotResponse {
+pub struct MarketDataSnapshot {
     /// Last Price - The last price at which the contract traded. May contain one of the following prefixes:   * C - Previous day's closing price.   * H - Trading has halted.
     #[serde(rename = "31")]
     pub last_price: Option<String>,
@@ -512,6 +512,8 @@ pub struct GetMarketDataSnapshotResponse {
     #[serde(rename = "CloseAttribs")]
     pub close_attributes: Option<i32>,
 }
+
+pub type GetMarketDataSnapshotResponse = Vec<MarketDataSnapshot>;
 
 pub struct GetMarketDataSnapshotRequest {
     /// Value: "conid@exchange:instrType"

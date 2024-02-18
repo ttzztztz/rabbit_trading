@@ -5,11 +5,12 @@ use reqwest::Error;
 use crate::{
     client::IBClientPortal,
     model::account::{
-        Account, Allocation, GetAccountAllocationRequest, GetAccountLedgerResponse,
+        Allocation, GetAccountAllocationRequest, GetAccountLedgerResponse,
         GetAccountMetadataRequest, GetAccountMetadataResponse, GetAccountPnLPartitionedResponse,
         GetAccountSummaryRequest, GetAccountSummaryResponse, GetAccountTradesResponse,
-        GetAccountsResponse, GetPortfolioAccountsResponse, GetSubAccountsV2Request,
-        GetSubAccountsV2Response, SwitchAccountRequest, SwitchAccountResponse,
+        GetAccountsResponse, GetPortfolioAccountsResponse, GetSubAccountsResponse,
+        GetSubAccountsV2Request, GetSubAccountsV2Response, SwitchAccountRequest,
+        SwitchAccountResponse,
     },
 };
 
@@ -57,7 +58,7 @@ impl IBClientPortal {
     }
 
     /// Used in tiered account structures (such as Financial Advisor and IBroker Accounts) to return a list of up to 100 sub-accounts for which the user can view position and account-related information. This endpoint must be called prior to calling other /portfolio endpoints for those sub-accounts. If you have more than 100 sub-accounts use /portfolio/subaccounts2. To query a list of accounts the user can trade, see /iserver/accounts.
-    pub async fn get_sub_accounts(&self) -> Result<Account, Error> {
+    pub async fn get_sub_accounts(&self) -> Result<GetSubAccountsResponse, Error> {
         let path = "/portfolio/subaccounts";
         let response = self
             .client
