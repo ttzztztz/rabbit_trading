@@ -3,4 +3,4 @@ pub mod endpoint;
 pub mod model;
 
 #[cfg(test)]
-pub mod tests;
+pub mod test;

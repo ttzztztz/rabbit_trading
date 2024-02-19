@@ -3,7 +3,7 @@ use serial_test::serial;
 use crate::{
     client::IBClientPortal,
     model::contract::{GetContractDetailRequest, GetStocksBySymbolRequest},
-    tests::utils::{get_test_account, CONTRACT_ID_QQQ, TEST_HOST},
+    test::utils::{get_test_account, CONTRACT_ID_QQQ, TEST_HOST},
 };
 
 #[tokio::test]

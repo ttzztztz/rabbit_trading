@@ -3,7 +3,7 @@ use serial_test::serial;
 use crate::{
     client::IBClientPortal,
     model::portfolio_analyst::{GetPortfolioPerformanceRequest, GetPortfolioTransactionsRequest},
-    tests::utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
+    test::utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
 };
 
 #[tokio::test]

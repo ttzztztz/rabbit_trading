@@ -2,7 +2,7 @@ use serial_test::serial;
 
 use crate::{
     client::IBClientPortal,
-    tests::utils::{get_test_account, TEST_HOST},
+    test::utils::{get_test_account, TEST_HOST},
 };
 
 // todo: test get_list_of_available_alerts

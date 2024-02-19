@@ -9,7 +9,7 @@ use crate::{
             GetMarketDataSnapshotRequest,
         },
     },
-    tests::utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
+    test::utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
 };
 
 #[tokio::test]
