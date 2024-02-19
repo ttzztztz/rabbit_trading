@@ -142,7 +142,7 @@ impl IBClientPortal {
     ) -> Result<GetSecurityTradingScheduleResponse, Error> {
         let path = "/trsrv/secdef/schedule";
         let mut query = vec![
-            ("assetClass", request.asset_class),
+            ("assetClass", request.asset_class.to_string()),
             ("symbol", request.symbol),
         ];
         if let Some(exchange) = request.exchange {
@@ -170,7 +170,7 @@ impl IBClientPortal {
         let path = "/iserver/secdef/strikes";
         let mut query = vec![
             ("conid", request.conid.to_string()),
-            ("sectype", request.sectype),
+            ("sectype", request.sectype.to_string()),
             ("month", request.month),
         ];
         if let Some(exchange) = request.exchange {

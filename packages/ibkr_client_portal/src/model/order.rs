@@ -73,7 +73,7 @@ pub struct OrderTicket {
     pub use_adaptive: Option<bool>,
     /// set to true if the order is a FX conversion order
     #[serde(rename = "isCcyConv")]
-    pub is_ccy_conversion: Option<bool>,
+    pub is_currency_conversion: Option<bool>,
     /// Set the allocation method when placing an order using an FA account for a group Possible allocation methods are \"NetLiquidity\", \"AvailableEquity\", \"EqualQuantity\" and \"PctChange\".
     #[serde(rename = "allocationMethod")]
     pub allocation_method: Option<String>,
@@ -115,7 +115,7 @@ pub struct LiveOrder {
     pub order_id: Option<i64>,
     /// Cash currency
     #[serde(rename = "cashCcy")]
-    pub cash_ccy: Option<String>,
+    pub cash_currency: Option<String>,
     /// Quantity outstanding and total quantity concatenated with forward slash separator
     #[serde(rename = "sizeAndFills")]
     pub size_and_fills: Option<String>,
@@ -416,7 +416,7 @@ pub struct OrderRequest {
     pub use_adaptive: Option<bool>,
     /// set to true if the order is a FX conversion order
     #[serde(rename = "isCcyConv")]
-    pub is_ccy_conv: Option<bool>,
+    pub is_currency_conv: Option<bool>,
     /// Set the allocation method when placing an order using an FA account for a group Possible allocation methods are \"NetLiquidity\", \"AvailableEquity\", \"EqualQuantity\" and \"PctChange\".
     #[serde(rename = "allocationMethod")]
     pub allocation_method: Option<String>,

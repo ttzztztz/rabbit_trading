@@ -169,10 +169,10 @@ pub struct SearchForSecurityResponseSection {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SearchForSecurityResponse {
+pub struct SearchForSecurityItem {
     /// Contract Identifier
     #[serde(rename = "conid")]
-    pub conid: Option<i64>,
+    pub conid: Option<String>,
     /// Company Name - Exchange
     #[serde(rename = "companyHeader")]
     pub company_header: Option<String>,
@@ -199,17 +199,20 @@ pub struct SearchForSecurityResponse {
     pub sections: Option<Vec<SearchForSecurityResponseSection>>,
 }
 
+pub type SearchForSecurityResponse = Vec<SearchForSecurityItem>;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GetSecurityDefinitionByConIdRequest {
-    conid_list: Vec<i64>,
+    #[serde(rename = "conids")]
+    pub conid_list: Vec<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TradingSession {
     #[serde(rename = "openingTime")]
-    pub opening_time: Option<i32>,
+    pub opening_time: Option<String>,
     #[serde(rename = "closingTime")]
-    pub closing_time: Option<i32>,
+    pub closing_time: Option<String>,
     /// If the whole trading day is considered LIQUID then the value 'LIQUID' is returned.
     #[serde(rename = "prop")]
     pub prop: Option<String>,
@@ -218,9 +221,9 @@ pub struct TradingSession {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TradingTime {
     #[serde(rename = "openingTime")]
-    pub opening_time: Option<i32>,
+    pub opening_time: Option<String>,
     #[serde(rename = "closingTime")]
-    pub closing_time: Option<i32>,
+    pub closing_time: Option<String>,
     #[serde(rename = "cancelDayOrders")]
     pub cancel_day_orders: Option<String>,
 }
@@ -228,26 +231,26 @@ pub struct TradingTime {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TradingSchedule {
     #[serde(rename = "clearingCycleEndTime")]
-    pub clearing_cycle_end_time: Option<i32>,
+    pub clearing_cycle_end_time: Option<String>,
     /// 20000101 stands for any Sat, 20000102 stands for any Sun, ... 20000107 stands for any Fri. Any other date stands for itself.
     #[serde(rename = "tradingScheduleDate")]
-    pub trading_schedule_date: Option<i32>,
+    pub trading_schedule_date: Option<String>,
     #[serde(rename = "sessions")]
-    pub sessions: Option<TradingSession>,
+    pub sessions: Option<Vec<TradingSession>>,
     #[serde(rename = "tradingTimes")]
     pub trading_times: Option<TradingTime>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetSecurityTradingScheduleRequest {
-    pub asset_class: String,
+    pub asset_class: AssetClass,
     pub symbol: String,
     pub exchange: Option<String>,
     pub exchange_filter: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetSecurityTradingScheduleResponse {
+pub struct SecurityTradingSchedule {
     /// Exchange parameter id
     #[serde(rename = "id")]
     pub id: Option<String>,
@@ -259,9 +262,11 @@ pub struct GetSecurityTradingScheduleResponse {
     pub schedules: Option<Vec<TradingSchedule>>,
 }
 
+pub type GetSecurityTradingScheduleResponse = Vec<SecurityTradingSchedule>;
+
 pub struct GetSecurityStrikesRequest {
     pub conid: i64,
-    pub sectype: String,
+    pub sectype: AssetClass,
     pub month: String,
     pub exchange: Option<String>,
 }
@@ -333,19 +338,19 @@ pub struct TradingRule {
     pub cqt_types: Option<Vec<String>>,
     /// If object returned will provide the defaults based on user settings
     #[serde(rename = "orderDefaults")]
-    pub order_defaults: Option<Vec<OrderDefault>>,
+    pub order_defaults: Option<HashMap<String, OrderDefault>>,
     /// order types that support outside of regular trading hours
     #[serde(rename = "orderTypesOutside")]
     pub order_types_outside: Option<Vec<String>>,
     /// Default quantity
     #[serde(rename = "defaultSize")]
-    pub default_size: Option<i32>,
+    pub default_size: Option<Decimal>,
     /// cash value
     #[serde(rename = "cashSize")]
-    pub cash_size: Option<i32>,
+    pub cash_size: Option<Decimal>,
     /// increment quantity value
     #[serde(rename = "sizeIncrement")]
-    pub size_increment: Option<i32>,
+    pub size_increment: Option<Decimal>,
     /// Time in Force values, formatted with o for supporting Outside regular trading hours and a for Algo trading
     #[serde(rename = "tifTypes")]
     pub tif_types: Option<Vec<String>>,
@@ -354,39 +359,39 @@ pub struct TradingRule {
     pub default_time_in_force: Option<String>,
     /// Limit price
     #[serde(rename = "limitPrice")]
-    pub limit_price: Option<i64>,
+    pub limit_price: Option<Decimal>,
     /// Stop price
     #[serde(rename = "stopprice")]
-    pub stopprice: Option<i64>,
+    pub stop_price: Option<Decimal>,
     /// Order origin designation for US securities options and Options Clearing Corporation
     #[serde(rename = "orderOrigination")]
-    pub order_origination: Option<i64>,
+    pub order_origination: Option<Decimal>,
     /// order preview required
     #[serde(rename = "preview")]
     pub preview: Option<bool>,
     #[serde(rename = "displaySize")]
-    pub display_size: Option<i64>,
+    pub display_size: Option<Decimal>,
     /// decimal places for fractional order size
     #[serde(rename = "fraqInt")]
     pub fractional_order_size: Option<Decimal>,
     /// Cash currency for the contract
     #[serde(rename = "cashCcy")]
-    pub cash_ccy: Option<String>,
+    pub cash_currency: Option<String>,
     /// Increment value for cash quantity
     #[serde(rename = "cashQtyIncr")]
-    pub cash_qty_incr: Option<i64>,
+    pub cash_quantity_increment: Option<Decimal>,
     /// Price Magnifier
     #[serde(rename = "priceMagnifier")]
-    pub price_magnifier: Option<i64>,
+    pub price_magnifier: Option<Decimal>,
     /// trading negative price support
     #[serde(rename = "negativeCapable")]
     pub negative_capable: Option<bool>,
     /// Price increment value
     #[serde(rename = "increment")]
-    pub increment: Option<i64>,
+    pub increment: Option<Decimal>,
     /// Number of digits for price increment
     #[serde(rename = "incrementDigits")]
-    pub increment_digits: Option<i32>,
+    pub increment_digits: Option<Decimal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -468,7 +473,7 @@ pub struct SecurityTradingRuleAndInfo {
     #[serde(rename = "exchange")]
     pub exchange: Option<String>,
     #[serde(rename = "rules")]
-    pub rules: Option<Vec<TradingRule>>,
+    pub rules: Option<TradingRule>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -495,19 +500,19 @@ pub struct SecurityTradingRule {
     pub cqt_types: Option<Vec<String>>,
     /// If object returned will provide the defaults based on user settings
     #[serde(rename = "orderDefaults")]
-    pub order_defaults: Option<Vec<OrderDefault>>,
+    pub order_defaults: Option<HashMap<String, OrderDefault>>,
     /// order types that support outside of regular trading hours
     #[serde(rename = "orderTypesOutside")]
     pub order_types_outside: Option<Vec<String>>,
     /// Default quantity
     #[serde(rename = "defaultSize")]
-    pub default_size: Option<i32>,
+    pub default_size: Option<Decimal>,
     /// cash value
     #[serde(rename = "cashSize")]
-    pub cash_size: Option<i32>,
+    pub cash_size: Option<Decimal>,
     /// increment quantity value
     #[serde(rename = "sizeIncrement")]
-    pub size_increment: Option<i32>,
+    pub size_increment: Option<Decimal>,
     /// Time in Force values, formatted with o for supporting Outside regular trading hours and a for Algo trading
     #[serde(rename = "tifTypes")]
     pub tif_types: Option<Vec<String>>,
@@ -516,39 +521,39 @@ pub struct SecurityTradingRule {
     pub default_time_in_force: Option<String>,
     /// Limit price
     #[serde(rename = "limitPrice")]
-    pub limit_price: Option<i64>,
+    pub limit_price: Option<Decimal>,
     /// Stop price
     #[serde(rename = "stopprice")]
-    pub stopprice: Option<i64>,
+    pub stopprice: Option<Decimal>,
     /// Order origin designation for US securities options and Options Clearing Corporation
     #[serde(rename = "orderOrigination")]
-    pub order_origination: Option<i64>,
+    pub order_origination: Option<Decimal>,
     /// order preview required
     #[serde(rename = "preview")]
     pub preview: Option<bool>,
     #[serde(rename = "displaySize")]
-    pub display_size: Option<i64>,
+    pub display_size: Option<Decimal>,
     /// decimal places for fractional order size
     #[serde(rename = "fraqInt")]
     pub fractional_order_size: Option<Decimal>,
     /// Cash currency for the contract
     #[serde(rename = "cashCcy")]
-    pub cash_ccy: Option<String>,
+    pub cash_currency: Option<String>,
     /// Increment value for cash quantity
     #[serde(rename = "cashQtyIncr")]
-    pub cash_qty_incr: Option<i64>,
+    pub cash_quantity_increment: Option<Decimal>,
     /// Price Magnifier
     #[serde(rename = "priceMagnifier")]
-    pub price_magnifier: Option<i64>,
+    pub price_magnifier: Option<Decimal>,
     /// trading negative price support
     #[serde(rename = "negativeCapable")]
     pub negative_capable: Option<bool>,
     /// Price increment value
     #[serde(rename = "increment")]
-    pub increment: Option<i64>,
+    pub increment: Option<Decimal>,
     /// Number of digits for price increment
     #[serde(rename = "incrementDigits")]
-    pub increment_digits: Option<i32>,
+    pub increment_digits: Option<Decimal>,
 }
 
 pub struct GetInfoAndRulesByConIdRequest {
@@ -557,12 +562,7 @@ pub struct GetInfoAndRulesByConIdRequest {
 }
 
 pub type GetInfoAndRulesByConIdResponse = SecurityTradingRuleAndInfo;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GetContractRulesResponse {
-    #[serde(rename = "rules")]
-    pub rules: Vec<SecurityTradingRule>,
-}
+pub type GetContractRulesResponse = SecurityTradingRule;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetContractRulesRequest {
@@ -626,7 +626,7 @@ pub struct AlgorithmParametersObject {
     pub parameters: Option<Vec<ContractAlgorithmsParameter>>,
 }
 
-pub type GetIBAlgorithmParametersResponse = Vec<AlgorithmParametersObject>;
+pub type GetIBAlgorithmParametersResponse = AlgorithmParametersObject;
 
 pub struct GetIBAlgorithmParametersRequest {
     pub conid: i64,
