@@ -48,7 +48,7 @@ pub struct MarketDataHistory {
     pub text: Option<String>,
     /// priceFactor is price increment obtained from display rule
     #[serde(rename = "priceFactor")]
-    pub price_factor: Option<i32>,
+    pub price_factor: Option<Decimal>,
     /// start date time in the format YYYYMMDD-HH:mm:ss
     #[serde(rename = "startTime")]
     pub start_time: Option<OffsetDateTime>,
@@ -63,13 +63,13 @@ pub struct MarketDataHistory {
     pub time_period: Option<String>,
     /// The number of seconds in a bar
     #[serde(rename = "barLength")]
-    pub bar_length: Option<i32>,
+    pub bar_length: Option<Decimal>,
     /// Market Data Availability. The field may contain two chars. The first char is the primary code: S = Streaming, R = Realtime, D = Delayed, Z = Frozen, Y = Frozen Delayed. The second char is the secondary code: P = Snapshot Available, p = Consolidated.
     #[serde(rename = "mdAvailability")]
-    pub md_availability: Option<String>,
+    pub market_data_availability: Option<String>,
     /// The time it takes, in milliseconds, to process the historical data request
     #[serde(rename = "mktDataDelay")]
-    pub mkt_data_delay: Option<i32>,
+    pub market_data_delay: Option<i32>,
     /// The historical data returned includes outside of regular trading hours
     #[serde(rename = "outsideRth")]
     pub outside_regular_trading_hours: Option<bool>,
@@ -77,7 +77,7 @@ pub struct MarketDataHistory {
     #[serde(rename = "tradingDayDuration")]
     pub trading_day_duration: Option<i32>,
     #[serde(rename = "volumeFactor")]
-    pub volume_factor: Option<i32>,
+    pub volume_factor: Option<Decimal>,
     #[serde(rename = "priceDisplayRule")]
     pub price_display_rule: Option<i32>,
     #[serde(rename = "priceDisplayValue")]
@@ -178,7 +178,7 @@ pub struct MarketHistoryDataBars {
     pub data: Option<Vec<MarketHistoryBarData>>,
     /// If 0 then data is returned in real time. Otherwise will return the number of seconds history data is delayed.
     #[serde(rename = "mktDataDelay")]
-    pub mkt_data_delay: Option<i32>,
+    pub market_data_delay: Option<i32>,
 }
 
 pub struct GetMarketDataHistoryBetaRequest {
@@ -479,7 +479,7 @@ pub struct MarketDataSnapshot {
     pub _13_week_low: Option<String>,
     /// IBKR Contract identifier
     #[serde(rename = "conid")]
-    pub conid: Option<i32>,
+    pub conid: Option<i64>,
     /// minimum price increment
     #[serde(rename = "minTick")]
     pub min_tick: Option<f32>,
@@ -491,26 +491,26 @@ pub struct MarketDataSnapshot {
     pub has_delayed: Option<bool>,
     /// minimum size increment
     #[serde(rename = "sizeMinTick")]
-    pub size_min_tick: Option<i32>,
+    pub size_min_tick: Option<Decimal>,
     #[serde(rename = "BestEligible")]
-    pub best_eligible: Option<i32>,
+    pub best_eligible: Option<Decimal>,
     #[serde(rename = "BestBidExch")]
-    pub best_bid_exchange: Option<i32>,
+    pub best_bid_exchange: Option<Decimal>,
     #[serde(rename = "BestAskExch")]
-    pub best_ask_exchange: Option<i32>,
+    pub best_ask_exchange: Option<Decimal>,
     #[serde(rename = "PreOpenBid")]
-    pub pre_open_bid: Option<i32>,
+    pub pre_open_bid: Option<Decimal>,
     #[serde(rename = "LastAttribs")]
-    pub last_attributes: Option<i32>,
+    pub last_attributes: Option<Decimal>,
     /// Base time stamp for last update in format YYYYMMDD
     #[serde(rename = "TimestampBase")]
-    pub timestamp_base: Option<i32>,
+    pub timestamp_base: Option<String>,
     #[serde(rename = "TimestampDelta")]
-    pub timestamp_delta: Option<i32>,
+    pub timestamp_delta: Option<Decimal>,
     #[serde(rename = "LastExch")]
     pub last_exchange: Option<String>,
     #[serde(rename = "CloseAttribs")]
-    pub close_attributes: Option<i32>,
+    pub close_attributes: Option<Decimal>,
 }
 
 pub type GetMarketDataSnapshotResponse = Vec<MarketDataSnapshot>;

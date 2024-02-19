@@ -7,6 +7,7 @@ use longbridge::{
     },
     TradeContext,
 };
+use rust_decimal::prelude::ToPrimitive;
 use time::Date;
 
 use super::broker::LongBridgeBroker;
@@ -70,7 +71,7 @@ impl LongBridgeTransaction {
             request.symbol.to_string(),
             Self::to_order_type(&request.price),
             Self::to_order_side(&request.direction),
-            request.quantity,
+            request.quantity.to_i64().unwrap(),
             Self::to_time_in_force(&request.expire),
         );
 
@@ -129,7 +130,7 @@ impl LongBridgeTransaction {
 
     fn to_replce_order_options(request: EditOrderRequest) -> ReplaceOrderOptions {
         let mut replace_order_options_builder =
-            ReplaceOrderOptions::new(request.order_id, request.quantity);
+            ReplaceOrderOptions::new(request.order_id, request.quantity.to_i64().unwrap());
 
         replace_order_options_builder = match request.price {
             Price::LimitOrder { price } => replace_order_options_builder.price(price),
@@ -182,8 +183,8 @@ impl LongBridgeTransaction {
 
     fn to_buying_power(response: EstimateMaxPurchaseQuantityResponse) -> BuyingPower {
         BuyingPower {
-            cash_max_quantity: response.cash_max_qty,
-            margin_max_quantity: response.margin_max_qty,
+            cash_max_quantity: response.cash_max_qty.into(),
+            margin_max_quantity: response.margin_max_qty.into(),
         }
     }
 
@@ -226,8 +227,8 @@ impl LongBridgeTransaction {
             symbol,
             currency,
             cost_price: longbridge_position.cost_price,
-            total_quantity: longbridge_position.quantity,
-            available_quantity: longbridge_position.available_quantity,
+            total_quantity: longbridge_position.quantity.into(),
+            available_quantity: longbridge_position.available_quantity.into(),
         })
     }
 
@@ -330,8 +331,8 @@ impl LongBridgeTransaction {
             order_id: longbridge_order_detail.order_id,
             symbol,
             currency,
-            quantity: longbridge_order_detail.quantity,
-            executed_quantity: longbridge_order_detail.executed_quantity,
+            quantity: longbridge_order_detail.quantity.into(),
+            executed_quantity: longbridge_order_detail.executed_quantity.into(),
             price,
             executed_price: longbridge_order_detail.executed_price,
             direction,

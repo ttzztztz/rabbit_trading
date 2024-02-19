@@ -133,7 +133,7 @@ pub struct ScannerRunContract {
     #[serde(rename = "conidex")]
     pub conid_and_exchange: Option<String>,
     #[serde(rename = "con_id")]
-    pub con_id: Option<i64>,
+    pub conid: Option<i64>,
     /// List of available chart periods
     #[serde(rename = "available_chart_periods")]
     pub available_chart_periods: Option<String>,

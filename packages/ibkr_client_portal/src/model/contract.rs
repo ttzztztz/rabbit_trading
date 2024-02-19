@@ -101,7 +101,7 @@ pub struct ContractDetail {
     pub category: Option<String>,
     pub industry: Option<String>,
     pub symbol: String,
-    pub underlying_con_id: i64,
+    pub underlying_conid: i64,
     pub cusip: Option<String>,
     pub expiry_full: Option<String>,
     pub maturity_date: Option<String>,
@@ -409,7 +409,7 @@ pub struct SecurityTradingRuleAndInfo {
     pub expiry_full: Option<i64>,
     /// IBKRs contract identifier
     #[serde(rename = "con_id")]
-    pub con_id: Option<i64>,
+    pub conid: Option<i64>,
     /// Date on which the underlying transaction settles if the option is exercised
     #[serde(rename = "maturity_date")]
     pub maturity_date: Option<i64>,
@@ -444,7 +444,7 @@ pub struct SecurityTradingRuleAndInfo {
     pub text: Option<String>,
     /// IBKRs contract identifier for the underlying instrument
     #[serde(rename = "underlying_con_id")]
-    pub underlying_con_id: Option<i64>,
+    pub underlying_conid: Option<i64>,
     /// Provides trading outside of Regular Trading Hours
     #[serde(rename = "r_t_h")]
     pub regular_trading_hours: Option<bool>,
@@ -680,7 +680,7 @@ pub struct GetFuturesBySymbolRequest {
 
 pub struct SecurityDefinitionsRequest {
     /// underlying contract id
-    pub underlying_con_id: i64,
+    pub underlying_conid: i64,
     /// FUT/OPT/WAR/CASH/CFD
     pub sectype: AssetClass,
     /// contract month, only required for FUT/OPT/WAR in the format MMMYY, example JAN00
@@ -715,7 +715,7 @@ pub struct SecurityDefinitionsResponse {
     pub right: Option<String>,
     /// Set price at which a derivative contract can be bought or sold. The strike price also known as exercise price.
     #[serde(rename = "strike")]
-    pub strike: Option<i64>,
+    pub strike: Option<Decimal>,
     /// Currency the contract trades in
     #[serde(rename = "currency")]
     pub currency: Option<String>,

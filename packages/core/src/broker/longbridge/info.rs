@@ -44,8 +44,8 @@ impl LongBridgeInfo {
             symbol,
             currency: LongBridgeBroker::to_currency(&security_static_info.currency).ok(),
             lot_size: security_static_info.lot_size,
-            total_shares: security_static_info.total_shares,
-            circulating_shares: security_static_info.circulating_shares,
+            total_shares: security_static_info.total_shares.into(),
+            circulating_shares: security_static_info.circulating_shares.into(),
             eps: security_static_info.eps,
             eps_ttm: security_static_info.eps_ttm,
             bps: security_static_info.bps,
@@ -55,10 +55,10 @@ impl LongBridgeInfo {
 
     pub(super) fn to_depth(depth: longbridge::quote::Depth) -> crate::model::trading::quote::Depth {
         crate::model::trading::quote::Depth {
-            position: depth.position,
+            position: depth.position.into(),
             price: depth.price,
-            volume: depth.volume,
-            order_count: depth.order_num,
+            volume: depth.volume.into(),
+            order_count: depth.order_num.into(),
         }
     }
 

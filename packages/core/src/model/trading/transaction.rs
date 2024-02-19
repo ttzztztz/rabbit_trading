@@ -64,7 +64,7 @@ pub enum Price {
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubmitOrderRequest {
     pub symbol: Symbol,
-    pub quantity: i64,
+    pub quantity: Decimal,
     pub direction: Direction,
     pub regular_trading_time: RegularTradingTime,
     pub expire: Expire,
@@ -85,8 +85,8 @@ pub struct EstimateMaxBuyingPowerRequest {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct BuyingPower {
-    pub cash_max_quantity: i64,
-    pub margin_max_quantity: i64,
+    pub cash_max_quantity: Decimal,
+    pub margin_max_quantity: Decimal,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -100,7 +100,7 @@ pub struct CancelOrderResponse {}
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EditOrderRequest {
     pub order_id: String,
-    pub quantity: i64,
+    pub quantity: Decimal,
     pub price: Price,
 }
 
@@ -117,8 +117,8 @@ pub struct OrderDetail {
     pub order_id: String,
     pub symbol: Symbol,
     pub currency: Currency,
-    pub quantity: i64,
-    pub executed_quantity: i64,
+    pub quantity: Decimal,
+    pub executed_quantity: Decimal,
     pub price: Price,
     pub executed_price: Option<Decimal>,
     pub direction: Direction,

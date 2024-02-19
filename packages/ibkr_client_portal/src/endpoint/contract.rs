@@ -109,7 +109,7 @@ impl IBClientPortal {
     ) -> Result<SecurityDefinitionsResponse, Error> {
         let path = "/iserver/secdef/info";
         let mut query = vec![
-            ("conid", request.underlying_con_id.to_string()),
+            ("conid", request.underlying_conid.to_string()),
             ("sectype", request.sectype.to_string()),
         ];
         if let Some(month) = request.month {

@@ -37,7 +37,7 @@ pub struct OrderTicket {
     pub outside_regular_trading_hours: Option<bool>,
     /// optional if order is LMT, or STOP_LIMIT, this is the limit price. For STP|TRAIL this is the stop price. For MIDPRICE this is the option price cap.
     #[serde(rename = "price")]
-    pub price: Option<i64>,
+    pub price: Option<Decimal>,
     /// optional if order is STOP_LIMIT|TRAILLMT, this is the stop price. You must specify both price and auxPrice for STOP_LIMIT|TRAILLMT orders.
     #[serde(rename = "auxPrice")]
     pub aux_price: Option<Value>,
@@ -52,7 +52,7 @@ pub struct OrderTicket {
     pub time_in_force: Option<String>,
     /// optional if order is TRAIL, or TRAILLMT. When trailingType is amt, this is the trailing amount, when trailingType is %, it means percentage. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
     #[serde(rename = "trailingAmt")]
-    pub trailing_amount: Option<i64>,
+    pub trailing_amount: Option<Decimal>,
     /// This is the trailing type for trailing amount. We only support two types here: amt or %. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
     #[serde(rename = "trailingType")]
     pub trailing_type: Option<String>,
@@ -61,13 +61,13 @@ pub struct OrderTicket {
     pub referrer: Option<String>,
     /// Usually integer, for some special cases such as fractional orders can specify as a float, e.g. quantity = 0.001. In some special cases quantity is not specified, such as when using 'cashQty' or 'fxQty'.
     #[serde(rename = "quantity")]
-    pub quantity: Option<i64>,
+    pub quantity: Option<Decimal>,
     /// Cash Quantity - used to specify the monetary value of an order instead of the number of shares. When using 'cashQty' don't specify 'quantity' Orders that express size using a monetary value, e.g. cash quantity can result in fractional shares and are provided on a non-guaranteed basis. The system simulates the order by canceling it once the specified amount is spent (for buy orders) or collected (for sell orders). In addition to the monetary value, the order uses a maximum size that is calculated using the Cash Quantity Estimated Factor, which can be modified in Order Presets.   
     #[serde(rename = "cashQty")]
-    pub cash_quantity: Option<i64>,
+    pub cash_quantity: Option<Decimal>,
     /// double number, this is the cash quantity field which can only be used for Currency Conversion Orders. When using 'fxQty' don't specify 'quantity'.
     #[serde(rename = "fxQty")]
-    pub fx_quantity: Option<i64>,
+    pub fx_quantity: Option<Decimal>,
     /// If true, the system will use the Price Management Algo to submit the order. https://www.interactivebrokers.com/en/index.php?f=43423
     #[serde(rename = "useAdaptive")]
     pub use_adaptive: Option<bool>,
@@ -136,10 +136,10 @@ pub struct LiveOrder {
     pub listing_exchange: Option<String>,
     /// Quantity remaining
     #[serde(rename = "remainingQuantity")]
-    pub remaining_quantity: Option<i64>,
+    pub remaining_quantity: Option<Decimal>,
     /// Quantity filled
     #[serde(rename = "filledQuantity")]
-    pub filled_quantity: Option<i64>,
+    pub filled_quantity: Option<Decimal>,
     /// Company Name
     #[serde(rename = "companyName")]
     pub company_name: Option<String>,
@@ -172,7 +172,7 @@ pub struct LiveOrder {
     pub time_in_force: Option<String>,
     /// Price of order
     #[serde(rename = "price")]
-    pub price: Option<i64>,
+    pub price: Option<Decimal>,
     /// Background color in hex format
     #[serde(rename = "bgColor")]
     pub background_color: Option<String>,
@@ -353,7 +353,7 @@ pub struct OrderRequest {
     pub account_id: Option<String>,
     /// conid is the identifier of the security you want to trade, you can find the conid with /iserver/secdef/search.
     #[serde(rename = "conid")]
-    pub conid: Option<i32>,
+    pub conid: Option<i64>,
     /// Conid and Exchange - Can be used instead of conid when specifying the contract identifier of a security.
     #[serde(rename = "conidex")]
     pub conidex: Option<String>,
@@ -380,7 +380,7 @@ pub struct OrderRequest {
     pub outside_regular_trading_hours: Option<bool>,
     /// optional if order is LMT, or STOP_LIMIT, this is the limit price. For STP|TRAIL this is the stop price. For MIDPRICE this is the option price cap.
     #[serde(rename = "price")]
-    pub price: Option<i64>,
+    pub price: Option<Decimal>,
     /// optional if order is STOP_LIMIT|TRAILLMT, this is the stop price. You must specify both price and auxPrice for STOP_LIMIT|TRAILLMT orders.
     #[serde(rename = "auxPrice")]
     pub aux_price: Option<Value>,
@@ -395,7 +395,7 @@ pub struct OrderRequest {
     pub time_in_force: Option<String>,
     /// optional if order is TRAIL, or TRAILLMT. When trailingType is amt, this is the trailing amount, when trailingType is %, it means percentage. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
     #[serde(rename = "trailingAmt")]
-    pub trailing_amt: Option<i64>,
+    pub trailing_amount: Option<Decimal>,
     /// This is the trailing type for trailing amount. We only support two types here: amt or %. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
     #[serde(rename = "trailingType")]
     pub trailing_type: Option<String>,
@@ -404,13 +404,13 @@ pub struct OrderRequest {
     pub referrer: Option<String>,
     /// Usually integer, for some special cases such as fractional orders can specify as a float, e.g. quantity = 0.001. In some special cases quantity is not specified, such as when using 'cashQty' or 'fxQty'.
     #[serde(rename = "quantity")]
-    pub quantity: Option<i64>,
+    pub quantity: Option<Decimal>,
     /// Cash Quantity - used to specify the monetary value of an order instead of the number of shares. When using 'cashQty' don't specify 'quantity' Orders that express size using a monetary value, e.g. cash quantity can result in fractional shares and are provided on a non-guaranteed basis. The system simulates the order by canceling it once the specified amount is spent (for buy orders) or collected (for sell orders). In addition to the monetary value, the order uses a maximum size that is calculated using the Cash Quantity Estimated Factor, which can be modified in Order Presets.   
     #[serde(rename = "cashQty")]
-    pub cash_qty: Option<i64>,
+    pub cash_quantity: Option<Decimal>,
     /// double number, this is the cash quantity field which can only be used for Currency Conversion Orders. When using 'fxQty' don't specify 'quantity'.
     #[serde(rename = "fxQty")]
-    pub fx_qty: Option<i64>,
+    pub fx_quantity: Option<Decimal>,
     /// If true, the system will use the Price Management Algo to submit the order. https://www.interactivebrokers.com/en/index.php?f=43423
     #[serde(rename = "useAdaptive")]
     pub use_adaptive: Option<bool>,
@@ -532,9 +532,9 @@ pub struct ModifyOrderRequest {
     #[serde(rename = "outsideRTH")]
     pub outside_regular_trading_hours: Option<bool>,
     #[serde(rename = "price")]
-    pub price: Option<i64>,
+    pub price: Option<Decimal>,
     #[serde(rename = "auxPrice")]
-    pub aux_price: Option<i64>,
+    pub aux_price: Option<Decimal>,
     /// SELL or BUY
     #[serde(rename = "side")]
     pub side: Option<String>,

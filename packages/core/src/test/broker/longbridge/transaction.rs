@@ -34,7 +34,7 @@ async fn test_positions() {
     assert!(positions_result.is_ok());
     positions_result.unwrap().iter().for_each(|position| {
         assert!(position.cost_price >= dec!(0));
-        assert!(position.available_quantity >= 0);
-        assert!(position.total_quantity >= 0);
+        assert!(position.available_quantity >= dec!(0));
+        assert!(position.total_quantity >= dec!(0));
     });
 }

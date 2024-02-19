@@ -68,7 +68,7 @@ async fn test_get_contract_detail() {
     assert!(response.valid_exchanges.len() > 0);
 }
 
-// todo: test get_contract_details_of_futures_options_warrants_cash_cfds, get_security_strikes, get_supported_algorithms_by_contract
+// todo: test get_contract_details_of_futures_options_warrants_cash_cfds, get_security_strikes
 
 #[tokio::test]
 #[serial]

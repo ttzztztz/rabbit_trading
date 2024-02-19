@@ -24,8 +24,8 @@ pub struct QuoteBasicInfo {
     pub symbol: Symbol,
     pub currency: Option<Currency>,
     pub lot_size: i32,
-    pub total_shares: i64,
-    pub circulating_shares: i64,
+    pub total_shares: Decimal,
+    pub circulating_shares: Decimal,
     pub eps: Decimal,
     pub eps_ttm: Decimal,
     pub bps: Decimal,
@@ -34,10 +34,10 @@ pub struct QuoteBasicInfo {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Depth {
-    pub position: i32,
+    pub position: Decimal,
     pub price: Decimal,
-    pub volume: i64,
-    pub order_count: i64,
+    pub volume: Decimal,
+    pub order_count: Decimal,
 }
 
 #[derive(Debug)]

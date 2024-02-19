@@ -71,10 +71,10 @@ async fn test_quote_depth_info() {
                 .into_iter()
                 .chain(quote_depth_info.bid_list.into_iter())
                 .for_each(|depth| {
-                    assert!(depth.order_count >= 0i64);
-                    assert!(depth.position > 0i32);
+                    assert!(depth.order_count >= dec!(0.0));
+                    assert!(depth.position > dec!(0.0));
                     assert!(depth.price > dec!(0.0));
-                    assert!(depth.volume > 0i64);
+                    assert!(depth.volume > dec!(0.0));
                 });
         },
         _ = sleep(Duration::from_millis(3000))=> {

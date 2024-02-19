@@ -1,3 +1,4 @@
+use rust_decimal_macros::dec;
 use std::time::Duration;
 use tokio::{sync::broadcast, time::sleep};
 
@@ -41,7 +42,7 @@ async fn test_whole_lifecycle() {
                 market: Market::US,
                 identifier: SYMBOL_IDENTIFIER.to_owned(),
             },
-            quantity: 100i64,
+            quantity: dec!(100),
             direction: Direction::Buy,
             regular_trading_time: RegularTradingTime::OnlyRegularTradingTime,
             expire: Expire::Day,

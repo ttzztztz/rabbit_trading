@@ -36,8 +36,8 @@ async fn test_query_basic_info() {
     assert!(quote_basic_info.eps >= dec!(0.0));
     assert!(quote_basic_info.eps_ttm >= dec!(0.0));
     assert!(quote_basic_info.lot_size > 0i32);
-    assert!(quote_basic_info.circulating_shares > 0i64);
-    assert!(quote_basic_info.total_shares > 0i64);
+    assert!(quote_basic_info.circulating_shares > dec!(0.0));
+    assert!(quote_basic_info.total_shares > dec!(0.0));
 }
 
 #[tokio::test]
@@ -88,9 +88,9 @@ async fn test_query_depth() {
         .into_iter()
         .chain(quote_depth_info.bid_list.into_iter())
         .for_each(|depth| {
-            assert!(depth.order_count >= 0i64);
-            assert!(depth.position > 0i32);
+            assert!(depth.order_count >= dec!(0.0));
+            assert!(depth.position > dec!(0.0));
             assert!(depth.price > dec!(0.0));
-            assert!(depth.volume > 0i64);
+            assert!(depth.volume > dec!(0.0));
         });
 }
