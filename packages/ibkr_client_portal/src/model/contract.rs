@@ -135,11 +135,12 @@ pub struct ContractDetail {
     pub category: Option<String>,
     pub industry: Option<String>,
     pub symbol: Option<String>,
-    pub underlying_conid: Option<i64>,
     pub cusip: Option<String>,
     pub expiry_full: Option<String>,
     pub maturity_date: Option<String>,
     pub multiplier: Option<String>,
+    #[serde(rename = "underlying_con_id")]
+    pub underlying_conid: Option<i64>,
     pub underlying_issuer: Option<String>,
     pub trading_class: Option<String>,
     #[serde(with = "unpack_exchanges")]
