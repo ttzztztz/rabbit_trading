@@ -64,7 +64,7 @@ async fn test_get_contract_detail() {
         .await;
     assert!(response_result.is_ok());
     let response = response_result.unwrap();
-    assert_eq!("QQQ", response.symbol);
+    assert_eq!("QQQ", response.symbol.unwrap());
     assert!(response.valid_exchanges.len() > 0);
 }
 

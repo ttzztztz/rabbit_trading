@@ -46,9 +46,11 @@ pub struct AccountLedger {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetAccountsResponse {
-    pub selected_account: String,
-    pub aliases: HashMap<String, String>,
+    /// Unique account id
     pub accounts: Vec<String>,
+    pub selected_account: String,
+    /// Account Id and its alias
+    pub aliases: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

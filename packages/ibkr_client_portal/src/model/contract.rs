@@ -18,39 +18,67 @@ pub struct SecurityDefinitions {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Contract {
+    /// List of exchanges and venues contract trades.
     #[serde(with = "unpack_exchanges", alias = "exchange")]
     pub all_exchanges: Vec<String>,
+    /// Group of financial instruments which have similar financial characteristics and behave similar in the marketplace.
     pub asset_class: Option<AssetClass>,
+    /// HTML encoded company description in Chinese.
     pub chinese_name: Option<String>,
+    /// IBKR contract identifier.
     pub conid: i64,
     pub country_code: Option<String>,
+    /// Currency contract trades in.
     pub currency: Option<String>,
     pub display_rule: Option<DisplayRule>,
+    /// Specific data contract expires.
     pub expiry: Option<String>,
+    /// Formatted company name with underlying symbol, expiration, strike, right.
     pub full_name: Option<String>,
+    /// Potential characteristic of each product.
     pub group: Option<String>,
+    /// If contract has an option.
     pub has_options: Option<bool>,
+    /// Price increment value contract trades.
     pub increment_rules: Option<Vec<IncrementRule>>,
     pub is_event_contract: Option<bool>,
+    /// If contract is a US contract. Currently supported for stocks, options and warrants.
     #[serde(rename = "isUS")]
     pub is_us: Option<bool>,
+    /// Final day derivative contract can be traded before delivery of the underlying asset or cash settlement.
     pub last_trading_day: Option<String>,
+    /// Main trading venue.
     pub listing_exchange: Option<String>,
+    /// Multiplier for total premium paid or received for derivative contract.
     pub multiplier: Option<Decimal>,
+    /// Company Name.
     pub name: Option<String>,
     pub page_size: Option<i64>,
+    /// Defines the right to buy or sell of the underlying security.
     pub put_or_call: Option<OptionRight>,
+    /// The category of the economy.
     pub sector: Option<String>,
+    /// Stock Group contract belongs too.
     pub sector_group: Option<String>,
+    /// Set price at which a derivative contract can be bought or sold.
     pub strike: Option<String>,
+    /// Contract symbol.
     pub ticker: Option<String>,
     pub time: Option<i64>,
+    /// Multiplier for total premium paid or received for derivative contract.
     #[serde(rename = "type")]
-    pub type_field: Option<String>,
-    pub und_conid: Option<i64>,
+    pub _type: Option<String>,
+    /// Underlying contract identifier.
+    #[serde(rename = "undConid")]
+    pub underlying_conid: Option<i64>,
+    /// Defines if a derivative contract has a different currency.
     pub cross_currency: Option<bool>,
-    pub und_comp: Option<String>,
-    pub und_sym: Option<String>,
+    /// Company name for underlying contract.
+    #[serde(rename = "undComp")]
+    pub underlying_company_name: Option<String>,
+    /// IBKR Symbol for underlying contract.
+    #[serde(rename = "undSym")]
+    pub underlying_symbol: Option<String>,
 }
 
 pub mod unpack_exchanges {
@@ -90,18 +118,24 @@ pub struct IncrementRule {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContractDetail {
-    pub r_t_h: bool,
-    #[serde(rename = r#"con_id"#)]
+    /// true means you can trade outside RTH(regular trading hours)
+    #[serde(rename = "r_t_h")]
+    pub regular_trading_hours: bool,
+    /// same as that in request
+    #[serde(rename = "con_id")]
     pub conid: i64,
-    pub company_name: String,
-    pub exchange: String,
-    pub local_symbol: String,
+    /// Contracts company name
+    pub company_name: Option<String>,
+    pub exchange: Option<String>,
+    /// for exmple FB
+    pub local_symbol: Option<String>,
+    /// for example STK
     pub instrument_type: String,
     pub currency: String,
     pub category: Option<String>,
     pub industry: Option<String>,
-    pub symbol: String,
-    pub underlying_conid: i64,
+    pub symbol: Option<String>,
+    pub underlying_conid: Option<i64>,
     pub cusip: Option<String>,
     pub expiry_full: Option<String>,
     pub maturity_date: Option<String>,
@@ -110,8 +144,8 @@ pub struct ContractDetail {
     pub trading_class: Option<String>,
     #[serde(with = "unpack_exchanges")]
     pub valid_exchanges: Vec<String>,
-    pub allow_sell_long: bool,
-    pub is_zero_commission_security: bool,
+    pub allow_sell_long: Option<bool>,
+    pub is_zero_commission_security: Option<bool>,
     pub contract_clarification_type: Option<String>,
     pub contract_month: Option<String>,
     pub classifier: Option<String>,

@@ -21,12 +21,18 @@ pub struct Iserver {
 pub struct AuthStatus {
     #[serde(rename = "MAC")]
     pub mac: Option<String>,
+    /// Brokerage session is authenticated
     pub authenticated: Option<bool>,
+    /// Brokerage session is competing, e.g. user is logged in to IBKR Mobile, WebTrader, TWS or other trading platforms.
     pub competing: Option<bool>,
+    /// Connected to backend
     pub connected: Option<bool>,
+    /// System messages that may affect trading
     pub message: Option<String>,
     pub server_info: Option<ServerInfo>,
+    /// Authentication failed, why.
     pub fail: Option<String>,
+    /// Prompt messages that may affect trading or the account
     pub prompts: Option<Vec<String>>,
 }
 
@@ -39,6 +45,7 @@ pub struct ServerInfo {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LogoutResponse {
+    /// true means username is still logged in, false means it is not
     pub confirmed: bool,
 }
 

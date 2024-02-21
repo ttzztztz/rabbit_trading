@@ -8,8 +8,11 @@ use super::definition::TickType;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GetMarketDataRequest {
+    /// list of conids
     pub conid_list: Vec<i64>,
+    /// time period since which updates are required. uses epoch time with milliseconds.
     pub since: Option<i64>,
+    /// list of fields
     pub fields: Option<Vec<TickType>>,
 }
 

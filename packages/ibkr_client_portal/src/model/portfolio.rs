@@ -50,10 +50,13 @@ pub struct Position {
     pub ticker: Vec<String>,
     pub time: Vec<i64>,
     #[serde(rename = "type")]
-    pub type_field: Vec<String>,
-    pub und_comp: Option<String>,
-    pub und_conid: Vec<i64>,
-    pub und_sym: Option<String>,
+    pub _type: Vec<String>,
+    #[serde(rename = "undComp")]
+    pub underlying_comp: Option<String>,
+    #[serde(rename = "undConid")]
+    pub underlying_conid: Vec<i64>,
+    #[serde(rename = "undSym")]
+    pub underlying_sym: Option<String>,
     pub unrealized_pnl: Decimal,
 }
 
