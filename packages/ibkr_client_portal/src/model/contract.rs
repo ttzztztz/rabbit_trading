@@ -729,7 +729,7 @@ pub struct SecurityDefinitionsRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SecurityDefinitionsResponse {
+pub struct SecurityDefinition {
     /// IBKR contract identifier
     #[serde(rename = "conid")]
     pub conid: Option<i64>,
@@ -768,7 +768,7 @@ pub struct SecurityDefinitionsResponse {
     pub desc2: Option<String>,
     /// Format YYYYMMDD, the date on which the underlying transaction settles if the option is exercised
     #[serde(rename = "maturityDate")]
-    pub maturity_date: Option<i64>,
+    pub maturity_date: Option<String>,
     /// Multiplier for total premium paid or received for derivative contract.
     #[serde(rename = "multiplier")]
     pub multiplier: Option<String>,
@@ -779,3 +779,5 @@ pub struct SecurityDefinitionsResponse {
     #[serde(rename = "validExchanges")]
     pub valid_exchanges: Option<String>,
 }
+
+pub type SecurityDefinitionsResponse = Vec<SecurityDefinition>;

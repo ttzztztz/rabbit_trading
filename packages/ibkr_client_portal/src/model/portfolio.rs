@@ -105,4 +105,4 @@ pub struct GetPortfolioPositionByConIdRequest {
     pub conid: i64,
 }
 
-pub type GetPortfolioPositionByConIdResponse = HashMap<String, Position>;
+pub type GetPortfolioPositionByConIdResponse = HashMap<String, Vec<Position>>;

@@ -1,3 +1,4 @@
+use rust_decimal_macros::dec;
 use serial_test::serial;
 
 use crate::{
@@ -6,7 +7,8 @@ use crate::{
         contract::{
             GetContractDetailRequest, GetContractRulesRequest, GetIBAlgorithmParametersRequest,
             GetInfoAndRulesByConIdRequest, GetSecurityDefinitionByConIdRequest,
-            GetSecurityTradingScheduleRequest, GetStocksBySymbolRequest, SearchForSecurityRequest,
+            GetSecurityStrikesRequest, GetSecurityTradingScheduleRequest, GetStocksBySymbolRequest,
+            SearchForSecurityRequest, SecurityDefinitionsRequest,
         },
         definition::AssetClass,
     },
@@ -68,7 +70,41 @@ async fn test_get_contract_detail() {
     assert!(response.valid_exchanges.len() > 0);
 }
 
-// todo: test get_contract_details_of_futures_options_warrants_cash_cfds, get_security_strikes
+#[tokio::test]
+#[serial]
+#[cfg_attr(feature = "ci", ignore)]
+async fn test_get_security_strikes() {
+    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+
+    let response_result = ib_cp_client
+        .get_security_strikes(GetSecurityStrikesRequest {
+            conid: CONTRACT_ID_QQQ,
+            sectype: AssetClass::Option,
+            month: "DEC24".to_owned(),
+            exchange: Option::None,
+        })
+        .await;
+    assert!(response_result.is_ok());
+}
+
+#[tokio::test]
+#[serial]
+#[cfg_attr(feature = "ci", ignore)]
+async fn test_get_contract_details_of_futures_options_warrants_cash_cfds() {
+    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+
+    let response_result = ib_cp_client
+        .get_contract_details_of_futures_options_warrants_cash_cfds(SecurityDefinitionsRequest {
+            underlying_conid: CONTRACT_ID_QQQ,
+            sectype: AssetClass::Option,
+            month: Option::Some("DEC24".to_owned()),
+            exchange: Option::None,
+            strike: Option::Some(dec!(420)),
+            right: Option::Some("C".to_owned()),
+        })
+        .await;
+    assert!(response_result.is_ok());
+}
 
 #[tokio::test]
 #[serial]
