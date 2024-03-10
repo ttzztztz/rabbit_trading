@@ -30,11 +30,15 @@ pub trait TransactionTrait: Send + Sync {
     async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error>;
 
     // <-- Mutate APIs
-    async fn submit_order(&self, request: SubmitOrderRequest)
-        -> Result<SubmitOrderResponse, Error>;
-    async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error>;
-    async fn cancel_order(&self, request: CancelOrderRequest)
-        -> Result<CancelOrderResponse, Error>;
+    async fn submit_order(
+        &mut self,
+        request: SubmitOrderRequest,
+    ) -> Result<SubmitOrderResponse, Error>;
+    async fn edit_order(&mut self, request: EditOrderRequest) -> Result<EditOrderResponse, Error>;
+    async fn cancel_order(
+        &mut self,
+        request: CancelOrderRequest,
+    ) -> Result<CancelOrderResponse, Error>;
 }
 
 #[async_trait]
@@ -229,7 +233,7 @@ impl TransactionTrait for TransactionProxy {
     }
 
     async fn submit_order(
-        &self,
+        &mut self,
         request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
         match self.interceptor.before_submit_order(request).await {
@@ -248,7 +252,7 @@ impl TransactionTrait for TransactionProxy {
         }
     }
 
-    async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
+    async fn edit_order(&mut self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
         match self.interceptor.before_edit_order(request).await {
             Ok(request) => {
                 let instant = Instant::now();
@@ -263,7 +267,7 @@ impl TransactionTrait for TransactionProxy {
     }
 
     async fn cancel_order(
-        &self,
+        &mut self,
         request: CancelOrderRequest,
     ) -> Result<CancelOrderResponse, Error> {
         match self.interceptor.before_cancel_order(request).await {

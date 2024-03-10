@@ -362,7 +362,7 @@ impl TransactionTrait for LongBridgeTransaction {
     }
 
     async fn submit_order(
-        &self,
+        &mut self,
         request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
         self.longbridge_context
@@ -372,7 +372,7 @@ impl TransactionTrait for LongBridgeTransaction {
             .map_err(LongBridgeBroker::to_rabbit_trading_err)
     }
 
-    async fn edit_order(&self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
+    async fn edit_order(&mut self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
         self.longbridge_context
             .replace_order(Self::to_replce_order_options(request))
             .await
@@ -381,7 +381,7 @@ impl TransactionTrait for LongBridgeTransaction {
     }
 
     async fn cancel_order(
-        &self,
+        &mut self,
         request: CancelOrderRequest,
     ) -> Result<CancelOrderResponse, Error> {
         self.longbridge_context

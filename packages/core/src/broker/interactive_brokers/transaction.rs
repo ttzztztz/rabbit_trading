@@ -47,18 +47,18 @@ impl TransactionTrait for InteractiveBrokersTransaction {
     }
 
     async fn submit_order(
-        &self,
+        &mut self,
         _request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
         todo!()
     }
 
-    async fn edit_order(&self, _request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
+    async fn edit_order(&mut self, _request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
         todo!()
     }
 
     async fn cancel_order(
-        &self,
+        &mut self,
         _request: CancelOrderRequest,
     ) -> Result<CancelOrderResponse, Error> {
         todo!()
