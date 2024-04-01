@@ -321,28 +321,28 @@ pub struct OrderDefault {
     pub outside_of_regular_trading_hours: Option<bool>,
     /// Stop Price value
     #[serde(rename = "SP")]
-    pub stop_price_value: Option<Decimal>,
+    pub stop_price_value: Option<String>,
     /// Limit Price value
     #[serde(rename = "LP")]
-    pub limit_price_value: Option<Decimal>,
+    pub limit_price_value: Option<String>,
     /// Price Cap value
     #[serde(rename = "PC")]
-    pub price_cap_value: Option<Decimal>,
+    pub price_cap_value: Option<String>,
     /// Trailing amount value
     #[serde(rename = "TA")]
-    pub trailing_amount_value: Option<Decimal>,
+    pub trailing_amount_value: Option<String>,
     /// Trailing unit
     #[serde(rename = "TU")]
-    pub trailing_unit: Option<Decimal>,
+    pub trailing_unit: Option<String>,
     /// Relative offset amount
     #[serde(rename = "ROA")]
-    pub relative_offset_amount: Option<Decimal>,
+    pub relative_offset_amount: Option<String>,
     /// Relative offset percent
     #[serde(rename = "ROP")]
-    pub relative_offset_percent: Option<Decimal>,
+    pub relative_offset_percent: Option<String>,
     /// Touch trigger price
     #[serde(rename = "TT")]
-    pub touch_trigger_price: Option<Decimal>,
+    pub touch_trigger_price: Option<String>,
     /// Use Net Price for Bonds
     #[serde(rename = "UNP")]
     pub use_net_price_for_bonds: Option<bool>,
