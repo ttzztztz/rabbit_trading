@@ -186,10 +186,10 @@ pub struct GetLiveOrderResponse {
     #[serde(rename = "filters")]
     filters: Option<Vec<String>>,
     #[serde(rename = "orders")]
-    orders: Option<Vec<LiveOrder>>,
+    orders: Vec<LiveOrder>,
     /// If live order update is a snapshot
     #[serde(rename = "snapshot")]
-    snapshot: Option<bool>,
+    snapshot: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -368,7 +368,7 @@ pub struct OrderRequest {
     pub parent_id: Option<String>,
     /// The order-type determines what type of order you want to send.   * LMT - A limit order is an order to buy or sell at the specified price or better.   * MKT - A market order is an order to buy or sell at the markets current NBBO.   * STP - A stop order becomes a market order once the specified stop price is attained or penetrated.   * STOP_LIMIT - A stop limit order becomes a limit order once the specified stop price is attained or penetrated.   * MIDPRICE - A MidPrice order attempts to fill at the current midpoint of the NBBO or better.   * TRAIL - A sell trailing stop order sets the stop price at a fixed amount below the market price with an attached \"trailing\" amount. See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=605   * TRAILLMT - A trailing stop limit order is designed to allow an investor to specify a limit on the maximum possible loss, without setting a limit on the maximum possible gain.     See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=606
     #[serde(rename = "orderType")]
-    pub order_type: Option<String>,
+    pub order_type: String,
     /// listingExchange is optional. By default we use \"SMART\" routing. Possible values are available via the endpoint: /iserver/contract/{conid}/info, see **valid_exchange** e.g: SMART,AMEX,NYSE,CBOE,ISE,CHX,ARCA,ISLAND,DRCTEDGE,BEX,BATS,EDGEA,CSFBALGO,JE FFALGO,BYX,IEX,FOXRIVER,TPLUS1,NYSENAT,PSX
     #[serde(rename = "listingExchange")]
     pub listing_exchange: Option<String>,
@@ -377,7 +377,7 @@ pub struct OrderRequest {
     pub is_single_group: Option<bool>,
     /// set to true if the order can be executed outside regular trading hours.
     #[serde(rename = "outsideRTH")]
-    pub outside_regular_trading_hours: Option<bool>,
+    pub outside_regular_trading_hours: bool,
     /// optional if order is LMT, or STOP_LIMIT, this is the limit price. For STP|TRAIL this is the stop price. For MIDPRICE this is the option price cap.
     #[serde(rename = "price")]
     pub price: Option<Decimal>,
@@ -386,13 +386,13 @@ pub struct OrderRequest {
     pub aux_price: Option<Value>,
     /// SELL or BUY
     #[serde(rename = "side")]
-    pub side: Option<String>,
+    pub side: String,
     /// This is the  underlying symbol for the contract.
     #[serde(rename = "ticker")]
     pub ticker: Option<String>,
     /// The Time-In-Force determines how long the order remains active on the market.   * GTC - use Good-Till-Cancel for orders to remain active until it executes or cancelled.   * OPG - use Open-Price-Guarantee for Limit-On-Open (LOO) or Market-On-Open (MOO) orders.   * DAY - if not executed a Day order will automatically cancel at the end of the markets regular trading hours.   * IOC - any portion of an Immediate-or-Cancel order that is not filled as soon as it becomes available in the market is cancelled.
     #[serde(rename = "tif")]
-    pub time_in_force: Option<String>,
+    pub time_in_force: String,
     /// optional if order is TRAIL, or TRAILLMT. When trailingType is amt, this is the trailing amount, when trailingType is %, it means percentage. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
     #[serde(rename = "trailingAmt")]
     pub trailing_amount: Option<Decimal>,
@@ -435,7 +435,7 @@ pub struct PreviewOrderRequest {
 
     /// Notes for bracket orders: 1. Children orders will not have its own \"cOID\", so please donot pass \"cOID\" parameter in child order.Instead, they will have a \"parentId\" which must be equal to \"cOID\" of parent. 2. When you cancel a parent order, it will cancel all bracket orders, when you cancel one child order, it will also cancel its sibling order.
     #[serde(rename = "orders")]
-    pub orders: Option<Vec<OrderRequest>>,
+    pub orders: Vec<OrderRequest>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -496,7 +496,7 @@ pub struct PlaceOrdersRequest {
     pub account_id: String,
     /// Notes for bracket orders: 1. Children orders will not have its own \"cOID\", so please donot pass \"cOID\" parameter in child order.Instead, they will have a \"parentId\" which must be equal to \"cOID\" of parent. 2. When you cancel a parent order, it will cancel all bracket orders, when you cancel one child order, it will also cancel its sibling order.
     #[serde(rename = "orders")]
-    pub orders: Option<Vec<OrderRequest>>,
+    pub orders: Vec<OrderRequest>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
