@@ -47,3 +47,12 @@ async fn test_reauthenticate() {
     let response_result = ib_cp_client.reauthenticate().await;
     assert!(response_result.is_ok());
 }
+
+#[tokio::test]
+#[serial]
+#[cfg_attr(feature = "ci", ignore)]
+async fn test_init_broker_account() {
+    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let response_result = ib_cp_client.init_broker_account().await;
+    assert!(response_result.is_ok());
+}
