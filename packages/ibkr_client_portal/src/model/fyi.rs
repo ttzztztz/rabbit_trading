@@ -154,11 +154,11 @@ pub struct ToggleFYIDeliveryOptionsForEmailRequest {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ToggleFYIDeliveryOptionsForDeviceRequest {
-    #[serde(rename = "devicename")]
+    #[serde(rename = "devicename", skip_serializing_if = "Option::is_none")]
     pub device_name: Option<String>,
-    #[serde(rename = "deviceId")]
+    #[serde(rename = "deviceId", skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
-    #[serde(rename = "uiName")]
+    #[serde(rename = "uiName", skip_serializing_if = "Option::is_none")]
     pub ui_name: Option<String>,
     #[serde(rename = "enabled")]
     pub enabled: bool,

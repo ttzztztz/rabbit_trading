@@ -75,24 +75,24 @@ pub struct ScannerResultContract {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HmdsScannerFilter {
-    #[serde(rename = "code")]
+    #[serde(rename = "code", skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     /// Value can be either an integer, double, boolean or a string depending upon the type of filter specified in the code section
-    #[serde(rename = "value")]
+    #[serde(rename = "value", skip_serializing_if = "Option::is_none")]
     pub value: Option<Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RunScannerBetaRequest {
-    #[serde(rename = "instrument")]
+    #[serde(rename = "instrument", skip_serializing_if = "Option::is_none")]
     pub instrument: Option<String>,
-    #[serde(rename = "locations")]
+    #[serde(rename = "locations", skip_serializing_if = "Option::is_none")]
     pub locations: Option<String>,
-    #[serde(rename = "scanCode")]
+    #[serde(rename = "scanCode", skip_serializing_if = "Option::is_none")]
     pub scan_code: Option<String>,
-    #[serde(rename = "secType")]
+    #[serde(rename = "secType", skip_serializing_if = "Option::is_none")]
     pub sec_type: Option<String>,
-    #[serde(rename = "filters")]
+    #[serde(rename = "filters", skip_serializing_if = "Option::is_none")]
     pub filters: Option<Vec<HmdsScannerFilter>>,
 }
 
@@ -156,24 +156,24 @@ pub struct ScannerRunResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScannerFilter {
-    #[serde(rename = "code")]
+    #[serde(rename = "code", skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
-    #[serde(rename = "value")]
+    #[serde(rename = "value", skip_serializing_if = "Option::is_none")]
     pub value: Option<Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScannerRunRequest {
     /// Contains an instrument, which to scan for. For example - \"STK\"
-    #[serde(rename = "instrument")]
+    #[serde(rename = "instrument", skip_serializing_if = "Option::is_none")]
     pub instrument: Option<String>,
     /// Specify the scan type to use. For example - \"MOST_ACTIVE_USD\"
-    #[serde(rename = "type")]
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
     pub _type: Option<String>,
     /// Contains location code, where to look for specified instrument. For example - \"STK.US.MAJOR\"
-    #[serde(rename = "location")]
+    #[serde(rename = "location", skip_serializing_if = "Option::is_none")]
     pub location: Option<String>,
     /// Contains list of filters supported for the scanner
-    #[serde(rename = "filter")]
+    #[serde(rename = "filter", skip_serializing_if = "Option::is_none")]
     pub filter: Option<Vec<ScannerFilter>>,
 }

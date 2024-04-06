@@ -79,10 +79,10 @@ pub struct GetPortfolioPerformanceResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetPortfolioPerformanceRequest {
-    #[serde(rename = "acctIds")]
+    #[serde(rename = "acctIds", skip_serializing_if = "Option::is_none")]
     pub account_id_list: Option<Vec<String>>,
     /// Frequency of cumulative performance data points: 'D'aily, 'M'onthly,'Q'uarterly.
-    #[serde(rename = "freq")]
+    #[serde(rename = "freq", skip_serializing_if = "Option::is_none")]
     pub freq: Option<String>,
 }
 
@@ -93,10 +93,10 @@ pub struct GetPortfolioTransactionsRequest {
     #[serde(rename = "conids")]
     pub conid_list: Vec<i64>,
     /// optional defaults to USD.
-    #[serde(rename = "currency")]
+    #[serde(rename = "currency", skip_serializing_if = "Option::is_none")]
     pub currency: Option<String>,
     /// optional, default value is 90
-    #[serde(rename = "days")]
+    #[serde(rename = "days", skip_serializing_if = "Option::is_none")]
     pub days: Option<i64>,
 }
 

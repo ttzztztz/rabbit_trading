@@ -189,25 +189,25 @@ pub struct TogglerAlertActivationResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpsertAlertCondition {
     /// Types: 1-Price, 3-Time, 4-Margin, 5-Trade, 6-Volume, 7: MTA market 8: MTA Position, 9: MTA Acc. Daily PN&
-    #[serde(rename = "type")]
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
     pub _type: Option<i32>,
     /// conid and exchange. Format supports conid or conid@exchange
-    #[serde(rename = "conidex")]
+    #[serde(rename = "conidex", skip_serializing_if = "Option::is_none")]
     pub conidex: Option<String>,
     /// optional, operator for the current condition, can be >= or <=
-    #[serde(rename = "operator")]
+    #[serde(rename = "operator", skip_serializing_if = "Option::is_none")]
     pub operator: Option<String>,
     /// optional, only some type of conditions have triggerMethod
-    #[serde(rename = "triggerMethod")]
+    #[serde(rename = "triggerMethod", skip_serializing_if = "Option::is_none")]
     pub trigger_method: Option<String>,
     /// can not be empty, can pass default value \"*\"
-    #[serde(rename = "value")]
+    #[serde(rename = "value", skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
     /// \"a\" means \"AND\", \"o\" means \"OR\", \"n\" means \"END\", the last one condition in the condition array should \"n\"
-    #[serde(rename = "logicBind")]
+    #[serde(rename = "logicBind", skip_serializing_if = "Option::is_none")]
     pub logic_bind: Option<String>,
     /// only needed for some MTA alert condition
-    #[serde(rename = "timeZone")]
+    #[serde(rename = "timeZone", skip_serializing_if = "Option::is_none")]
     pub time_zone: Option<String>,
 }
 
@@ -216,45 +216,45 @@ pub struct UpsertAlertRequest {
     #[serde(skip)]
     pub account_id: String,
     /// orderId is required when modifying alert. You can get it from /iserver/account/:accountId/alerts
-    #[serde(rename = "orderId")]
+    #[serde(rename = "orderId", skip_serializing_if = "Option::is_none")]
     pub order_id: Option<i64>,
     /// name of alert
-    #[serde(rename = "alertName")]
+    #[serde(rename = "alertName", skip_serializing_if = "Option::is_none")]
     pub alert_name: Option<String>,
     /// The message you want to receive via email or text message
-    #[serde(rename = "alertMessage")]
+    #[serde(rename = "alertMessage", skip_serializing_if = "Option::is_none")]
     pub alert_message: Option<String>,
     /// whether alert is repeatable or not, so value can only be 0 or 1, this has to be 1 for MTA alert
-    #[serde(rename = "alertRepeatable")]
+    #[serde(rename = "alertRepeatable", skip_serializing_if = "Option::is_none")]
     pub alert_repeatable: Option<i32>,
     /// email address to receive alert
-    #[serde(rename = "email")]
+    #[serde(rename = "email", skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     /// whether allowing to send email or not, so value can only be 0 or 1,
-    #[serde(rename = "sendMessage")]
+    #[serde(rename = "sendMessage", skip_serializing_if = "Option::is_none")]
     pub send_message: Option<i32>,
     /// time in force, can only be GTC or GTD
-    #[serde(rename = "tif")]
+    #[serde(rename = "tif", skip_serializing_if = "Option::is_none")]
     pub time_in_force: Option<String>,
     /// format, YYYYMMDD-HH:mm:ss, please NOTE this will only work when tif is GTD
-    #[serde(rename = "expireTime")]
+    #[serde(rename = "expireTime", skip_serializing_if = "Option::is_none")]
     pub expire_time: Option<String>,
     /// value can only be 0 or 1, set to 1 if the alert can be triggered outside regular trading hours.
-    #[serde(rename = "outsideRth")]
+    #[serde(rename = "outsideRth", skip_serializing_if = "Option::is_none")]
     pub outside_regular_trading_hours: Option<i32>,
     /// value can only be 0 or 1, set to 1 to enable the alert only in IBKR mobile
-    #[serde(rename = "iTWSOrdersOnly")]
+    #[serde(rename = "iTWSOrdersOnly", skip_serializing_if = "Option::is_none")]
     pub i_tws_orders_only: Option<i32>,
     /// value can only be 0 or 1, set to 1 to allow to show alert in pop-ups
-    #[serde(rename = "showPopup")]
+    #[serde(rename = "showPopup", skip_serializing_if = "Option::is_none")]
     pub show_popup: Option<i32>,
     /// for MTA alert only, each user has a unique toolId and it will stay the same, do not send for normal alert
-    #[serde(rename = "toolId")]
+    #[serde(rename = "toolId", skip_serializing_if = "Option::is_none")]
     pub tool_id: Option<i64>,
     /// audio message to play when alert is triggered
-    #[serde(rename = "playAudio")]
+    #[serde(rename = "playAudio", skip_serializing_if = "Option::is_none")]
     pub play_audio: Option<String>,
-    #[serde(rename = "conditions")]
+    #[serde(rename = "conditions", skip_serializing_if = "Option::is_none")]
     pub conditions: Option<Vec<UpsertAlertCondition>>,
 }
 
