@@ -3,14 +3,18 @@ use serial_test::serial;
 
 use crate::{
     client::IBClientPortal,
-    model::order::{OrderRequest, PlaceOrdersRequest, PreviewOrderRequest},
-    test::utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
+    model::order::{OrderRequest, PreviewOrderRequest},
+    test::{
+        session::once_init_brokerage_session,
+        utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
+    },
 };
 
 #[tokio::test]
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_live_orders() {
+    once_init_brokerage_session().await;
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client.get_live_orders().await;
     assert!(response_result.is_ok());
@@ -20,6 +24,7 @@ async fn test_get_live_orders() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_preview_order() {
+    once_init_brokerage_session().await;
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
         .preview_order(PreviewOrderRequest {

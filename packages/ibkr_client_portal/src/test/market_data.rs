@@ -13,13 +13,17 @@ use crate::{
             GetMarketDataSnapshotRequest,
         },
     },
-    test::utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
+    test::{
+        session::once_init_brokerage_session,
+        utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
+    },
 };
 
 #[tokio::test]
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_market_data() {
+    once_init_brokerage_session().await;
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let request = GetMarketDataRequest {
         conid_list: vec![CONTRACT_ID_AAPL],
@@ -73,6 +77,7 @@ async fn test_get_market_data() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_market_data_history() {
+    once_init_brokerage_session().await;
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
         .get_market_data_history(GetMarketDataHistoryRequest {
@@ -97,6 +102,7 @@ async fn test_get_market_data_history() {
 #[serial]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_get_market_data_history_beta() {
+    once_init_brokerage_session().await;
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
         .get_market_data_history_beta(GetMarketDataHistoryBetaRequest {
@@ -114,6 +120,7 @@ async fn test_get_market_data_history_beta() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_market_data_snapshot_beta() {
+    once_init_brokerage_session().await;
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
     let response_result = ib_cp_client
         .get_market_data_snapshot_beta(GetMarketDataSnapshotRequest {

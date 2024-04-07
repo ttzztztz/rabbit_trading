@@ -36,7 +36,7 @@ impl IBClientPortal {
 
     ///  After retrieving the access token and subsequent Live Session Token, customers can initialize their brokerage session with the ssodh/init endpoint.
     /// NOTE: This is essential for using all /iserver endpoints, including access to trading and market data,
-    pub async fn init_broker_account(&self) -> Result<AuthStatus, Error> {
+    pub async fn init_brokerage_session(&self) -> Result<AuthStatus, Error> {
         let response = self
             .client
             .post(self.get_url("/iserver/auth/ssodh/init"))

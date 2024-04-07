@@ -1,7 +1,10 @@
+use async_once::AsyncOnce;
+use lazy_static::lazy_static;
 use serial_test::serial;
 
 use crate::{
     client::IBClientPortal,
+    model::session::AuthStatus,
     test::utils::{get_test_account, TEST_HOST},
 };
 
@@ -51,8 +54,20 @@ async fn test_reauthenticate() {
 #[tokio::test]
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
-async fn test_init_broker_account() {
+async fn test_init_brokerage_session() {
     let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
-    let response_result = ib_cp_client.init_broker_account().await;
+    let response_result = ib_cp_client.init_brokerage_session().await;
     assert!(response_result.is_ok());
+}
+
+lazy_static! {
+    static ref ONCE_INIT_BROKAGE_SESSION: AsyncOnce<Result<AuthStatus, reqwest::Error>> =
+        AsyncOnce::new(async {
+            let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+            ib_cp_client.init_brokerage_session().await
+        });
+}
+
+pub async fn once_init_brokerage_session() {
+    ONCE_INIT_BROKAGE_SESSION.get().await;
 }

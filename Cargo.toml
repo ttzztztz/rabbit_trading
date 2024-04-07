@@ -7,12 +7,14 @@ members = [
 ]
 
 [workspace.dependencies]
+async_once = "0.2.6"
 async-trait = "0.1.79"
 axum = "0.7.5"
 axum-macros = "0.4.1"
 dogstatsd = "0.11.1"
 dotenv = "0.15.0"
 futures-util = "0.3.30"
+lazy_static = "1.4.0"
 log = "0.4.21"
 longbridge = "0.2.77"
 reqwest = "0.12.3"
