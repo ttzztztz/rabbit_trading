@@ -15,6 +15,7 @@ pub enum SubscriptionType {
     ProfitLoss,
 }
 
+#[deprecated]
 pub struct Subscription {
     pub sub_type: SubscriptionType,
     pub exchange: Option<String>,

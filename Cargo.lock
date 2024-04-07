@@ -945,7 +945,7 @@ dependencies = [
 
 [[package]]
 name = "ibkr_client_portal"
-version = "0.0.8"
+version = "0.1.0"
 dependencies = [
  "async-trait",
  "async_once",

@@ -5,34 +5,14 @@ use futures_util::{
     SinkExt, StreamExt,
 };
 use serde_json::json;
+use std::cell::RefCell;
 use tokio::net::TcpStream;
 use tokio_tungstenite::{
     tungstenite::{Error, Message},
     MaybeTlsStream, WebSocketStream,
 };
 
-use crate::{client::IBClientPortal, model::streaming::Subscription};
-
-pub type WriteWs = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
-pub type ReadWs = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
-
-//https://interactivebrokers.github.io/cpwebapi/websockets
-pub async fn listen(reader: &mut ReadWs, on_message: fn(String) -> ()) -> Result<(), Error> {
-    while let Some(msg) = reader.next().await {
-        on_message(msg?.into_text()?);
-    }
-    Ok(())
-}
-
-/// Send the required message every 58 seconds to keep the connection alive
-/// https://interactivebrokers.github.io/cpwebapi/websockets#echo
-pub async fn keep_alive(mut writer: WriteWs) -> Result<(), Error> {
-    let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(58));
-    loop {
-        interval.tick().await;
-        writer.send(Message::Text("tic".to_owned())).await?;
-    }
-}
+use crate::client::IBClientPortal;
 
 impl IBClientPortal {
     fn get_ws_url(&self) -> String {
@@ -40,28 +20,85 @@ impl IBClientPortal {
         format!("{protocol}://{}/v1/api/ws", self.host)
     }
 
-    fn ws_auth_msg(&self, session: String) -> String {
-        json!({ "session": session }).to_string()
+    async fn send_auth_message(&self, sender: &IBStreamingSender) -> Result<(), Error> {
+        let session = self.tickle().await.unwrap().session; // todo: eliminate "unwrap" here
+        let message = Message::Text(json!({ "session": session }).to_string());
+        sender.send_raw_data(message).await
     }
 
     pub async fn connect_to_websocket(
         &self,
-        subscriptions: Vec<Subscription>,
-        on_message: fn(String) -> (),
-    ) -> Result<(), Error> {
+    ) -> Result<(IBStreamingSender, IBStreamingReceiver), Error> {
         let url = self.get_ws_url();
         let (ws_stream, _) = tokio_tungstenite::connect_async(url).await?;
-        let (mut ws_out, mut ws_in) = ws_stream.split();
+        let (ws_out, ws_in) = ws_stream.split();
 
-        let session = self.tickle().await.unwrap().session; // todo: eliminate "unwrap" here
-        let auth_message = self.ws_auth_msg(session).to_owned();
-        ws_out.send(Message::Text(auth_message)).await?;
+        let sender = IBStreamingSender::new(ws_out);
+        let receiver = IBStreamingReceiver::new(ws_in);
 
-        for sub in subscriptions {
-            let message = sub.build();
-            ws_out.send(Message::Text(message)).await?;
+        self.send_auth_message(&sender).await?;
+        Ok((sender, receiver))
+    }
+}
+
+pub struct IBStreamingReceiver {
+    stream: RefCell<SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>>,
+}
+
+impl IBStreamingReceiver {
+    pub fn new(stream: SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>) -> Self
+    where
+        Self: Sized,
+    {
+        IBStreamingReceiver {
+            stream: RefCell::new(stream),
         }
-        tokio::try_join!(listen(&mut ws_in, on_message), keep_alive(ws_out))?;
-        Ok(())
+    }
+
+    pub async fn receive_raw_data(&self) -> Result<Message, Error> {
+        let mut in_stream = self.stream.borrow_mut();
+        if let Some(message) = in_stream.next().await {
+            return message;
+        }
+        Result::Err(Error::AlreadyClosed)
+    }
+}
+
+pub struct IBStreamingSender {
+    stream: RefCell<SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>>,
+}
+
+impl IBStreamingSender {
+    pub fn new(stream: SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>) -> Self
+    where
+        Self: Sized,
+    {
+        IBStreamingSender {
+            stream: RefCell::new(stream),
+        }
+    }
+
+    pub async fn send_raw_data(&self, message: Message) -> Result<(), Error> {
+        // todo: err type convert
+        let mut out_stream = self.stream.borrow_mut();
+        out_stream.send(message).await?;
+        Result::Ok(())
+    }
+
+    pub async fn close(&self) -> Result<(), Error> {
+        let mut out_stream = self.stream.borrow_mut();
+        out_stream.close().await
+    }
+
+    pub async fn send_keep_alive_message(&self) -> Result<(), Error> {
+        self.send_raw_data(Message::Text("tic".to_owned())).await
+    }
+
+    pub async fn run_keep_alive_loop(&self) -> Result<(), Error> {
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(58));
+        loop {
+            interval.tick().await;
+            self.send_keep_alive_message().await?;
+        }
     }
 }
