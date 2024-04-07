@@ -1,6 +1,6 @@
 [package]
 name = "ibkr_client_portal"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2021"
 description = "Unofficial API Client implement for Interactive brokers (IBKR) Client Portal."
 repository = "https://github.com/ttzztztz/rabbit_trading"
@@ -17,7 +17,6 @@ rust_decimal_macros = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_repr = { workspace = true }
 serde_json = { workspace = true }
-time = { workspace = true, features = ["parsing", "macros", "formatting", "serde"] }
 tokio = { workspace = true, features = ["full"] }
 tokio-tungstenite = { workspace = true }
 
@@ -26,5 +25,7 @@ dotenv = { workspace = true }
 serial_test = { workspace = true }
 
 [features]
+full = ["streaming"]
 ci = []
 flaky_test_cases = []
+streaming = []

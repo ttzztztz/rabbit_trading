@@ -2,7 +2,6 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-use time::OffsetDateTime;
 
 use super::definition::TickType;
 
@@ -22,7 +21,7 @@ pub type GetMarketDataResponse = Vec<HashMap<String, Value>>;
 pub struct MarketHistoryBarData {
     /// Time - Formatted in unix time in ms.
     #[serde(rename = "t")]
-    pub time: Option<String>,
+    pub time: Option<i64>,
     /// Open - First price returned for bar value.
     #[serde(rename = "o")]
     pub open: Option<Decimal>,
@@ -37,7 +36,7 @@ pub struct MarketHistoryBarData {
     pub low: Option<Decimal>,
     /// Volume - Traded volume for bar value.
     #[serde(rename = "v")]
-    pub volume: Option<String>,
+    pub volume: Option<Decimal>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -54,7 +53,7 @@ pub struct MarketDataHistory {
     pub price_factor: Option<Decimal>,
     /// start date time in the format YYYYMMDD-HH:mm:ss
     #[serde(rename = "startTime")]
-    pub start_time: Option<OffsetDateTime>,
+    pub start_time: Option<String>,
     /// High value during this time series with format %h/%v/%t. %h is the high price (scaled by priceFactor), %v is volume (volume factor will always be 100 (reported volume = actual volume/100)) and %t is minutes from start time of the chart
     #[serde(rename = "high")]
     pub high: Option<String>,
@@ -98,33 +97,6 @@ pub struct MarketDataHistory {
     pub travel_time: Option<i32>,
 }
 
-mod parse_datetime {
-    use serde::{self, Deserialize, Deserializer, Serializer};
-    use time::{macros::format_description, OffsetDateTime};
-
-    pub fn serialize<S>(date_time: &OffsetDateTime, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let format_description =
-            format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
-        let s = date_time
-            .format(format_description)
-            .map_err(serde::ser::Error::custom)?;
-        serializer.serialize_str(&s)
-    }
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<OffsetDateTime, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let format_description =
-            format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
-        let s = String::deserialize(deserializer)?.to_string();
-        OffsetDateTime::parse(&s, format_description).map_err(serde::de::Error::custom)
-    }
-}
-
 pub struct GetMarketDataHistoryRequest {
     /// contract id
     pub conid: i64,
@@ -136,7 +108,7 @@ pub struct GetMarketDataHistoryRequest {
     pub bar: Option<String>,
     /// For contracts that support it, will determine if historical data includes outside of regular trading hours.
     pub outside_regular_trading_hours: Option<bool>,
-    pub start_time: Option<OffsetDateTime>,
+    pub start_time: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

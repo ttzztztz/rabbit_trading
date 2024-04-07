@@ -11,4 +11,6 @@ pub mod portfolio;
 pub mod portfolio_analyst;
 pub mod scanner;
 pub mod session;
+
+#[cfg(feature = "streaming")]
 pub mod streaming;

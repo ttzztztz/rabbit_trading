@@ -1,7 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Market-Data
 
 use reqwest::Error;
-use time::macros::format_description;
 
 use crate::{
     client::IBClientPortal,
@@ -62,16 +61,8 @@ impl IBClientPortal {
         &self,
         request: GetMarketDataHistoryRequest,
     ) -> Result<MarketDataHistory, Error> {
-        let format_description =
-            format_description!("[year][month][day]-[offset_hour]:[offset_minute]:[offset_second]");
         let path = "/iserver/marketdata/history";
-        let start_time_str = match request.start_time {
-            Some(start_time) => start_time
-                .format(format_description)
-                .unwrap() // todo: eliminate this unwrap
-                .to_string(),
-            None => "".to_string(),
-        };
+        let start_time_str = request.start_time.unwrap_or("".to_owned());
 
         let response = self
             .client

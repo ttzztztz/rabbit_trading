@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 async-trait = { workspace = true }
 dogstatsd = { workspace = true }
-ibkr_client_portal = { path = "../ibkr_client_portal" }
+ibkr_client_portal = { path = "../ibkr_client_portal", features = ["full"] }
 log = { workspace = true }
 longbridge = { workspace = true }
 reqwest = { workspace = true, features = ["json"] }

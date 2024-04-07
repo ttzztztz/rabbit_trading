@@ -8,5 +8,7 @@ pub mod portfolio;
 pub mod portfolio_analyst;
 pub mod scanner;
 pub mod session;
-pub mod streaming;
 pub mod utils;
+
+#[cfg(feature = "streaming")]
+pub mod streaming;

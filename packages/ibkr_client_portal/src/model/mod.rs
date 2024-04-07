@@ -10,4 +10,6 @@ pub mod portfolio_analyst;
 pub mod portfolio;
 pub mod scanner;
 pub mod session;
-pub mod web_socket;
+
+#[cfg(feature = "streaming")]
+pub mod streaming;

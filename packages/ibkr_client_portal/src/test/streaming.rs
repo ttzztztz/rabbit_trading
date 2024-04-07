@@ -6,7 +6,7 @@ use crate::{
     client::IBClientPortal,
     model::{
         definition::TickType,
-        web_socket::{Subscription, SubscriptionType},
+        streaming::{Subscription, SubscriptionType},
     },
 };
 

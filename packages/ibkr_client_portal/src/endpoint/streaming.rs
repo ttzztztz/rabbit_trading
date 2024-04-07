@@ -11,7 +11,7 @@ use tokio_tungstenite::{
     MaybeTlsStream, WebSocketStream,
 };
 
-use crate::{client::IBClientPortal, model::web_socket::Subscription};
+use crate::{client::IBClientPortal, model::streaming::Subscription};
 
 pub type WriteWs = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
 pub type ReadWs = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
