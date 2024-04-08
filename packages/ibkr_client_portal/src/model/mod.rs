@@ -8,6 +8,7 @@ pub mod ccp;
 pub mod contract;
 #[doc(hidden)]
 pub mod definition;
+pub mod error;
 #[doc(hidden)]
 pub mod fyi;
 #[doc(hidden)]
