@@ -1,7 +1,6 @@
 pub enum StreamingError {
     RequestError(reqwest::Error),
     WebSocketError(tokio_tungstenite::tungstenite::Error),
-    ParseError(serde_json::Error),
     OtherError(String),
 }
 

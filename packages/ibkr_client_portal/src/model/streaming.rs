@@ -21,12 +21,28 @@ impl StreamingDataRequest {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-#[serde(tag = "topic", content = "args")]
+#[serde(untagged)]
 pub enum StreamingDataResponse {
     #[serde(rename = "blt")]
-    Bulletins(BulletinsResponse),
+    Bulletins(TopicArgsResponse<BulletinsResponse>),
     #[serde(rename = "ntf")]
-    Notifications(NotificationsResponse),
+    Notifications(TopicArgsResponse<NotificationsResponse>),
+
+    #[serde(skip_serializing)]
+    Unknown(String),
+}
+
+impl StreamingDataResponse {
+    pub fn from_str(str: &str) -> StreamingDataResponse {
+        serde_json::from_str::<StreamingDataResponse>(&str)
+            .unwrap_or(StreamingDataResponse::Unknown(str.to_string()))
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct TopicArgsResponse<T> {
+    pub topic: String,
+    pub args: T,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]

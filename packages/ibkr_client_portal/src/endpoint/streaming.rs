@@ -81,8 +81,7 @@ impl IBStreamingReceiver {
         const ILLEGAL_MESSAGE_TYPE: &'static str = "illegal message type";
 
         match self.receive_raw_data().await? {
-            Message::Text(str) => serde_json::from_str::<StreamingDataResponse>(&str)
-                .map_err(|e| StreamingError::ParseError(e)),
+            Message::Text(str) => Result::Ok(StreamingDataResponse::from_str(str.as_str())),
             _ => Result::Err(StreamingError::OtherError(ILLEGAL_MESSAGE_TYPE.to_owned())),
         }
     }

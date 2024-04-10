@@ -3,6 +3,7 @@ use tokio_tungstenite::tungstenite::Message;
 
 use crate::model::streaming::{
     BulletinsResponse, NotificationsResponse, StreamingDataRequest, StreamingDataResponse,
+    TopicArgsResponse,
 };
 
 #[tokio::test]
@@ -61,26 +62,36 @@ fn test_stream_data_request_to_message() {
 #[test]
 fn parse_stream_data_response_serde_parse() {
     assert_eq!(
-        StreamingDataResponse::Bulletins(BulletinsResponse {
-            id: "id".to_owned(),
-            message: "message".to_owned()
+        StreamingDataResponse::Bulletins(TopicArgsResponse {
+            topic: "blt".to_owned(),
+            args: BulletinsResponse {
+                id: "id".to_owned(),
+                message: "message".to_owned()
+            }
         }),
-        serde_json::from_str::<StreamingDataResponse>(
+        StreamingDataResponse::from_str(
             r#"{"topic":"blt","args":{"id":"id","message":"message"}}"#
         )
-        .unwrap()
     );
 
     assert_eq!(
-        StreamingDataResponse::Notifications(NotificationsResponse {
-            id: "id".to_owned(),
-            text: "text".to_owned(),
-            title: Option::Some("title".to_owned()),
-            url: Option::Some("url".to_owned()),
+        StreamingDataResponse::Notifications(TopicArgsResponse {
+            topic: "ntf".to_owned(),
+            args: NotificationsResponse {
+                id: "id".to_owned(),
+                text: "text".to_owned(),
+                title: Option::Some("title".to_owned()),
+                url: Option::Some("url".to_owned()),
+            }
         }),
-        serde_json::from_str::<StreamingDataResponse>(
+        StreamingDataResponse::from_str(
             r#"{"topic":"ntf","args":{"id":"id","text":"text","title":"title","url":"url"}}"#
         )
-        .unwrap()
+    );
+
+    const UNKNOWN_STR: &'static str = r#"{"unknown":"unknown"}"#;
+    assert_eq!(
+        StreamingDataResponse::Unknown(UNKNOWN_STR.to_owned()),
+        StreamingDataResponse::from_str(UNKNOWN_STR)
     );
 }
