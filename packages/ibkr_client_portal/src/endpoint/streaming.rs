@@ -11,9 +11,12 @@ use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
 use crate::{
     client::IBClientPortal,
-    model::error::{
-        reqwest_error_to_streaming_error, tokio_tungstenite_error_to_streaming_error,
-        StreamingError,
+    model::{
+        error::{
+            reqwest_error_to_streaming_error, tokio_tungstenite_error_to_streaming_error,
+            StreamingError,
+        },
+        streaming::{StreamingDataRequest, StreamingDataResponse},
     },
 };
 
@@ -73,6 +76,16 @@ impl IBStreamingReceiver {
         }
         Result::Err(StreamingError::OtherError(STREAM_ENDED_MESSAGE.to_owned()))
     }
+
+    pub async fn receive(&self) -> Result<StreamingDataResponse, StreamingError> {
+        const ILLEGAL_MESSAGE_TYPE: &'static str = "illegal message type";
+
+        match self.receive_raw_data().await? {
+            Message::Text(str) => serde_json::from_str::<StreamingDataResponse>(&str)
+                .map_err(|e| StreamingError::ParseError(e)),
+            _ => Result::Err(StreamingError::OtherError(ILLEGAL_MESSAGE_TYPE.to_owned())),
+        }
+    }
 }
 
 pub struct IBStreamingSender {
@@ -96,6 +109,13 @@ impl IBStreamingSender {
             .await
             .map_err(tokio_tungstenite_error_to_streaming_error)?;
         Result::Ok(())
+    }
+
+    pub async fn send_streaming_data_request(
+        &self,
+        request: StreamingDataRequest,
+    ) -> Result<(), StreamingError> {
+        self.send_raw_data(request.to_message()).await
     }
 
     pub async fn close(&self) -> Result<(), StreamingError> {
