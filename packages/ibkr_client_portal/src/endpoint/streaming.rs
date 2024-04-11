@@ -16,7 +16,7 @@ use crate::{
             reqwest_error_to_streaming_error, tokio_tungstenite_error_to_streaming_error,
             StreamingError,
         },
-        streaming::{StreamingDataRequest, StreamingDataResponse},
+        streaming::{StreamingDataResponse, StreamingDataStructuredRequest},
     },
 };
 
@@ -110,11 +110,11 @@ impl IBStreamingSender {
         Result::Ok(())
     }
 
-    pub async fn send_streaming_data_request(
+    pub async fn send_streaming_structured_data_request(
         &self,
-        request: StreamingDataRequest,
+        structured_request: StreamingDataStructuredRequest,
     ) -> Result<(), StreamingError> {
-        self.send_raw_data(request.to_message()).await
+        self.send_raw_data(structured_request.to_message()).await
     }
 
     pub async fn close(&self) -> Result<(), StreamingError> {

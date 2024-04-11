@@ -2,8 +2,8 @@ use serial_test::serial;
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::model::streaming::{
-    BulletinsResponse, NotificationsResponse, StreamingDataRequest, StreamingDataResponse,
-    TopicArgsResponse,
+    BulletinsResponse, NotificationsResponse, StreamingDataResponse,
+    StreamingDataStructuredRequest, TopicArgsResponse,
 };
 
 #[tokio::test]
@@ -17,7 +17,7 @@ async fn test_connect_to_websocket() {
 fn test_stream_data_request_to_message() {
     let body_str_1: &'static str =
         r#"{"keys":["AccruedCash-S","ExcessLiquidity-S"],"fields":["currency","monetaryValue"]}"#;
-    let stream_data_reqeust_1 = StreamingDataRequest {
+    let stream_data_reqeust_1 = StreamingDataStructuredRequest {
         topic: "ssd".to_owned(),
         arguments: Option::Some(vec!["DU1234567".to_owned()]),
         body: Option::Some(body_str_1.to_owned()),
@@ -28,7 +28,7 @@ fn test_stream_data_request_to_message() {
     );
 
     let body_str_2: &'static str = "{}";
-    let stream_data_reqeust_2 = StreamingDataRequest {
+    let stream_data_reqeust_2 = StreamingDataStructuredRequest {
         topic: "usd".to_owned(),
         arguments: Option::Some(vec!["DU1234567".to_owned()]),
         body: Option::Some(body_str_2.to_owned()),
@@ -38,7 +38,7 @@ fn test_stream_data_request_to_message() {
         stream_data_reqeust_2.to_message()
     );
 
-    let stream_data_reqeust_3 = StreamingDataRequest {
+    let stream_data_reqeust_3 = StreamingDataStructuredRequest {
         topic: "umh".to_owned(),
         arguments: Option::Some(vec!["12345".to_owned()]),
         body: Option::None,
@@ -48,7 +48,7 @@ fn test_stream_data_request_to_message() {
         stream_data_reqeust_3.to_message()
     );
 
-    let stream_data_reqeust_4 = StreamingDataRequest {
+    let stream_data_reqeust_4 = StreamingDataStructuredRequest {
         topic: "tic".to_owned(),
         arguments: Option::None,
         body: Option::None,
@@ -56,6 +56,16 @@ fn test_stream_data_request_to_message() {
     assert_eq!(
         Message::Text("tic".to_owned()),
         stream_data_reqeust_4.to_message()
+    );
+
+    let stream_data_reqeust_5 = StreamingDataStructuredRequest {
+        topic: "upl".to_owned(),
+        arguments: Option::None,
+        body: Option::Some("{}".to_owned()),
+    };
+    assert_eq!(
+        Message::Text("upl+{}".to_owned()),
+        stream_data_reqeust_5.to_message()
     );
 }
 
