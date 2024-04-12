@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tokio_tungstenite::tungstenite::Message;
@@ -24,10 +25,16 @@ impl StreamingDataStructuredRequest {
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 #[serde(untagged)]
 pub enum StreamingDataResponse {
-    #[serde(rename = "blt")]
-    Bulletins(TopicArgsResponse<BulletinsResponse>),
-    #[serde(rename = "ntf")]
-    Notifications(TopicArgsResponse<NotificationsResponse>),
+    /// (blt) If there are urgent messages concerning exchange issues, system problems, and other trading information, the topic blt is sent along with the message argument and a unique identifier for the bulletin.
+    Bulletins(TopicArgsResponse<BulletinsArgs>),
+    /// (ntf) If there is a brief message regarding trading activity the topic ntf will be sent.
+    Notifications(TopicArgsResponse<NotificationsArgs>),
+    /// (sts) When initially connecting to the websocket endpoint, the topic sts will relay back the current authentication status of the user. Authentication status updates, for example those resulting from competing sessions, are also relayed back to the websocket client via this topic.
+    AuthenticationStatus(TopicArgsResponse<AuthenticationStatusArgs>),
+    /// When initially connecting to websocket the topic system relays back a confirmation with the corresponding username. While the websocket is connecting every 10 seconds there after a heartbeat with corresponding unix time (in millisecond format) is relayed back.
+    SystemConnection(SystemConnectionMessage),
+    ResultMessage(ResultMessageResponse),
+    AccountSummary(AccountSummaryResponse),
 
     #[serde(skip_serializing)]
     Unknown(String),
@@ -47,17 +54,48 @@ pub struct TopicArgsResponse<T> {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct BulletinsResponse {
+pub struct AuthenticationStatusArgs {
+    ///  Returns whether the user is authenticated to the brokerage session.
+    pub authenticated: bool,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct BulletinsArgs {
+    /// The ID for the specific bulletin.
     pub id: String,
+    /// The bulletin information.
     pub message: String,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct NotificationsResponse {
+pub struct NotificationsArgs {
+    /// The identifier for the specific notification.
     pub id: String,
+    /// The body text for the affiliated notification.
     pub text: String,
+    /// The title or headline for the notification.
     pub title: Option<String>,
+    /// If relevant, provides a url where a user can go to read more about the notification.
     pub url: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct ResultMessageResponse {
+    pub result: String,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct AccountSummaryResponse {
+    /// Array of JSON objects, each corresponding to an account summary value for the account.
+    pub result: Vec<AccountSummaryResult>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct SystemConnectionMessage {
+    /// Equals to "system"
+    pub topic: String,
+    ///  Returns the username logged in with that has built the websocket.
+    pub success: String,
 }
 
 pub trait ToStructuredRequest {
@@ -91,6 +129,24 @@ impl ToStructuredRequest for SubscribeAccountSummaryRequest {
             ),
         }
     }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct AccountSummaryResult {
+    /// The name of the account summary value.
+    pub key: String,
+    /// The currency reflected by monetaryValue.
+    /// Example Value: “USD”, “EUR”, “HKD”
+    pub currency: String,
+    /// A non-monetary value associated with the key. This may include dates, account titles, or other relevant information.
+    pub value: Option<Decimal>,
+    /// A monetary value associated with the key. Returned when the key pertains to pricing or balance details.
+    #[serde(rename = "monetaryValue")]
+    pub monetary_value: Option<Decimal>,
+    /// Internal use only.
+    pub severity: Option<i64>,
+    /// The timestamp reflecting when the value was retrieved.
+    pub timestamp: i64,
 }
 
 /// Unsubscribes the user from account summary information for the specified account.
@@ -324,9 +380,9 @@ impl ToStructuredRequest for TickleRequest {
 
 /// As long as an order is active, it is possible to retrieve it using Client Portal API. Live streaming orders can be requested by subscribing to the sor topic. Once live orders are requested we will start to relay back when there is an update. To receive all orders for the current day the endpoint /iserver/account/orders can be used. It is advised to query all orders for the current day first before subscribing to live orders.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct SubscribeLiveOrderUpdates {}
+pub struct SubscribeLiveOrderUpdatesRequest {}
 
-impl ToStructuredRequest for SubscribeLiveOrderUpdates {
+impl ToStructuredRequest for SubscribeLiveOrderUpdatesRequest {
     fn to_structured_request(&self) -> StreamingDataStructuredRequest {
         StreamingDataStructuredRequest {
             topic: "sor".to_owned(),
@@ -338,9 +394,9 @@ impl ToStructuredRequest for SubscribeLiveOrderUpdates {
 
 /// Cancels the live order updates subscription.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct UnsubscribeLiveOrderUpdates {}
+pub struct UnsubscribeLiveOrderUpdatesRequest {}
 
-impl ToStructuredRequest for UnsubscribeLiveOrderUpdates {
+impl ToStructuredRequest for UnsubscribeLiveOrderUpdatesRequest {
     fn to_structured_request(&self) -> StreamingDataStructuredRequest {
         StreamingDataStructuredRequest {
             topic: "uor".to_owned(),
@@ -352,9 +408,9 @@ impl ToStructuredRequest for UnsubscribeLiveOrderUpdates {
 
 /// Subscribes the user to live profit and loss information.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct SubscribeProfitAndLoss {}
+pub struct SubscribeProfitAndLossRequest {}
 
-impl ToStructuredRequest for SubscribeProfitAndLoss {
+impl ToStructuredRequest for SubscribeProfitAndLossRequest {
     fn to_structured_request(&self) -> StreamingDataStructuredRequest {
         StreamingDataStructuredRequest {
             topic: "spl".to_owned(),
@@ -366,9 +422,9 @@ impl ToStructuredRequest for SubscribeProfitAndLoss {
 
 /// Cancels the subscriptions to profit and loss information.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct UnsubscribeProfitAndLoss {}
+pub struct UnsubscribeProfitAndLossRequest {}
 
-impl ToStructuredRequest for UnsubscribeProfitAndLoss {
+impl ToStructuredRequest for UnsubscribeProfitAndLossRequest {
     fn to_structured_request(&self) -> StreamingDataStructuredRequest {
         StreamingDataStructuredRequest {
             topic: "upl".to_owned(),
@@ -380,10 +436,13 @@ impl ToStructuredRequest for UnsubscribeProfitAndLoss {
 
 /// Subscribes the user to trades data. This will return all executions data while streamed.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct SubscribeTradeData {
+pub struct SubscribeTradeDataRequest {
     /// Decide whether you want to display any historical executions, or only the executions available in real time.
     /// Set to false by default.
-    #[serde(rename = "realtimeUpdatesOnly", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "realtimeUpdatesOnly",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub real_time_updates_only: Option<bool>,
     /// Returns the number of days of executions for data to be returned.
     /// Set to 1 by default.
@@ -391,7 +450,7 @@ pub struct SubscribeTradeData {
     pub days: Option<i32>,
 }
 
-impl ToStructuredRequest for SubscribeTradeData {
+impl ToStructuredRequest for SubscribeTradeDataRequest {
     fn to_structured_request(&self) -> StreamingDataStructuredRequest {
         StreamingDataStructuredRequest {
             topic: "str".to_owned(),
@@ -403,9 +462,9 @@ impl ToStructuredRequest for SubscribeTradeData {
 
 /// Cancels the trades data subscription
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct UnsubscribeTradeData {}
+pub struct UnsubscribeTradeDataRequest {}
 
-impl ToStructuredRequest for UnsubscribeTradeData {
+impl ToStructuredRequest for UnsubscribeTradeDataRequest {
     fn to_structured_request(&self) -> StreamingDataStructuredRequest {
         StreamingDataStructuredRequest {
             topic: "utr".to_owned(),
