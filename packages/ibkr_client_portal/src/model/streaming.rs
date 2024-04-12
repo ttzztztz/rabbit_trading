@@ -33,6 +33,8 @@ pub enum StreamingDataResponse {
     AuthenticationStatus(TopicArgsResponse<AuthenticationStatusArgs>),
     /// When initially connecting to websocket the topic system relays back a confirmation with the corresponding username. While the websocket is connecting every 10 seconds there after a heartbeat with corresponding unix time (in millisecond format) is relayed back.
     SystemConnection(SystemConnectionMessage),
+
+    BookTraderPriceLadder(BookTraderPriceLadderResponse),
     ResultMessage(ResultMessageResponse),
     AccountSummary(AccountSummaryResponse),
 
@@ -342,6 +344,29 @@ impl ToStructuredRequest for SubscribeBookTraderPriceLadderRequest {
             body: Option::None,
         }
     }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct BookTraderPriceLadderResponse {
+    /// sbd+acctId+conid
+    pub topic: String,
+    /// Returns an array of objects to indicate ladder depth.
+    pub data: Vec<BookTraderPriceLadderData>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct BookTraderPriceLadderData {
+    /// Returns the row identifier of the ladder data.
+    pub row: i32,
+    /// Indicates if the value was marked as the last price for the contract.
+    pub focus: i32,
+    /// Returns the Last, or last executed trade, price.
+    /// In some instances, price and size will be returned in the structure '"price":"size @ price"'
+    pub price: String,
+    /// Returns the corresponding ask size.
+    pub bid: String,
+    /// Returns the corresponding bid size.
+    pub ask: String,
 }
 
 /// Unsubscribes the user from price ladder data.

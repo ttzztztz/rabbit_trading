@@ -2,7 +2,7 @@ use serial_test::serial;
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::model::streaming::{
-    BulletinsResponse, NotificationsResponse, StreamingDataResponse,
+    BulletinsArgs, NotificationsArgs, StreamingDataResponse,
     StreamingDataStructuredRequest, TopicArgsResponse,
 };
 
@@ -74,7 +74,7 @@ fn parse_stream_data_response_serde_parse() {
     assert_eq!(
         StreamingDataResponse::Bulletins(TopicArgsResponse {
             topic: "blt".to_owned(),
-            args: BulletinsResponse {
+            args: BulletinsArgs {
                 id: "id".to_owned(),
                 message: "message".to_owned()
             }
@@ -87,7 +87,7 @@ fn parse_stream_data_response_serde_parse() {
     assert_eq!(
         StreamingDataResponse::Notifications(TopicArgsResponse {
             topic: "ntf".to_owned(),
-            args: NotificationsResponse {
+            args: NotificationsArgs {
                 id: "id".to_owned(),
                 text: "text".to_owned(),
                 title: Option::Some("title".to_owned()),
