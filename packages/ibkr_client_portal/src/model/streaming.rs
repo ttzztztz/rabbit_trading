@@ -33,7 +33,6 @@ pub enum StreamingDataResponse {
     AuthenticationStatus(TopicArgsResponse<AuthenticationStatusArgs>),
     /// When initially connecting to websocket the topic system relays back a confirmation with the corresponding username. While the websocket is connecting every 10 seconds there after a heartbeat with corresponding unix time (in millisecond format) is relayed back.
     SystemConnection(SystemConnectionMessage),
-
     BookTraderPriceLadder(BookTraderPriceLadderResponse),
     ResultMessage(ResultMessageResponse),
     AccountSummary(AccountSummaryResponse),
