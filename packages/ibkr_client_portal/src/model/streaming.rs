@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -31,12 +33,23 @@ pub enum StreamingDataResponse {
     Notifications(TopicArgsResponse<NotificationsArgs>),
     /// (sts) When initially connecting to the websocket endpoint, the topic sts will relay back the current authentication status of the user. Authentication status updates, for example those resulting from competing sessions, are also relayed back to the websocket client via this topic.
     AuthenticationStatus(TopicArgsResponse<AuthenticationStatusArgs>),
-    /// When initially connecting to websocket the topic system relays back a confirmation with the corresponding username. While the websocket is connecting every 10 seconds there after a heartbeat with corresponding unix time (in millisecond format) is relayed back.
+    /// (system) When initially connecting to websocket the topic system relays back a confirmation with the corresponding username. While the websocket is connecting every 10 seconds there after a heartbeat with corresponding unix time (in millisecond format) is relayed back.
     SystemConnection(SystemConnectionMessage),
+    /// (sbd)
     BookTraderPriceLadder(BookTraderPriceLadderResponse),
-    ResultMessage(ResultMessageResponse),
+    /// (ssd)
     AccountSummary(AccountSummaryResponse),
+    /// (sld)
+    AccountLedger(AccountLedgerResponse),
+    /// (sor)
+    OrderUpdate(OrderUpdateResponse),
+    /// (spl)
+    ProfitAndLossUpdate(ProfitAndLossUpdateResponse),
+    /// (str)
+    TradeData(TradeDataResponse),
 
+    // TODO: smd, act, smh
+    ResultMessage(ResultMessageResponse),
     #[serde(skip_serializing)]
     Unknown(String),
 }
@@ -178,6 +191,70 @@ pub struct SubscribeAccountLedgerRequest {
     /// Pass specific ledger field names to receive messages only those data points for the currencies specified in the keys argument. Passing no named fields when opening the subscription will deliver all available data points for the specified currencies.
     /// Example Values: "cashBalance", "exchangeRate"
     pub fields: Vec<String>,
+}
+
+/// A new message is published every 10 seconds until the sld topic is unsubscribed. A given message will only deliver a currency’s field data when a change occurred for that currency in the preceding interval. If no change occurred, the currency’s entry in the sld message will be “blank”, containing only the currency key and a timestamp.
+///
+/// Note that all currency values of JSON number type will be presented with a fractional component following a decimal point, and may also include an exponential component following an E if sufficiently large.
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct AccountLedgerResponse {
+    /// sld+DU1234567
+    pub topic: String,
+    /// Array of JSON objects, with each object containing the set of key-value pairs for one currency in the account.
+    pub result: Vec<AccountLedgerResult>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct AccountLedgerResult {
+    /// Currency identifier string in the form “LedgerListXXX”, where XXX is the three-character currency code of a currency in the requested account, or “LedgerListBASE”, corresponding to the account’s base currency.
+    /// This is always returned.
+    pub key: String,
+    /// The timestamp reflecting when the currency’s set of values was retrieved.
+    /// This is always returned.
+    pub timestamp: i64,
+    /// The account containing the currency position described by the accompanying data.
+    #[serde(rename = "acctCode")]
+    pub account_id: Option<String>,
+    #[serde(rename = "cashbalance")]
+    pub cash_balance: Option<Decimal>,
+    #[serde(rename = "cashBalanceFXSegment")]
+    pub cash_balance_fx_segment: Option<Decimal>,
+    #[serde(rename = "commodityMarketValue")]
+    pub commodity_market_value: Option<Decimal>,
+    #[serde(rename = "corporateBondsMarketValue")]
+    pub corporate_bonds_market_value: Option<Decimal>,
+    pub dividends: Option<Decimal>,
+    #[serde(rename = "exchangeRate")]
+    pub exchange_rate: Option<Decimal>,
+    pub funds: Option<Decimal>,
+    #[serde(rename = "marketValue")]
+    pub market_value: Option<Decimal>,
+    #[serde(rename = "optionMarketValue")]
+    pub option_market_value: Option<Decimal>,
+    pub interest: Option<Decimal>,
+    #[serde(rename = "issueOptionsMarketValue")]
+    pub issue_options_market_value: Option<Decimal>,
+    #[serde(rename = "moneyFunds")]
+    pub money_funds: Option<Decimal>,
+    #[serde(rename = "netLiquidationValue")]
+    pub net_liquidation_value: Option<Decimal>,
+    #[serde(rename = "realizedPnl")]
+    pub realized_pnl: Option<Decimal>,
+    #[serde(rename = "unrealizedPnl")]
+    pub unrealized_pnl: Option<Decimal>,
+    #[serde(rename = "secondKey")]
+    pub second_key: Option<String>,
+    #[serde(rename = "settledCash")]
+    pub settled_cash: Option<Decimal>,
+    #[serde(rename = "stockMarketValue")]
+    pub stock_market_value: Option<Decimal>,
+    #[serde(rename = "tBillsMarketValue")]
+    pub t_bills_market_value: Option<Decimal>,
+    #[serde(rename = "tBondsMarketValue")]
+    pub t_bonds_market_value: Option<Decimal>,
+    #[serde(rename = "warrantsMarketValue")]
+    pub warrants_market_value: Option<Decimal>,
+    pub severity: Option<i64>,
 }
 
 impl ToStructuredRequest for SubscribeAccountLedgerRequest {
@@ -404,9 +481,9 @@ impl ToStructuredRequest for TickleRequest {
 
 /// As long as an order is active, it is possible to retrieve it using Client Portal API. Live streaming orders can be requested by subscribing to the sor topic. Once live orders are requested we will start to relay back when there is an update. To receive all orders for the current day the endpoint /iserver/account/orders can be used. It is advised to query all orders for the current day first before subscribing to live orders.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct SubscribeLiveOrderUpdatesRequest {}
+pub struct SubscribeLiveOrderUpdateRequest {}
 
-impl ToStructuredRequest for SubscribeLiveOrderUpdatesRequest {
+impl ToStructuredRequest for SubscribeLiveOrderUpdateRequest {
     fn to_structured_request(&self) -> StreamingDataStructuredRequest {
         StreamingDataStructuredRequest {
             topic: "sor".to_owned(),
@@ -414,6 +491,86 @@ impl ToStructuredRequest for SubscribeLiveOrderUpdatesRequest {
             body: Option::Some("{}".to_owned()),
         }
     }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct OrderUpdateResponse {
+    /// sor
+    pub topic: String,
+    pub args: Vec<OrderUpdateArgument>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct OrderUpdateArgument {
+    /// Returns the account Id of which account made the request.
+    #[serde(rename = "acct")]
+    pub account_id: String,
+    /// Contract Identifier for the given order.
+    pub conid: String,
+    /// Order identifier affiliated with the given order.
+    #[serde(rename = "orderId")]
+    pub order_id: i64,
+    /// Base currency used for the transaction.
+    #[serde(rename = "cashCcy")]
+    pub cash_currency: Option<String>,
+    /// Total quantity filled in the order.
+    #[serde(rename = "sizeAndFills")]
+    pub size_and_fills: Option<String>,
+    /// Order description of the given order.
+    /// Describes the side, size, orderType, price, and tif of the order.
+    #[serde(rename = "orderDesc")]
+    pub order_description: Option<String>,
+    /// Ticker symbol of the request.
+    pub description1: Option<String>,
+    /// Ticker symbol of the request.
+    pub ticker: Option<String>,
+    /// Security type of the request.
+    #[serde(rename = "secType")]
+    pub security_type: Option<String>,
+    /// Primary exchange where the contract is held.
+    #[serde(rename = "listingExchange")]
+    pub listing_exchange: Option<String>,
+    /// Percentage of the order quantity remaining.
+    #[serde(rename = "remainingQuantity")]
+    pub remaining_quantity: Option<Decimal>,
+    /// Percentage of the ordr quantity filled.
+    #[serde(rename = "filledQuantity")]
+    pub filled_quantity: Option<Decimal>,
+    /// Long name of the contract’s company.
+    #[serde(rename = "companyName")]
+    pub company_name: Option<String>,
+    /// Current order status.
+    /// Value Format: Presubmitted, Submitted, Filled, Cancelled.
+    pub status: Option<String>,
+    /// Returns the original order type of the given order.
+    #[serde(rename = "origOrderType")]
+    pub origin_order_type: Option<String>,
+    /// Determines if the order supports Tax Optimizer.
+    #[serde(rename = "supportsTaxOpt")]
+    pub supports_tax_opt: Option<String>,
+    /// Returns the datetime object of the most recent execution.
+    #[serde(rename = "lastExecutionTime")]
+    pub last_execution_time: Option<String>,
+    /// Returns the epoch timestamp of the most recent execution.
+    #[serde(rename = "lastExecutionTime_r")]
+    pub last_execution_time_r: Option<i64>,
+    /// Returns the current order type of the order.
+    /// Value Format: MARKET, LIMIT, STOP
+    #[serde(rename = "orderType")]
+    pub order_type: Option<String>,
+    /// Returns the side of the trade.
+    /// Value Format: BUY, SELL
+    pub side: Option<String>,
+    /// Returns the time in force for the given order.
+    #[serde(rename = "timeInForce")]
+    pub time_in_force: Option<String>,
+    pub price: Option<Decimal>,
+    /// Background color. Used for Client Portal only.
+    #[serde(rename = "bgColor")]
+    pub background_color: Option<String>,
+    /// Foreground color. Used for Client Portal only.
+    #[serde(rename = "fgColor")]
+    pub foreground_color: Option<String>,
 }
 
 /// Cancels the live order updates subscription.
@@ -442,6 +599,33 @@ impl ToStructuredRequest for SubscribeProfitAndLossRequest {
             body: Option::Some("{}".to_owned()),
         }
     }
+}
+
+/// Subscribes the user to live profit and loss information.
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct ProfitAndLossUpdateResponse {
+    /// Returns the topic of the given request.
+    pub topic: String,
+    /// Returns the object containing the pnl data.
+    /// key: Specifies the account for which data was requested.
+    pub args: HashMap<String, ProfitAndLossUpdateArgument>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct ProfitAndLossUpdateArgument {
+    /// The row value of the request. Will increment with additional accounts.
+    #[serde(rename = "rowType")]
+    pub row_type: i64,
+    /// Daily Profit and Loss value.
+    pub daily_profit_and_loss: Option<Decimal>,
+    /// Net Liquidity in the account.
+    pub net_liquidity: Option<Decimal>,
+    /// Unrealized Profit and Loss for the day.
+    pub unrealized_profit_and_loss: Option<Decimal>,
+    /// Unrounded Excess Liquidity in the account.
+    pub unrounded_excess_liquidity: Option<Decimal>,
+    /// Market value of held stocks in the account.
+    pub market_value: Option<Decimal>,
 }
 
 /// Cancels the subscriptions to profit and loss information.
@@ -482,6 +666,68 @@ impl ToStructuredRequest for SubscribeTradeDataRequest {
             body: Option::Some(serde_json::to_string(self).unwrap()),
         }
     }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct TradeDataResponse {
+    /// Returns the topic of the given request.
+    pub topic: String,
+    /// Returns the object containing the pnl data.
+    pub args: Vec<TradeDataArgument>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct TradeDataArgument {
+    /// Execution identifier of the specific trade.
+    pub execution_id: String,
+    /// Contract identifier for the traded contract.
+    pub conid: i64,
+    /// Ticker symbol of the traded contract.
+    pub symbol: Option<String>,
+    /// Determines if the contract supports the tax optimizer. Client Portal only.
+    pub supports_tax_opt: Option<String>,
+    /// Determines if the order was a buy or sell side.
+    pub side: Option<String>,
+    /// Describes the full content of the order.
+    /// Value format: "{SIDE} {SIZE} @ {PRICE} on {EXCHANGE}"
+    pub order_description: Option<String>,
+    /// Traded date time in UTC.
+    /// Value format: “YYYYMMDD-HH:mm:ss”
+    pub trade_time: Option<String>,
+    /// Traded datetime of the execution in epoch time.
+    pub trade_time_r: Option<i64>,
+    /// Returns the quantity of shares traded.
+    pub size: Option<Decimal>,
+    /// Returns the price used for the given trade.
+    pub price: Option<Decimal>,
+    /// Returns the exchange the order executed at.
+    pub exchange: Option<String>,
+    /// Returns the total amount traded after calculating multiplier.
+    pub net_amount: Option<Decimal>,
+    /// Returns the account the order was traded on.
+    #[serde(rename = "account")]
+    pub account_id: Option<String>,
+    /// Returns the account the order was traded on.
+    #[serde(rename = "accountCode")]
+    pub account_code: Option<String>,
+    /// Returns the title of the company for the contract.
+    pub company_name: Option<String>,
+    /// Returns the underlying symbol of the contract.
+    pub contract_description_1: Option<String>,
+    /// Returns a full description of the derivative.
+    pub contract_description_2: Option<String>,
+    /// Returns the security type traded.
+    pub sec_type: Option<String>,
+    /// Returns the conidEx of the order if specified. Otherwise returns conid.
+    #[serde(rename = "conidEx")]
+    pub conid_exchange: Option<String>,
+    /// Returns if the execution was a closing trade.
+    /// Returns "???" if the position was already open, but not a closing order.
+    pub open_close: Option<String>,
+    /// Returns if the trade was a result of liquidation.
+    pub liquidation_trade: Option<String>,
+    /// Determines if the order can be used with EventTrader.
+    pub is_event_trading: Option<String>,
 }
 
 /// Cancels the trades data subscription

@@ -1,9 +1,10 @@
+use rust_decimal::Decimal;
 use serial_test::serial;
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::model::streaming::{
-    BulletinsArgs, NotificationsArgs, StreamingDataResponse,
-    StreamingDataStructuredRequest, TopicArgsResponse,
+    BulletinsArgs, NotificationsArgs, StreamingDataResponse, StreamingDataStructuredRequest,
+    TopicArgsResponse,
 };
 
 #[tokio::test]
@@ -104,4 +105,9 @@ fn parse_stream_data_response_serde_parse() {
         StreamingDataResponse::Unknown(UNKNOWN_STR.to_owned()),
         StreamingDataResponse::from_str(UNKNOWN_STR)
     );
+}
+
+#[test]
+fn test_decimal_json_parse() {
+    assert!(serde_json::from_str::<Decimal>("2.0280151634374067E8").is_ok());
 }
