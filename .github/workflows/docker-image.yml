@@ -12,4 +12,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build ./dockerfiles/ibkr_client_portal --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file ./dockerfiles/ibkr_client_portal/Dockerfile --tag my-image-name:$(date +%s)
