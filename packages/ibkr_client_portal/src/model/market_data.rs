@@ -17,7 +17,7 @@ pub struct GetMarketDataRequest {
 
 pub type GetMarketDataResponse = Vec<HashMap<String, Value>>;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct MarketHistoryBarData {
     /// Time - Formatted in unix time in ms.
     #[serde(rename = "t")]
@@ -221,6 +221,9 @@ pub struct MarketDataSnapshot {
     /// Bid Size - The number of contracts or shares bid for at the bid price. For US stocks, the number displayed is divided by 100.
     #[serde(rename = "88")]
     pub bid_size: Option<Decimal>,
+    /// Field value of the server_id. Returns the request’s identifier.
+    #[serde(rename = "6119")]
+    pub server_id: Option<String>,
     /// Market Data Availability. The field may contain three chars. First char defines: R = RealTime, D = Delayed, Z = Frozen, Y = Frozen Delayed, N = Not Subscribed. Second char defines: P = Snapshot, p = Consolidated. Third char defines: B = Book   * RealTime - Data is relayed back in real time without delay, market data subscription(s) are required.   * Delayed - Data is relayed back 15-20 min delayed.   * Frozen - Last recorded data at market close, relayed back in real time.   * Frozen Delayed - Last recorded data at market close, relayed back delayed.   * Not Subscribed - User does not have the required market data subscription(s) to relay back either real time or delayed data.   * Snapshot - Snapshot request is available for contract.   * Consolidated - Market data is aggregated across multiple exchanges or venues.   * Book - Top of the book data is available for contract.
     #[serde(rename = "6509")]
     pub market_data_availability: Option<String>,

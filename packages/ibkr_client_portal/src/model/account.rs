@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
+use super::session::ServerInfo;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AccountLedger {
     #[serde(rename = "commoditymarketvalue")]
@@ -43,14 +45,120 @@ pub struct AccountLedger {
     pub severity: Decimal,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct AccountProperties {
+    /// Returns whether or not child accounts exist for the account.
+    #[serde(rename = "hasChildAccounts")]
+    pub has_child_accounts: Option<bool>,
+    /// Returns whether or not the account can use Cash Quantity for trading.
+    #[serde(rename = "supportsCashQty")]
+    pub supports_cash_quantity: Option<bool>,
+    #[serde(rename = "liteUnderPro")]
+    pub lite_under_pro: Option<bool>,
+    #[serde(rename = "noFXConv")]
+    pub no_fx_conversion_fee: Option<bool>,
+    #[serde(rename = "isProp")]
+    pub is_prop: Option<bool>,
+    /// Returns whether or not the account can submit fractional share orders.
+    #[serde(rename = "supportsFractions")]
+    pub supports_fractions: Option<bool>,
+    #[serde(rename = "allowCustomerTime")]
+    pub allow_customer_time: Option<bool>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct AccountAllowFeatures {
+    /// Returns if the account can access market data.
+    #[serde(rename = "showGFIS")]
+    pub show_gfis: Option<bool>,
+    /// Returns if the account can view the EU Cost Report
+    #[serde(rename = "showEUCostReport")]
+    pub show_eu_cost_report: Option<bool>,
+    #[serde(rename = "allowEventContract")]
+    pub allow_event_contract: Option<bool>,
+    /// Returns if the account can convert currencies.
+    #[serde(rename = "allowFXConv")]
+    pub allow_fx_conversion: Option<bool>,
+    /// Returns if the account can access the financial lens.
+    #[serde(rename = "allowFinancialLens")]
+    pub allow_financial_lens: Option<bool>,
+    /// Returns if the account can use mobile trading alerts.
+    #[serde(rename = "allowMTA")]
+    pub allow_mobile_trading_alerts: Option<bool>,
+    /// Returns if the account can use Type-Ahead support for Client Portal.
+    #[serde(rename = "allowTypeAhead")]
+    pub allow_type_ahead: Option<bool>,
+    /// Returns if the account can use Event Trader.
+    #[serde(rename = "allowEventTrading")]
+    pub allow_event_trading: Option<bool>,
+    /// Returns the snapshot refresh timeout window for new data.
+    #[serde(rename = "snapshotRefreshTimeout")]
+    pub snapshot_refresh_timeout: i64,
+    /// Returns if the account is an IBKR Lite user.
+    #[serde(rename = "liteUser")]
+    pub lite_user: Option<bool>,
+    /// Returns if the account can use News feeds via the web.
+    #[serde(rename = "showWebNews")]
+    pub show_web_news: Option<bool>,
+    pub research: Option<bool>,
+    /// Returns if the account can use the debugPnl endpoint.
+    #[serde(rename = "debugPnl")]
+    pub debug_pnl: Option<bool>,
+    /// Returns if the account can use the Tax Optimizer tool
+    #[serde(rename = "showTaxOpt")]
+    pub show_tax_optimizer_tool: Option<bool>,
+    /// Returns if the account can view the Impact Dashboard.
+    #[serde(rename = "showImpactDashboard")]
+    pub show_impact_dashboard: Option<bool>,
+    /// Returns if the account can use dynamic account changes.
+    #[serde(rename = "allowDynAccount")]
+    pub allow_dynamic_account: Option<bool>,
+    /// Returns if the account can trade crypto currencies.
+    #[serde(rename = "allowCrypto")]
+    pub allow_crypto: Option<bool>,
+    #[serde(rename = "allowFA")]
+    pub allow_fa: Option<bool>,
+    #[serde(rename = "allowLiteUnderPro")]
+    pub allow_lite_under_pro: Option<bool>,
+    /// Returns a list of asset types the account can trade.
+    #[serde(rename = "allowedAssetTypes")]
+    pub allowed_asset_types: String,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct GetAccountsResponse {
     /// Unique account id
     pub accounts: Vec<String>,
-    pub selected_account: String,
     /// Account Id and its alias
     pub aliases: HashMap<String, String>,
+    /// Returns an json object for each accessible account’s properties.
+    #[serde(rename = "acctProps")]
+    pub account_properties: Option<HashMap<String, AccountProperties>>,
+    /// JSON of allowed features for the account.
+    #[serde(rename = "allowFeatures")]
+    pub allow_features: Option<AccountAllowFeatures>,
+    /// Returns available trading times for all available security types.
+    #[serde(rename = "chartPeriods")]
+    pub chart_periods: Option<FinancialDerivatives<Vec<String>>>,
+    /// Returns an array of affiliated groups.
+    pub groups: Option<Vec<String>>,
+    /// Returns an array of affiliated profiles.
+    pub profiles: Option<Vec<String>>,
+    /// Returns currently selected account. See Switch Account for more details.
+    #[serde(rename = "selectedAccount")]
+    pub selected_account: String,
+    /// Returns information about the IBKR session. Unrelated to Client Portal Gateway.
+    #[serde(rename = "serverInfo")]
+    pub server_info: Option<ServerInfo>,
+    /// Returns current session ID.
+    #[serde(rename = "sessionId")]
+    pub session_id: Option<String>,
+    /// Returns fractional trading access.
+    #[serde(rename = "isFT")]
+    pub is_fractional_trading: Option<bool>,
+    /// Returns account type status.
+    #[serde(rename = "isPaper")]
+    pub is_paper: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -479,36 +587,37 @@ pub struct GetAccountSummaryResponse {
     pub trading_type_s: Option<Summary>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AllocationAssetClassLong {
-    #[serde(rename = "STK")]
-    pub stock: Option<Decimal>,
-    #[serde(rename = "OPT")]
-    pub options: Option<Decimal>,
-    #[serde(rename = "FUT")]
-    pub futures: Option<Decimal>,
-    #[serde(rename = "WAR")]
-    pub warrants: Option<Decimal>,
-    #[serde(rename = "BOND")]
-    pub bonds: Option<Decimal>,
-    #[serde(rename = "CASH")]
-    pub cash: Option<Decimal>,
-}
+pub type AllocationAssetClassLong = FinancialDerivatives<Decimal>;
+pub type AllocationAssetClassShort = FinancialDerivatives<Decimal>;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AllocationAssetClassShort {
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct FinancialDerivatives<T> {
     #[serde(rename = "STK")]
-    pub stock: Option<Decimal>,
+    pub stock: Option<T>,
+    #[serde(rename = "CFD")]
+    pub cfd: Option<T>,
     #[serde(rename = "OPT")]
-    pub options: Option<Decimal>,
-    #[serde(rename = "FUT")]
-    pub futures: Option<Decimal>,
+    pub options: Option<T>,
+    #[serde(rename = "FOP")]
+    pub fop: Option<T>,
     #[serde(rename = "WAR")]
-    pub warrants: Option<Decimal>,
-    #[serde(rename = "BOND")]
-    pub bonds: Option<Decimal>,
+    pub warrants: Option<T>,
+    #[serde(rename = "FUT")]
+    pub futures: Option<T>,
     #[serde(rename = "CASH")]
-    pub cash: Option<Decimal>,
+    pub cash: Option<T>,
+    #[serde(rename = "IND")]
+    pub ind: Option<T>,
+    #[serde(rename = "BOND")]
+    pub bonds: Option<T>,
+    #[serde(rename = "FUND")]
+    pub fund: Option<T>,
+    #[serde(rename = "CMDTY")]
+    pub cmdty: Option<T>,
+    #[serde(rename = "PHYSS")]
+    pub physs: Option<T>,
+    #[serde(rename = "CRYPTO")]
+    pub crypto: Option<T>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

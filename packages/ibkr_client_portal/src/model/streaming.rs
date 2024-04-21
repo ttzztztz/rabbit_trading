@@ -1,9 +1,10 @@
-use std::collections::HashMap;
-
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::collections::HashMap;
 use tokio_tungstenite::tungstenite::Message;
+
+use super::{account::GetAccountsResponse, market_data::MarketHistoryBarData};
 
 pub struct StreamingDataStructuredRequest {
     pub topic: String,
@@ -47,8 +48,12 @@ pub enum StreamingDataResponse {
     ProfitAndLossUpdate(ProfitAndLossUpdateResponse),
     /// (str)
     TradeData(TradeDataResponse),
+    /// (smh)
+    HistoricalData(HistoricalDataResponse),
+    /// (act)
+    AccountUpdate(AccountUpdateMessage),
 
-    // TODO: smd, act, smh
+    // TODO: smd
     ResultMessage(ResultMessageResponse),
     #[serde(skip_serializing)]
     Unknown(String),
@@ -375,6 +380,71 @@ impl ToStructuredRequest for SubscribeHistoricalDataRequest {
             ),
         }
     }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct HistoricalDataResponse {
+    /// Represents the request sent.
+    pub topic: String,
+    /// Request identifier for the specific historical data request. Used for cancelling the data stream.
+    #[serde(rename = "serverId")]
+    pub server_id: Option<String>,
+    /// Returns the symbol for the requested conid.
+    pub symbol: String,
+    /// Company long name.
+    pub text: Option<String>,
+    /// Price multiplier (based on $0.01)
+    #[serde(rename = "priceFactor")]
+    pub price_factor: Option<Decimal>,
+    /// Returns the starting time (in epoch time) of the response.
+    #[serde(rename = "startTime")]
+    pub start_time: Option<String>,
+    /// Returns the highest “high value/Volume value/Outside RTH volume” of the period.
+    pub high: Option<String>,
+    /// Returns the lowest “Low value/Volume value/Outside RTH volume” of the period.
+    pub low: Option<String>,
+    /// Returns the period covered by the request.
+    #[serde(rename = "timePeriod")]
+    pub time_period: Option<String>,
+    /// Returns the string length of the bar response.
+    #[serde(rename = "barLength")]
+    pub bar_length: Option<i64>,
+    /// Internal IBKR message.
+    #[serde(rename = "mdAvailability")]
+    pub market_data_availability: Option<String>,
+    /// Returns if there is any delay in the market data.
+    #[serde(rename = "mktDataDelay")]
+    pub market_data_delay: Option<i64>,
+    /// Returns if the data contains information outside regular trading hours.
+    #[serde(rename = "outsideRth")]
+    pub outside_regular_trading_hours: Option<bool>,
+    /// Determines if the volume is returned as lots, multipliers, or as-is.
+    #[serde(rename = "volumeFactor")]
+    pub volume_factor: Option<Decimal>,
+    /// Internal IBKR message.
+    #[serde(rename = "priceDisplayRule")]
+    pub price_display_rule: Option<String>,
+    /// Internal IBKR message.
+    #[serde(rename = "priceDisplayValue")]
+    pub price_display_value: Option<String>,
+    /// Returns contract rule whether the contract supports negative values or not.
+    #[serde(rename = "negativeCapable")]
+    pub negative_capable: Option<bool>,
+    /// Internal IBKR message.
+    #[serde(rename = "messageVersion")]
+    pub message_version: Option<i64>,
+    /// Returns all bars related that fall within the period.
+    pub data: Vec<MarketHistoryBarData>,
+    /// Displays the total number of bars returned within ‘data’.
+    pub points: i64,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct AccountUpdateMessage {
+    /// (act) Returns the topic of the given request.
+    pub topic: String,
+    /// Returns the object containing the pnl data.
+    pub args: GetAccountsResponse,
 }
 
 /// Unsubscribes the user from historical bar data.
