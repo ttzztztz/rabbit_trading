@@ -52,8 +52,9 @@ pub enum StreamingDataResponse {
     HistoricalData(HistoricalDataResponse),
     /// (act)
     AccountUpdate(AccountUpdateMessage),
+    /// (smd)
+    MarketData(MarketDataResponse),
 
-    // TODO: smd
     ResultMessage(ResultMessageResponse),
     #[serde(skip_serializing)]
     Unknown(String),
@@ -318,6 +319,23 @@ impl ToStructuredRequest for SubscribeMarketDataRequest {
             body: Option::Some(json!({"fields": self.fields}).to_string()),
         }
     }
+}
+
+#[mixin::insert(MarketDataMixin)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct MarketDataResponse {
+    /// smd+conid
+    pub topic: String,
+    /// Returns the request’s identifier.
+    pub server_id: Option<String>,
+    /// Returns the passed conid field. May include exchange if specified in request.
+    #[serde(rename = "conidEx")]
+    pub conid_ex: Option<String>,
+    /// Returns the contract id of the request
+    pub conid: i64,
+    /// Returns the epoch time of the update in a 13 character integer
+    #[serde(rename = "_updated")]
+    pub updated: Option<i64>,
 }
 
 ///  Unubscribes the user from watchlist market data.

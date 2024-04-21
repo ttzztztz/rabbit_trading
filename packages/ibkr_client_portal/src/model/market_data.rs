@@ -189,8 +189,9 @@ pub struct GetMarketDataHistoryBetaResponse {
     pub bars: MarketHistoryDataBars,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MarketDataSnapshot {
+#[mixin::declare]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct MarketDataMixin {
     /// Last Price - The last price at which the contract traded. May contain one of the following prefixes:   * C - Previous day's closing price.   * H - Trading has halted.
     #[serde(rename = "31")]
     pub last_price: Option<String>,
@@ -223,7 +224,7 @@ pub struct MarketDataSnapshot {
     pub bid_size: Option<Decimal>,
     /// Field value of the server_id. Returns the request’s identifier.
     #[serde(rename = "6119")]
-    pub server_id: Option<String>,
+    pub server_id_6119: Option<String>,
     /// Market Data Availability. The field may contain three chars. First char defines: R = RealTime, D = Delayed, Z = Frozen, Y = Frozen Delayed, N = Not Subscribed. Second char defines: P = Snapshot, p = Consolidated. Third char defines: B = Book   * RealTime - Data is relayed back in real time without delay, market data subscription(s) are required.   * Delayed - Data is relayed back 15-20 min delayed.   * Frozen - Last recorded data at market close, relayed back in real time.   * Frozen Delayed - Last recorded data at market close, relayed back delayed.   * Not Subscribed - User does not have the required market data subscription(s) to relay back either real time or delayed data.   * Snapshot - Snapshot request is available for contract.   * Consolidated - Market data is aggregated across multiple exchanges or venues.   * Book - Top of the book data is available for contract.
     #[serde(rename = "6509")]
     pub market_data_availability: Option<String>,
@@ -235,7 +236,7 @@ pub struct MarketDataSnapshot {
     pub last_exchange_7058: Option<String>,
     /// Last Size - The number of unites traded at the last price
     #[serde(rename = "7059")]
-    pub last_size: Option<f32>,
+    pub last_size: Option<Decimal>,
     /// Bid Exch - Displays the exchange(s) offering the SMART price. A=AMEX, C=CBOE, I=ISE, X=PHLX, N=PSE, B=BOX, Q=NASDAQOM, Z=BATS, W=CBOE2, T=NASDAQBX, M=MIAX, H=GEMINI, E=EDGX, J=MERCURY
     #[serde(rename = "7068")]
     pub bid_exchange: Option<String>,
@@ -403,7 +404,7 @@ pub struct MarketDataSnapshot {
     pub mark: Option<String>,
     /// shortable inventory
     #[serde(rename = "7636")]
-    pub shortable_inventory: Option<f32>,
+    pub shortable_inventory: Option<Decimal>,
     /// Fee rebate rate
     #[serde(rename = "7637")]
     pub free_rebate_rate: Option<String>,
@@ -455,12 +456,17 @@ pub struct MarketDataSnapshot {
     /// 13 Week Low - The lowest price for the past 13 weeks.
     #[serde(rename = "7995")]
     pub _13_week_low: Option<String>,
+}
+
+#[mixin::insert(MarketDataMixin)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+pub struct MarketDataSnapshot {
     /// IBKR Contract identifier
     #[serde(rename = "conid")]
     pub conid: Option<i64>,
     /// minimum price increment
     #[serde(rename = "minTick")]
-    pub min_tick: Option<f32>,
+    pub min_tick: Option<Decimal>,
     /// Color for Best Bid/Offer Exchange in hex code
     #[serde(rename = "BboExchange")]
     pub bbo_exchange: Option<String>,
