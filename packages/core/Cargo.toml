@@ -11,7 +11,6 @@ dogstatsd = { workspace = true }
 ibkr_client_portal = { path = "../ibkr_client_portal", features = ["full"] }
 log = { workspace = true }
 longbridge = { workspace = true }
-reqwest = { workspace = true, features = ["json"] }
 rust_decimal = { workspace = true, features = ["maths", "serde-float", "serde-with-str"] }
 rust_decimal_macros = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

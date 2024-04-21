@@ -1,3 +1,4 @@
+use reqwest_retry::policies::ExponentialBackoff;
 use rust_decimal_macros::dec;
 use serial_test::serial;
 
@@ -19,7 +20,12 @@ use crate::{
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_security_definition_by_contract_id() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_security_definition_by_contract_id(GetSecurityDefinitionByConIdRequest {
@@ -35,7 +41,12 @@ async fn test_get_security_definition_by_contract_id() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_stocks_by_symbol() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_stocks_by_symbol(GetStocksBySymbolRequest {
             symbols: vec!["QQQ".to_owned()],
@@ -58,7 +69,12 @@ async fn test_get_stocks_by_symbol() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_contract_detail() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_contract_detail(GetContractDetailRequest {
             conid: CONTRACT_ID_QQQ,
@@ -74,7 +90,12 @@ async fn test_get_contract_detail() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_security_strikes() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_security_strikes(GetSecurityStrikesRequest {
@@ -91,7 +112,12 @@ async fn test_get_security_strikes() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_contract_details_of_futures_options_warrants_cash_cfds() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_contract_details_of_futures_options_warrants_cash_cfds(SecurityDefinitionsRequest {
@@ -110,7 +136,12 @@ async fn test_get_contract_details_of_futures_options_warrants_cash_cfds() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_search_for_security() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .search_for_security(SearchForSecurityRequest {
@@ -126,7 +157,12 @@ async fn test_search_for_security() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_security_trading_schedule() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_security_trading_schedule(GetSecurityTradingScheduleRequest {
@@ -143,7 +179,12 @@ async fn test_get_security_trading_schedule() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_contract_rules() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_contract_rules(GetContractRulesRequest {
@@ -158,7 +199,12 @@ async fn test_get_contract_rules() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_info_and_rules_by_conid() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_info_and_rules_by_conid(GetInfoAndRulesByConIdRequest {
@@ -173,7 +219,12 @@ async fn test_get_info_and_rules_by_conid() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_supported_algorithms_by_contract() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_supported_algorithms_by_contract(GetIBAlgorithmParametersRequest {

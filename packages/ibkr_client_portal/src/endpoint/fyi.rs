@@ -1,6 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/FYI
 
-use reqwest::Error;
+use reqwest_middleware::Error;
 
 use crate::{
     client::IBClientPortal,
@@ -28,7 +28,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Return the current choices of subscriptions, we can toggle the option
@@ -42,7 +45,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Configure which typecode you would like to enable/disable.
@@ -73,7 +79,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Get disclaimer for a certain kind of fyi
@@ -90,7 +99,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Get a list of notifications
@@ -116,7 +128,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns the total number of unread FYIs
@@ -134,7 +149,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Options for sending FYIe to email and other devices
@@ -148,7 +166,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Enable/Disable email option
@@ -166,7 +187,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Enable/Disable device option
@@ -184,7 +208,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Delete a device
@@ -215,6 +242,9 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 }

@@ -1,6 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Scanner/paths/~1hmds~1scanner/post
 
-use reqwest::Error;
+use reqwest_middleware::Error;
 
 use crate::{
     client::IBClientPortal,
@@ -22,7 +22,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// (Beta) Using a direct connection to the market data farm, will provide results to the requested scanner.
@@ -39,7 +42,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Searches for contracts according to the filters specified in scanner/params endpoint
@@ -56,6 +62,9 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 }

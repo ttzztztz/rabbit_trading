@@ -10,7 +10,7 @@ use super::broker::InteractiveBrokersBroker;
 use crate::{
     broker::common::heartbeat::HeartbeatTrait,
     model::common::{error::Error, types::ConfigMap},
-    utils::error::reqwest_error_to_rabbit_trading_error,
+    utils::error::reqwest_middleware_error_to_rabbit_trading_error,
 };
 
 pub struct InteractiveBrokersHeartbeat {
@@ -37,7 +37,7 @@ impl HeartbeatTrait for InteractiveBrokersHeartbeat {
                 .client_portal
                 .tickle()
                 .await
-                .map_err(reqwest_error_to_rabbit_trading_error)
+                .map_err(reqwest_middleware_error_to_rabbit_trading_error)
             {
                 log::error!("Error when tickle {}", err.message);
             }

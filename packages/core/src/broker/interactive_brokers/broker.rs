@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ibkr_client_portal::client::IBClientPortal;
+use ibkr_client_portal::{client::IBClientPortal, ExponentialBackoff};
 use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{
@@ -39,7 +39,12 @@ impl InteractiveBrokersBroker {
             .get(CONFIG_KEY_SSL)
             .map(|ssl| ssl == "true")
             .unwrap_or(true);
-        IBClientPortal::new(account, host, listen_ssl)
+        IBClientPortal::new(
+            account,
+            host,
+            listen_ssl,
+            ExponentialBackoff::builder().build_with_max_retries(3),
+        )
     }
 }
 

@@ -1,6 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Contract
 
-use reqwest::Error;
+use reqwest_middleware::Error;
 
 use crate::{
     client::IBClientPortal,
@@ -31,7 +31,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns a list of non-expired future contracts for given symbol(s)
@@ -48,7 +51,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns an object contains all stock contracts for given symbol(s)
@@ -65,7 +71,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Using the Contract Identifier get contract info. You can use this to prefill your order before you submit an order
@@ -82,7 +91,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Search by underlying symbol or company name. Relays back what derivative contract(s) it has. This endpoint must be called before using /secdef/info. If company name is specified will only receive limited response: conid, companyName, companyHeader and symbol.
@@ -99,7 +111,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Provides Contract Details of Futures, Options, Warrants, Cash and CFDs based on conid. To get the strike price for Options/Warrants use "/iserver/secdef/strikes" endpoint. Must call /secdef/search for the underlying contract first.
@@ -132,7 +147,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns the trading schedule up to a month for the requested contract
@@ -159,7 +177,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Query strikes for Options/Warrants. For the conid of the underlying contract, available contract months and exchanges use "/iserver/secdef/search"
@@ -184,7 +205,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns both contract info and rules from a single endpoint.
@@ -203,7 +227,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns trading related rules for a specific contract and side. For both contract info and rules use the endpoint /iserver/contract/{conid}/info-and-rules.
@@ -220,7 +247,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns supported IB Algos for contract. Must be called a second time to query the list of available parameters.
@@ -247,6 +277,9 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 }

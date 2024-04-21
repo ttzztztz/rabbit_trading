@@ -1,6 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Portfolio
 
-use reqwest::Error;
+use reqwest_middleware::Error;
 
 use crate::{
     client::IBClientPortal,
@@ -28,7 +28,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Information about the account's portfolio allocation by Asset Class, Industry and Category. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
@@ -45,7 +48,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns a list of all positions matching the conid. For portfolio models the conid could be in more than one model, returning an array with the name of the model it belongs to. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
@@ -65,7 +71,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Invalidates the backend cache of the Portfolio
@@ -99,6 +108,9 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 }

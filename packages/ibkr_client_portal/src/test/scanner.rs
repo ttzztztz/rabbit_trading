@@ -1,3 +1,4 @@
+use reqwest_retry::policies::ExponentialBackoff;
 use serde_json::Value;
 use serial_test::serial;
 
@@ -11,7 +12,12 @@ use crate::{
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_scanner_parameters() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client.get_scanner_parameters().await;
     assert!(response_result.is_ok());
     let response = response_result.unwrap();
@@ -25,7 +31,12 @@ async fn test_get_scanner_parameters() {
 #[serial]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_run_scanner_beta() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .run_scanner_beta(RunScannerBetaRequest {
             instrument: Option::Some("BOND.GOVT".to_owned()),
@@ -45,7 +56,12 @@ async fn test_run_scanner_beta() {
 #[serial]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_scanner_run() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .scanner_run(ScannerRunRequest {
             instrument: Option::Some("STK".to_owned()),

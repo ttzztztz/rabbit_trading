@@ -1,3 +1,5 @@
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
+use reqwest_retry::{RetryPolicy, RetryTransientMiddleware};
 use std::time::Duration;
 
 pub struct IBClientPortal {
@@ -5,11 +7,14 @@ pub struct IBClientPortal {
     pub host: String,
     pub listen_ssl: bool,
 
-    pub client: reqwest::Client,
+    pub client: ClientWithMiddleware,
 }
 
 impl IBClientPortal {
-    pub fn new(account: String, host: String, listen_ssl: bool) -> Self {
+    pub fn new<R>(account: String, host: String, listen_ssl: bool, retry_policy: R) -> Self
+    where
+        R: RetryPolicy + Sync + Send + 'static,
+    {
         let mut default_headers = reqwest::header::HeaderMap::new();
         default_headers.insert(
             reqwest::header::CONTENT_TYPE,
@@ -19,12 +24,16 @@ impl IBClientPortal {
             reqwest::header::USER_AGENT,
             reqwest::header::HeaderValue::from_static("Console"),
         );
-        let client = reqwest::Client::builder()
-            .danger_accept_invalid_certs(true)
-            .default_headers(default_headers)
-            .timeout(Duration::from_secs(10))
-            .build()
-            .unwrap();
+        let client = ClientBuilder::new(
+            reqwest::Client::builder()
+                .danger_accept_invalid_certs(true)
+                .default_headers(default_headers)
+                .timeout(Duration::from_secs(10))
+                .build()
+                .unwrap(),
+        )
+        .with(RetryTransientMiddleware::new_with_policy(retry_policy))
+        .build();
 
         IBClientPortal {
             account,

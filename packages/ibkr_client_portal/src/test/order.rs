@@ -1,3 +1,4 @@
+use reqwest_retry::policies::ExponentialBackoff;
 use rust_decimal_macros::dec;
 use serial_test::serial;
 
@@ -15,7 +16,12 @@ use crate::{
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_live_orders() {
     once_init_brokerage_session().await;
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client.get_live_orders().await;
     assert!(response_result.is_ok());
 }
@@ -25,7 +31,12 @@ async fn test_get_live_orders() {
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_preview_order() {
     once_init_brokerage_session().await;
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .preview_order(PreviewOrderRequest {
             account_id: get_test_account(),

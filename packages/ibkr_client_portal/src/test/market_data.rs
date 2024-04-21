@@ -1,8 +1,8 @@
-use std::str::FromStr;
-
+use reqwest_retry::policies::ExponentialBackoff;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use serial_test::serial;
+use std::str::FromStr;
 
 use crate::{
     client::IBClientPortal,
@@ -24,7 +24,12 @@ use crate::{
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_market_data() {
     once_init_brokerage_session().await;
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let request = GetMarketDataRequest {
         conid_list: vec![CONTRACT_ID_AAPL],
         since: Option::None,
@@ -78,7 +83,12 @@ async fn test_get_market_data() {
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_market_data_history() {
     once_init_brokerage_session().await;
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_market_data_history(GetMarketDataHistoryRequest {
             conid: CONTRACT_ID_AAPL,
@@ -103,7 +113,12 @@ async fn test_get_market_data_history() {
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_get_market_data_history_beta() {
     once_init_brokerage_session().await;
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_market_data_history_beta(GetMarketDataHistoryBetaRequest {
             conid: CONTRACT_ID_AAPL,
@@ -121,7 +136,12 @@ async fn test_get_market_data_history_beta() {
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_market_data_snapshot_beta() {
     once_init_brokerage_session().await;
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_market_data_snapshot_beta(GetMarketDataSnapshotRequest {
             conid_list: vec![CONTRACT_ID_AAPL],

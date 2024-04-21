@@ -1,6 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Account
 
-use reqwest::Error;
+use reqwest_middleware::Error;
 
 use crate::{
     client::IBClientPortal,
@@ -26,7 +26,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns a list of accounts the user has trading access to, their respective aliases and the currently selected account. Note this endpoint must be called before modifying an order or querying open orders.
@@ -40,7 +40,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// In non-tiered account structures, returns a list of accounts for which the user can view position and account information. This endpoint must be called prior to calling other /portfolio endpoints for those accounts. For querying a list of accounts which the user can trade, see /iserver/accounts. For a list of subaccounts in tiered account structures (e.g. financial advisor or ibroker accounts) see /portfolio/subaccounts.
@@ -54,7 +54,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Used in tiered account structures (such as Financial Advisor and IBroker Accounts) to return a list of up to 100 sub-accounts for which the user can view position and account-related information. This endpoint must be called prior to calling other /portfolio endpoints for those sub-accounts. If you have more than 100 sub-accounts use /portfolio/subaccounts2. To query a list of accounts the user can trade, see /iserver/accounts.
@@ -68,7 +68,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Used in tiered account structures (such as Financial Advisor and IBroker Accounts) to return a list of sub-accounts, paginated up to 20 accounts per page, for which the user can view position and account-related information. This endpoint must be called prior to calling other /portfolio endpoints for those sub-accounts. If you have less than 100 sub-accounts use /portfolio/subaccounts. To query a list of accounts the user can trade, see /iserver/accounts.
@@ -86,7 +86,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Account information related to account Id /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
@@ -103,7 +103,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Account information related to account Id /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
@@ -120,7 +120,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Information about the account's portfolio allocation by Asset Class, Industry and Category. /portfolio/accounts or /portfolio/subaccounts must be called prior to this endpoint.
@@ -137,7 +137,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// If an user has multiple accounts, and user wants to get orders, trades, etc. of an account other than currently selected account, then user can update the currently selected account using this API and then can fetch required information for the newly updated account.
@@ -153,7 +153,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns an object containing PnL for the selected account and its models (if any).
@@ -170,7 +170,7 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 
     /// Returns a list of trades for the currently selected account for current day and six previous days. It is advised to call this endpoint once per session.
@@ -184,6 +184,6 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response.json().await.map_err(reqwest_middleware::Error::from)
     }
 }

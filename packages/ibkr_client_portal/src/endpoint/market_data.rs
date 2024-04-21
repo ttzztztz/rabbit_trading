@@ -1,6 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Market-Data
 
-use reqwest::Error;
+use reqwest_middleware::Error;
 
 use crate::{
     client::IBClientPortal,
@@ -53,7 +53,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Get historical market Data for given conid, length of data is controlled by 'period' and 'bar'. Formatted as: min=minute, h=hour, d=day, w=week, m=month, y=year e.g. period =1y with bar =1w returns 52 data points (Max of 1000 data points supported). Note: There's a limit of 5 concurrent requests. Excessive requests will return a 'Too many requests' status 429 response.
@@ -77,7 +80,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Cancel all market data request(s). To cancel market data for given conid, see /iserver/marketdata/{conid}/unsubscribe.
@@ -88,7 +94,10 @@ impl IBClientPortal {
         let response = self.client.get(self.get_url(&path)).send().await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Cancel market data for given conid. To cancel all market data request(s), see /iserver/marketdata/unsubscribeall.
@@ -100,7 +109,10 @@ impl IBClientPortal {
         let response = self.client.get(self.get_url(&path)).send().await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Using a direct connection to the market data farm, will provide a list of historical market data for given conid.
@@ -127,7 +139,10 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 
     /// Get a snapshot of Market Data for the given conid(s).See response for a list of available fields that can be requested from the fields argument. Must be connected to a brokerage session before can query snapshot data. First /snapshot endpoint call for given conid(s) will initiate the market data request, make an additional request to receive field values back. To receive all available fields the /snapshot endpoint will need to be called several times. To receive streaming market data the endpoint /ws can be used. Refer to Streaming WebSocket Data for details.
@@ -156,6 +171,9 @@ impl IBClientPortal {
             .await?;
 
         response.error_for_status_ref()?;
-        response.json().await
+        response
+            .json()
+            .await
+            .map_err(reqwest_middleware::Error::from)
     }
 }

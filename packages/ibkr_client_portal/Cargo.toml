@@ -1,6 +1,6 @@
 [package]
 name = "ibkr_client_portal"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 authors = ["Rabbit <ttzztztz@outlook.com>"]
 description = "Unofficial API Client implement for Interactive Brokers (IBKR / IB) Client Portal."
@@ -12,10 +12,13 @@ categories = ["api-bindings"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = { workspace = true }
 async-trait = { workspace = true }
 futures-util = { workspace = true }
 mixin = { workspace = true }
 reqwest = { workspace = true, features = ["json"] }
+reqwest-middleware = { workspace = true, features = ["json"] }
+reqwest-retry = { workspace = true }
 rust_decimal = { workspace = true, features = ["maths", "serde-float", "serde-with-str"] }
 rust_decimal_macros = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

@@ -1,3 +1,4 @@
+use reqwest_retry::policies::ExponentialBackoff;
 use serial_test::serial;
 
 use crate::{
@@ -13,7 +14,12 @@ use crate::{
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_portfolio_positions() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_portfolio_positions(GetPortfolioPositionsRequest { page: 1 })
         .await;
@@ -28,7 +34,12 @@ async fn test_get_portfolio_positions() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_portfolio_allocation() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_portfolio_allocation(GetPortfolioAllocationRequest {
             account_id_list: vec![get_test_account()],
@@ -41,7 +52,12 @@ async fn test_get_portfolio_allocation() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_portfolio_position_by_account_and_conid() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_portfolio_position_by_account_and_conid(GetPortfolioPositionByAccountAndConIdRequest {
             account_id: get_test_account(),
@@ -55,7 +71,12 @@ async fn test_get_portfolio_position_by_account_and_conid() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_portfolio_position_by_conid() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_portfolio_position_by_conid(GetPortfolioPositionByConIdRequest {
             conid: CONTRACT_ID_QQQ,

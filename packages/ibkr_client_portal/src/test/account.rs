@@ -1,3 +1,4 @@
+use reqwest_retry::policies::ExponentialBackoff;
 use serial_test::serial;
 
 use crate::{
@@ -13,7 +14,12 @@ use crate::{
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_account_ledger() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client.get_account_ledger().await;
     assert!(response_result.is_ok());
@@ -25,7 +31,12 @@ async fn test_get_account_ledger() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_brokerage_accounts() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let test_account = get_test_account();
 
     let response_result = ib_cp_client.get_brokerage_accounts().await;
@@ -49,7 +60,12 @@ async fn test_get_brokerage_accounts() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_portfolio_accounts() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client.get_portfolio_accounts().await;
     assert!(response_result.is_ok());
@@ -59,7 +75,12 @@ async fn test_get_portfolio_accounts() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_sub_accounts() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client.get_sub_accounts().await;
     assert!(response_result.is_ok());
@@ -69,7 +90,12 @@ async fn test_get_sub_accounts() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_sub_accounts_v2() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_sub_accounts_v2(GetSubAccountsV2Request { page: 1 })
@@ -81,7 +107,12 @@ async fn test_get_sub_accounts_v2() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_account_metadata() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_account_metadata(GetAccountMetadataRequest {
@@ -95,7 +126,12 @@ async fn test_get_account_metadata() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_account_summary() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_account_summary(GetAccountSummaryRequest {
@@ -109,7 +145,12 @@ async fn test_get_account_summary() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_account_allocations() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client
         .get_account_allocations(GetAccountAllocationRequest {
@@ -125,7 +166,12 @@ async fn test_get_account_allocations() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_account_pnl_partitioned() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client.get_account_pnl_partitioned().await;
     assert!(response_result.is_ok());
@@ -135,7 +181,12 @@ async fn test_get_account_pnl_partitioned() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_account_trades() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
 
     let response_result = ib_cp_client.get_account_trades().await;
     assert!(response_result.is_ok());

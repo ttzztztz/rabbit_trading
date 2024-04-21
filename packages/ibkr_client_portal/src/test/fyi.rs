@@ -1,3 +1,4 @@
+use reqwest_retry::policies::ExponentialBackoff;
 use serial_test::serial;
 
 use crate::{
@@ -10,7 +11,12 @@ use crate::{
 #[serial]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_get_fyi_unread_number() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client.get_fyi_unread_number().await;
     assert!(response_result.is_ok());
     let response = response_result.unwrap();
@@ -21,7 +27,12 @@ async fn test_get_fyi_unread_number() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_fyi_settings() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client.get_fyi_settings().await;
     assert!(response_result.is_ok());
     let response = response_result.unwrap();
@@ -34,7 +45,12 @@ async fn test_get_fyi_settings() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_get_notification_list() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client
         .get_notification_list(GetNotificationListRequest {
             max: 10,
@@ -51,7 +67,12 @@ async fn test_get_notification_list() {
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
 async fn get_fyi_delivery_options() {
-    let ib_cp_client = IBClientPortal::new(get_test_account(), TEST_HOST.to_owned(), false);
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
     let response_result = ib_cp_client.get_fyi_delivery_options().await;
     assert!(response_result.is_ok());
 }
