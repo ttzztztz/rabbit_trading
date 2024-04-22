@@ -20,8 +20,6 @@ jobs:
         with:
           toolchain: stable
           override: true
-      - uses: katyo/publish-crates@v2
-        with:
-          path: "./packages/ibkr_client_portal"
-          registry-token: ${{ secrets.CARGO_PUBLISH_TOKEN }}
-          ignore-unpublished-changes: true
+      - run: cargo publish --verbose --token ${CARGO_PUBLISH_TOKEN} -p ibkr_client_portal
+        env:
+          CARGO_PUBLISH_TOKEN: ${{ secrets.CARGO_PUBLISH_TOKEN }}
