@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - "packages/ibkr_client_portal/Cargo.toml"
+      - ".github/workflows/cargo-publish.yml"
 
 env:
   CARGO_TERM_COLOR: always
@@ -20,13 +21,7 @@ jobs:
           toolchain: stable
           override: true
       - uses: katyo/publish-crates@v2
-        id: publish-crates
         with:
           path: "./packages/ibkr_client_portal"
           registry-token: ${{ secrets.CARGO_PUBLISH_TOKEN }}
           ignore-unpublished-changes: true
-      - name: if my-crate published
-        if: fromJSON(steps.publish-crates.outputs.published).*
-        run: |
-          LIST="${{ join(fromJSON(steps.publish-crates.outputs.published).*.name, ', ')) }}"
-          echo "Published crates: $LIST"
