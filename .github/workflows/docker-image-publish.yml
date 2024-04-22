@@ -2,8 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    tags:
-      - 'release-*'
+    paths:
+      - 'dockerfiles/**'
+      - '.github/workflows/docker-**'
 
 jobs:
   build:
