@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker Image CI (Push)
 
 on:
   push:
@@ -24,4 +24,6 @@ jobs:
         context: .
         file: dockerfiles/ibkr_client_portal/Dockerfile
         push: true
-        tags: ['ttzztztz/ibkr_client_portal:latest', 'ttzztztz/ibkr_client_portal:${{ github.sha }}']
+        tags: |
+          ttzztztz/ibkr_client_portal:latest
+          ttzztztz/ibkr_client_portal:${{ github.sha }}
