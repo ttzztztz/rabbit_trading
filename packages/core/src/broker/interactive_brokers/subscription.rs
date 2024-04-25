@@ -1,10 +1,11 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use ibkr_client_portal::client::IBClientPortal;
 
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait},
     model::{
-        common::{error::Error, types::ConfigMap},
+        common::types::ConfigMap,
         trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
     },
 };

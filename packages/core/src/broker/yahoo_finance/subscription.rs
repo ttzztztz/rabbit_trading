@@ -1,3 +1,4 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
@@ -11,7 +12,7 @@ use crate::broker::common::{
     subscription::{SubscriptionData, SubscriptionWorker},
 };
 use crate::model::{
-    common::{error::Error, types::ConfigMap},
+    common::types::ConfigMap,
     trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 

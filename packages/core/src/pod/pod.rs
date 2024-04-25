@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Error};
 use std::{
     collections::LinkedList,
     sync::{
@@ -11,7 +12,7 @@ use super::event::{event_bus::EventBus, listener::initializer::get_event_listene
 use crate::{
     broker::{common::broker::BrokerTrait, initializer::get_broker_instance},
     metrics::initializer::get_metrics_registry_factory,
-    model::{common::error::Error, config::pod::PodConfig, trading::event::RabbitTradingEvent},
+    model::{config::pod::PodConfig, trading::event::RabbitTradingEvent},
     persistent_kv::{
         common::store::PersistentKVStoreTrait, initializer::get_persistent_kv_instance,
     },
@@ -40,8 +41,6 @@ impl Pod {
     }
 
     fn initialize_broker_list(&self) -> Result<Vec<Box<dyn BrokerTrait>>, Error> {
-        const ILLEGAL_BROKER_ID: &'static str = "ILLEGAL_BROKER_ID";
-
         let broker_list: Vec<Box<dyn BrokerTrait>> = self
             .pod_config
             .broker_list
@@ -75,10 +74,10 @@ impl Pod {
                 .map(|broker_config| broker_config.identifier.clone())
                 .collect();
 
-            return Result::Err(Error {
-                code: ILLEGAL_BROKER_ID.to_owned(),
-                message: broker_id_list.join(","),
-            });
+            return Result::Err(anyhow!(
+                "ILLEGAL_BROKER_ID, list: {}",
+                broker_id_list.join(",")
+            ));
         }
 
         Result::Ok(broker_list)

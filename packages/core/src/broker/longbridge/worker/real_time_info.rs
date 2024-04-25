@@ -1,3 +1,4 @@
+use anyhow::{Context, Error};
 use async_trait::async_trait;
 use longbridge::{
     quote::{PushEvent, PushQuote, SubFlags},
@@ -10,14 +11,8 @@ use tokio::sync::{
 };
 
 use crate::{
-    broker::{
-        common::subscription::{SubscriptionController, SubscriptionWorker},
-        longbridge::broker::LongBridgeBroker,
-    },
-    model::{
-        common::error::Error,
-        trading::{quote::QuoteRealTimeInfo, symbol::Symbol},
-    },
+    broker::common::subscription::{SubscriptionController, SubscriptionWorker},
+    model::trading::{quote::QuoteRealTimeInfo, symbol::Symbol},
 };
 
 pub struct LongBridgeQuoteRealTimeInfoSubscriptionWorker {
@@ -74,7 +69,12 @@ impl SubscriptionWorker for LongBridgeQuoteRealTimeInfoSubscriptionWorker {
             .await
             .subscribe([symbol_identifier], SubFlags::QUOTE, true)
             .await
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)?;
+            .with_context(|| {
+                format!(
+                    "failed to start subscription worker, symbol: {}",
+                    self.symbol.to_string()
+                )
+            })?;
 
         while let Some(event_detail) = longbridge_receiver.recv().await.map(|event| event.detail) {
             match event_detail {
@@ -118,6 +118,11 @@ impl SubscriptionController for LongBridgeQuoteRealTimeInfoSubscriptionControlle
             .await
             .unsubscribe([symbol_identifier], SubFlags::QUOTE)
             .await
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| {
+                format!(
+                    "failed to stop subscription worker, symbol: {}",
+                    self.symbol.to_string()
+                )
+            })
     }
 }

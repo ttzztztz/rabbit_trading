@@ -1,8 +1,9 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::time::{Duration, Instant};
 
 use crate::model::{
-    common::{error::Error, types::ConfigMap},
+    common::types::ConfigMap,
     trading::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 

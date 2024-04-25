@@ -1,7 +1,7 @@
 use auth::auth_config::AuthConfig;
 use axum::Router;
 use dotenv::dotenv;
-use rabbit_trading_core::utils::error::env_var_error_to_rabbit_trading_error;
+use rabbit_trading_core::utils::error::env_var_error_to_anyhow_error;
 use simple_logger::SimpleLogger;
 use std::{env, str::FromStr, sync::Arc};
 
@@ -32,7 +32,7 @@ async fn main() {
     let server_host = env::var("API_SERVER_HOST").unwrap_or(DEFAULT_HOST.to_owned());
     let server_port = env::var("API_SERVER_PORT").unwrap_or(DEFAULT_PORT.to_owned());
     let auth_kind = env::var("API_SERVER_AUTH")
-        .map_err(env_var_error_to_rabbit_trading_error)
+        .map_err(env_var_error_to_anyhow_error)
         .and_then(|auth_kind| AuthConfig::from_str(&auth_kind))
         .unwrap_or(DEFAULT_AUTH);
     let bind_address = format!("{}:{}", server_host, server_port);

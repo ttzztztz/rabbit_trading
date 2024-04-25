@@ -1,9 +1,9 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::sync::{atomic::AtomicBool, Arc};
 
 use crate::{
-    broker::common::broker::BrokerTrait,
-    model::common::{error::Error, types::ConfigMap},
+    broker::common::broker::BrokerTrait, model::common::types::ConfigMap,
     persistent_kv::common::store::PersistentKVStoreTrait,
 };
 

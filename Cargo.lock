@@ -1717,6 +1717,7 @@ dependencies = [
 name = "rabbit_trading_api_server"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
  "axum-macros",
  "dotenv",
@@ -1731,6 +1732,7 @@ dependencies = [
 name = "rabbit_trading_core"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "dogstatsd",
  "dotenv",
@@ -1744,7 +1746,6 @@ dependencies = [
  "time",
  "tokio",
  "tokio-test",
- "tokio-tungstenite 0.21.0",
  "yahoo_finance_api",
 ]
 

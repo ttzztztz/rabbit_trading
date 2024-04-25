@@ -1,13 +1,11 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::{collections::HashMap, time::Duration};
 
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionInterceptorTrait},
     metrics::common::registry::MetricRegistryTrait,
-    model::{
-        common::error::Error,
-        trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
-    },
+    model::trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 
 pub struct PodSubscriptionInterceptor {

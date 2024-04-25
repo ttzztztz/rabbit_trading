@@ -1,10 +1,8 @@
+use anyhow::Error;
 use tokio::sync::broadcast::Receiver;
 
 use crate::{
-    model::{
-        common::{error::Error, types::ConfigMap},
-        trading::event::RabbitTradingEvent,
-    },
+    model::{common::types::ConfigMap, trading::event::RabbitTradingEvent},
     pod::event::listener::common::listener::EventListenerTrait,
 };
 

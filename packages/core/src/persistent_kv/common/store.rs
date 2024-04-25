@@ -1,6 +1,7 @@
+use anyhow::Error;
 use async_trait::async_trait;
 
-use crate::model::common::{error::Error, types::ConfigMap};
+use crate::model::common::types::ConfigMap;
 
 pub type BytesArray = Vec<u8>;
 

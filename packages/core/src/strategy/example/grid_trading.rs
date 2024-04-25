@@ -1,9 +1,7 @@
+use anyhow::Error;
 use async_trait::async_trait;
 
-use crate::{
-    model::common::error::Error,
-    strategy::common::strategy::{StrategyContext, StrategyTrait},
-};
+use crate::strategy::common::strategy::{StrategyContext, StrategyTrait};
 
 pub struct GridTradingStrategy {
     strategy_context: StrategyContext,

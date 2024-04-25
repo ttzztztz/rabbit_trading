@@ -1,3 +1,4 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use rust_decimal::Decimal;
 use std::result::Result;
@@ -5,12 +6,9 @@ use yahoo_finance_api::YahooConnector;
 
 use crate::broker::{common::info::InfoTrait, yahoo_finance::broker::YahooFinanceBroker};
 use crate::model::common::types::ConfigMap;
-use crate::model::{
-    common::error::Error,
-    trading::{
-        quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
-        symbol::Symbol,
-    },
+use crate::model::trading::{
+    quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
+    symbol::Symbol,
 };
 
 pub struct YahooFinanceInfo {

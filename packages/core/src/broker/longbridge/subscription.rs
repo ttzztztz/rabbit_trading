@@ -1,3 +1,4 @@
+use anyhow::{Context, Error};
 use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
@@ -18,7 +19,7 @@ use super::{
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait, SubscriptionWorker},
     model::{
-        common::{error::Error, types::ConfigMap},
+        common::types::ConfigMap,
         trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
     },
 };
@@ -40,7 +41,12 @@ impl SubscriptionTrait for LongBridgeSubscription {
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         let (longbridge_context, longbridge_receiver) = LongBridgeBroker::create_quote_context()
             .await
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)?;
+            .with_context(|| {
+                format!(
+                    "error when subscripting real_time_info request {:?}",
+                    request
+                )
+            })?;
         let (sys_sender, sys_receiver) = mpsc::channel(64);
         let longbridge_context_ref = Arc::new(Mutex::new(longbridge_context));
 
@@ -64,7 +70,7 @@ impl SubscriptionTrait for LongBridgeSubscription {
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
         let (longbridge_context, longbridge_receiver) = LongBridgeBroker::create_quote_context()
             .await
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)?;
+            .with_context(|| format!("error when subscripting depth_info request {:?}", request))?;
         let (sys_sender, sys_receiver) = mpsc::channel(64);
         let longbridge_context_ref = Arc::new(Mutex::new(longbridge_context));
 

@@ -1,3 +1,4 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::{mpsc::Sender, Mutex};
@@ -9,10 +10,7 @@ use crate::broker::{
     yahoo_finance::info::YahooFinanceInfo,
 };
 use crate::model::common::types::ConfigMap;
-use crate::model::{
-    common::error::Error,
-    trading::quote::{QueryInfoRequest, QuoteRealTimeInfo},
-};
+use crate::model::trading::quote::{QueryInfoRequest, QuoteRealTimeInfo};
 
 pub struct YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
     request: QueryInfoRequest,

@@ -1,20 +1,18 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::{collections::HashMap, time::Duration};
 
 use crate::{
     broker::common::transaction::TransactionInterceptorTrait,
     metrics::common::registry::MetricRegistryTrait,
-    model::{
-        common::error::Error,
-        trading::{
-            balance::BalanceHashMap,
-            event::RabbitTradingEvent,
-            position::PositionList,
-            transaction::{
-                BuyingPower, CancelOrderRequest, CancelOrderResponse, EditOrderRequest,
-                EditOrderResponse, EstimateMaxBuyingPowerRequest, OrderDetail, OrderDetailRequest,
-                SubmitOrderRequest, SubmitOrderResponse,
-            },
+    model::trading::{
+        balance::BalanceHashMap,
+        event::{from_anyhow_result, RabbitTradingEvent},
+        position::PositionList,
+        transaction::{
+            BuyingPower, CancelOrderRequest, CancelOrderResponse, EditOrderRequest,
+            EditOrderResponse, EstimateMaxBuyingPowerRequest, OrderDetail, OrderDetailRequest,
+            SubmitOrderRequest, SubmitOrderResponse,
         },
     },
     pod::event::event_bus::EventBus,
@@ -143,7 +141,7 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
             .send(RabbitTradingEvent::SubmitOrder {
                 context: self.event_bus.create_event_context(),
                 request,
-                result: result.clone(),
+                result: from_anyhow_result(&result),
             })
             .await
             .err()
@@ -176,7 +174,7 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
             .send(RabbitTradingEvent::EditOrder {
                 context: self.event_bus.create_event_context(),
                 request,
-                result: result.clone(),
+                result: from_anyhow_result(&result),
             })
             .await
             .err()
@@ -209,7 +207,7 @@ impl TransactionInterceptorTrait for PodTransactionInterceptor {
             .send(RabbitTradingEvent::CancelOrder {
                 context: self.event_bus.create_event_context(),
                 request,
-                result: result.clone(),
+                result: from_anyhow_result(&result),
             })
             .await
             .err()

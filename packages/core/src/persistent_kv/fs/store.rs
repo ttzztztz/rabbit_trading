@@ -1,10 +1,11 @@
+use anyhow::{Context, Error};
 use async_trait::async_trait;
 use std::path::{Path, PathBuf};
 use tempfile::{tempdir, TempDir};
 use tokio::fs;
 
 use crate::{
-    model::common::{error::Error, types::ConfigMap},
+    model::common::types::ConfigMap,
     persistent_kv::common::store::{BytesArray, PersistentKVStoreTrait},
 };
 
@@ -18,16 +19,7 @@ pub struct FileSystemKVStore {
 }
 
 impl FileSystemKVStore {
-    fn to_rabbit_trading_err(io_error: std::io::Error) -> Error {
-        const STD_IO_ERROR_CODE: &'static str = "STD::IO_ERROR";
-
-        Error {
-            code: STD_IO_ERROR_CODE.to_owned(),
-            message: io_error.kind().to_string(),
-        }
-    }
-
-    fn get_file_path_for_key(&self, key: String) -> PathBuf {
+    fn get_file_path_for_key(&self, key: &str) -> PathBuf {
         match &self.backend_path {
             KVStoreBackendPath::UserDefinedPath { base_path } => Path::new(base_path).join(key),
             KVStoreBackendPath::FallbackTempDir { temp_dir } => temp_dir.path().join(key),
@@ -63,20 +55,20 @@ impl PersistentKVStoreTrait for FileSystemKVStore {
     }
 
     async fn read(&self, key: String) -> Result<BytesArray, Error> {
-        let file_path = self.get_file_path_for_key(key);
+        let file_path = self.get_file_path_for_key(key.as_str());
 
         fs::read(file_path)
             .await
-            .map_err(Self::to_rabbit_trading_err)
+            .with_context(|| format!("Error when reading key: {}", key))
     }
 
     async fn write(&self, key: String, value: BytesArray) -> Result<usize, Error> {
         let value_len = value.len();
-        let file_path = self.get_file_path_for_key(key);
+        let file_path = self.get_file_path_for_key(key.as_str());
 
         fs::write(file_path, value)
             .await
             .map(|_| value_len)
-            .map_err(Self::to_rabbit_trading_err)
+            .with_context(|| format!("Error when writing key: {}", key))
     }
 }

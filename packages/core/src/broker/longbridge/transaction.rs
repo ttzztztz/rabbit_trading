@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Context, Error};
 use async_trait::async_trait;
 use longbridge::{
     trade::{
@@ -14,7 +15,7 @@ use super::broker::LongBridgeBroker;
 use crate::{
     broker::common::transaction::TransactionTrait,
     model::{
-        common::{error::Error, types::ConfigMap},
+        common::types::ConfigMap,
         trading::{
             balance::{BalanceDetail, BalanceHashMap},
             position::PositionList,
@@ -66,7 +67,7 @@ impl LongBridgeTransaction {
         }
     }
 
-    fn to_submit_order_options(request: SubmitOrderRequest) -> SubmitOrderOptions {
+    fn to_submit_order_options(request: &SubmitOrderRequest) -> SubmitOrderOptions {
         let mut submit_order_options_builder = SubmitOrderOptions::new(
             request.symbol.to_string(),
             Self::to_order_type(&request.price),
@@ -87,40 +88,42 @@ impl LongBridgeTransaction {
             _ => submit_order_options_builder,
         };
 
-        submit_order_options_builder = match request.price {
-            Price::LimitOrder { price } => submit_order_options_builder.submitted_price(price),
+        submit_order_options_builder = match &request.price {
+            Price::LimitOrder { price } => {
+                submit_order_options_builder.submitted_price(price.clone())
+            }
 
             Price::MarketOrder => submit_order_options_builder,
             Price::LimitIfTouched {
                 submit_price,
                 trigger_price,
             } => submit_order_options_builder
-                .submitted_price(submit_price)
-                .trigger_price(trigger_price),
+                .submitted_price(submit_price.clone())
+                .trigger_price(trigger_price.clone()),
 
             Price::MarketIfTouched { trigger_price } => {
-                submit_order_options_builder.trigger_price(trigger_price)
+                submit_order_options_builder.trigger_price(trigger_price.clone())
             }
             Price::TrailingLimitIfTouched { trailing } => match trailing {
                 TrailingLimitPrice::Amount {
                     limit_offset,
                     trailing_amount,
                 } => submit_order_options_builder
-                    .limit_offset(limit_offset)
-                    .trailing_amount(trailing_amount),
+                    .limit_offset(limit_offset.clone())
+                    .trailing_amount(trailing_amount.clone()),
                 TrailingLimitPrice::Percent {
                     limit_offset,
                     trailing_percent,
                 } => submit_order_options_builder
-                    .limit_offset(limit_offset)
-                    .trailing_percent(trailing_percent),
+                    .limit_offset(limit_offset.clone())
+                    .trailing_percent(trailing_percent.clone()),
             },
             Price::TrailingMarketIfTouched { trailing } => match trailing {
                 TrailingMarketPrice::Amount { trailing_amount } => {
-                    submit_order_options_builder.trailing_amount(trailing_amount)
+                    submit_order_options_builder.trailing_amount(trailing_amount.clone())
                 }
                 TrailingMarketPrice::Percent { trailing_percent } => {
-                    submit_order_options_builder.trailing_percent(trailing_percent)
+                    submit_order_options_builder.trailing_percent(trailing_percent.clone())
                 }
             },
         };
@@ -128,44 +131,44 @@ impl LongBridgeTransaction {
         submit_order_options_builder
     }
 
-    fn to_replce_order_options(request: EditOrderRequest) -> ReplaceOrderOptions {
+    fn to_replace_order_options(request: &EditOrderRequest) -> ReplaceOrderOptions {
         let mut replace_order_options_builder =
-            ReplaceOrderOptions::new(request.order_id, request.quantity.to_i64().unwrap());
+            ReplaceOrderOptions::new(request.order_id.clone(), request.quantity.to_i64().unwrap());
 
-        replace_order_options_builder = match request.price {
-            Price::LimitOrder { price } => replace_order_options_builder.price(price),
+        replace_order_options_builder = match &request.price {
+            Price::LimitOrder { price } => replace_order_options_builder.price(price.clone()),
 
             Price::MarketOrder => replace_order_options_builder,
             Price::LimitIfTouched {
                 submit_price,
                 trigger_price,
             } => replace_order_options_builder
-                .price(submit_price)
-                .trigger_price(trigger_price),
+                .price(submit_price.clone())
+                .trigger_price(trigger_price.clone()),
 
             Price::MarketIfTouched { trigger_price } => {
-                replace_order_options_builder.trigger_price(trigger_price)
+                replace_order_options_builder.trigger_price(trigger_price.clone())
             }
             Price::TrailingLimitIfTouched { trailing } => match trailing {
                 TrailingLimitPrice::Amount {
                     limit_offset,
                     trailing_amount,
                 } => replace_order_options_builder
-                    .limit_offset(limit_offset)
-                    .trailing_amount(trailing_amount),
+                    .limit_offset(limit_offset.clone())
+                    .trailing_amount(trailing_amount.clone()),
                 TrailingLimitPrice::Percent {
                     limit_offset,
                     trailing_percent,
                 } => replace_order_options_builder
-                    .limit_offset(limit_offset)
-                    .trailing_percent(trailing_percent),
+                    .limit_offset(limit_offset.clone())
+                    .trailing_percent(trailing_percent.clone()),
             },
             Price::TrailingMarketIfTouched { trailing } => match trailing {
                 TrailingMarketPrice::Amount { trailing_amount } => {
-                    replace_order_options_builder.trailing_amount(trailing_amount)
+                    replace_order_options_builder.trailing_amount(trailing_amount.clone())
                 }
                 TrailingMarketPrice::Percent { trailing_percent } => {
-                    replace_order_options_builder.trailing_percent(trailing_percent)
+                    replace_order_options_builder.trailing_percent(trailing_percent.clone())
                 }
             },
         };
@@ -233,25 +236,16 @@ impl LongBridgeTransaction {
     }
 
     fn to_order_direction(order_side: OrderSide) -> Result<Direction, Error> {
-        const UNKNOWN_ORDER_SIDE_MESSAGE: &'static str = "unknown OrderSide";
-
         match order_side {
             OrderSide::Buy => Result::Ok(Direction::Buy),
             OrderSide::Sell => Result::Ok(Direction::Sell),
-            OrderSide::Unknown => Result::Err(Error {
-                code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: UNKNOWN_ORDER_SIDE_MESSAGE.to_owned(),
-            }),
+            OrderSide::Unknown => Result::Err(anyhow!("PARSING_ERROR UNKNOWN_ORDER_SIDE")),
         }
     }
 
     fn to_order_detail_response(
         longbridge_order_detail: longbridge::trade::OrderDetail,
     ) -> Result<OrderDetail, Error> {
-        const UNKNOWN_TIME_IN_FORCE_MESSAGE: &'static str = "unknown TimeInForceType";
-        const UNKNOWN_OUTSIDE_RTH_MESSAGE: &'static str = "unknown OutsideRTH";
-        const UNKNOWN_ORDER_TYPE_MESSAGE: &'static str = "unknown OrderType";
-
         let symbol = LongBridgeBroker::to_symbol(&longbridge_order_detail.symbol)?;
         let currency = LongBridgeBroker::to_currency(&longbridge_order_detail.currency)?;
         let direction = Self::to_order_direction(longbridge_order_detail.side)?;
@@ -259,18 +253,14 @@ impl LongBridgeTransaction {
             .outside_rth
             .unwrap_or(OutsideRTH::AnyTime)
         {
-            OutsideRTH::Unknown => Result::Err(Error {
-                code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: UNKNOWN_OUTSIDE_RTH_MESSAGE.to_owned(),
-            })?,
+            OutsideRTH::Unknown => Result::Err(anyhow!("PARSING_ERROR UNKNOWN_OUTSIDE_RTH"))?,
             OutsideRTH::RTHOnly => RegularTradingTime::OnlyRegularTradingTime,
             OutsideRTH::AnyTime => RegularTradingTime::AllTime,
         };
         let expire = match longbridge_order_detail.time_in_force {
-            TimeInForceType::Unknown => Result::Err(Error {
-                code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: UNKNOWN_TIME_IN_FORCE_MESSAGE.to_owned(),
-            })?,
+            TimeInForceType::Unknown => {
+                Result::Err(anyhow!("PARSING_ERROR UNKNOWN_TIME_IN_FORCE"))?
+            }
             TimeInForceType::Day => Expire::Day,
             TimeInForceType::GoodTilCanceled => Expire::GoodTillCancelled,
             TimeInForceType::GoodTilDate => {
@@ -321,10 +311,7 @@ impl LongBridgeTransaction {
             | OrderType::AO
             | OrderType::ALO
             | OrderType::ODD
-            | OrderType::SLO => Result::Err(Error {
-                code: LongBridgeBroker::PARSING_ERROR_CODE.to_owned(),
-                message: UNKNOWN_ORDER_TYPE_MESSAGE.to_owned(),
-            })?,
+            | OrderType::SLO => Result::Err(anyhow!("PARSING_ERROR UNKNOWN_ORDER_TYPE_MESSAGE"))?,
         };
 
         let order_detail = OrderDetail {
@@ -366,18 +353,18 @@ impl TransactionTrait for LongBridgeTransaction {
         request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
         self.longbridge_context
-            .submit_order(Self::to_submit_order_options(request))
+            .submit_order(Self::to_submit_order_options(&request))
             .await
             .map(Self::to_submit_order_response)
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when calling submit_order, request: {:?}", request))
     }
 
     async fn edit_order(&mut self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
         self.longbridge_context
-            .replace_order(Self::to_replce_order_options(request))
+            .replace_order(Self::to_replace_order_options(&request))
             .await
             .map(|_| EditOrderResponse {})
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when calling edit_order, request: {:?}", request))
     }
 
     async fn cancel_order(
@@ -385,10 +372,10 @@ impl TransactionTrait for LongBridgeTransaction {
         request: CancelOrderRequest,
     ) -> Result<CancelOrderResponse, Error> {
         self.longbridge_context
-            .cancel_order(request.order_id)
+            .cancel_order(request.order_id.clone())
             .await
             .map(|_| CancelOrderResponse {})
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when calling cancel_order, request: {:?}", request))
     }
 
     async fn estimate_max_buying_power(
@@ -397,18 +384,23 @@ impl TransactionTrait for LongBridgeTransaction {
     ) -> Result<BuyingPower, Error> {
         self.longbridge_context
             .estimate_max_purchase_quantity(Self::to_estimate_max_purchase_quantity_options(
-                request,
+                request.clone(),
             ))
             .await
             .map(Self::to_buying_power)
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| {
+                format!(
+                    "Error when calling estimate_max_buying_power, request: {:?}",
+                    request
+                )
+            })
     }
 
     async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error> {
         self.longbridge_context
-            .order_detail(request.order_id)
+            .order_detail(request.order_id.clone())
             .await
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when calling order_detail, request: {:?}", request))
             .and_then(Self::to_order_detail_response)
     }
 
@@ -432,7 +424,7 @@ impl TransactionTrait for LongBridgeTransaction {
                     })
                     .collect()
             })
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when calling account_balance"))
     }
 
     async fn positions(&self) -> Result<PositionList, Error> {
@@ -447,6 +439,6 @@ impl TransactionTrait for LongBridgeTransaction {
                     .filter_map(|position| Self::to_stock_position(position).ok())
                     .collect()
             })
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when calling positions"))
     }
 }

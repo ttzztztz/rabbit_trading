@@ -1,36 +1,10 @@
-use crate::model::common::error::Error;
+use anyhow::{anyhow, Error};
 
-pub fn reqwest_middleware_error_to_rabbit_trading_error(error: ibkr_client_portal::Error) -> Error {
-    const REQWEST_ERROR_CODE: &'static str = "REQWEST_ERROR";
-    Error {
-        code: REQWEST_ERROR_CODE.to_owned(),
-        message: format!("{}", error),
-    }
-}
-
-pub fn tokio_tungstenite_error_to_rabbit_trading_error(
-    error: tokio_tungstenite::tungstenite::Error,
-) -> Error {
-    const TUNGSTENITE_ERROR_CODE: &'static str = "TUNGSTENITE_ERROR";
-    Error {
-        code: TUNGSTENITE_ERROR_CODE.to_owned(),
-        message: format!("{}", error),
-    }
-}
-
-pub fn env_var_error_to_rabbit_trading_error(error: std::env::VarError) -> Error {
-    const ENV_VAR_ERROR_CODE: &'static str = "ENV_VAR_ERROR";
-    const VALUE_NOT_PRESENT_ERROR_MESSAGE: &'static str = "Value not present!";
-    const VALUE_NOT_UNICODE_ERROR_MESSAGE: &'static str = "Value not unicode!";
-
+pub fn env_var_error_to_anyhow_error(error: std::env::VarError) -> Error {
     match error {
-        std::env::VarError::NotPresent => Error {
-            code: ENV_VAR_ERROR_CODE.to_owned(),
-            message: VALUE_NOT_PRESENT_ERROR_MESSAGE.to_owned(),
-        },
-        std::env::VarError::NotUnicode(_) => Error {
-            code: ENV_VAR_ERROR_CODE.to_owned(),
-            message: VALUE_NOT_UNICODE_ERROR_MESSAGE.to_owned(),
-        },
+        std::env::VarError::NotPresent => anyhow!("ENV_VAR_ERROR Value not present!"),
+        std::env::VarError::NotUnicode(str) => {
+            anyhow!("ENV_VAR_ERROR Value not unicode! {:?}", str)
+        }
     }
 }

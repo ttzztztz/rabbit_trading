@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Context, Error};
 use async_trait::async_trait;
 use longbridge::quote::{SecurityDepth, SecurityQuote, SecurityStaticInfo};
 use longbridge::QuoteContext;
@@ -6,7 +7,7 @@ use std::result::Result;
 use super::broker::LongBridgeBroker;
 use crate::broker::common::info::InfoTrait;
 use crate::model::{
-    common::{error::Error, types::ConfigMap},
+    common::types::ConfigMap,
     trading::{
         quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
         symbol::Symbol,
@@ -83,13 +84,7 @@ impl LongBridgeInfo {
     }
 
     fn get_missing_element_error() -> Error {
-        const ERROR_CODE: &'static str = "longbridge_api_internal_error";
-        const MESSAGE: &'static str = "Missing elements from the api response.";
-
-        Error {
-            code: ERROR_CODE.to_owned(),
-            message: MESSAGE.to_owned(),
-        }
+        anyhow!("longbridge_api_internal_error: Missing elements from the api response.")
     }
 }
 
@@ -105,7 +100,7 @@ impl InfoTrait for LongBridgeInfo {
         self.longbridge_context
             .static_info([symbol_identifier])
             .await
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when querying basic info {:?}", request))
             .and_then(|result_vec| match result_vec.into_iter().nth(0) {
                 Some(static_info) => {
                     Result::Ok(Self::to_quote_basic_info(request.symbol, static_info))
@@ -123,7 +118,7 @@ impl InfoTrait for LongBridgeInfo {
         self.longbridge_context
             .quote([symbol_identifier])
             .await
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .with_context(|| format!("Error when querying real time info {:?}", request))
             .and_then(|result_vec| match result_vec.into_iter().nth(0) {
                 Some(real_time_info) => Result::Ok(Self::to_quote_real_time_info(
                     request.symbol,
@@ -138,7 +133,7 @@ impl InfoTrait for LongBridgeInfo {
         self.longbridge_context
             .depth(symbol_identifier)
             .await
-            .map(|depth_info| Self::to_quote_depth_info(request.symbol, depth_info))
-            .map_err(LongBridgeBroker::to_rabbit_trading_err)
+            .map(|depth_info| Self::to_quote_depth_info(request.symbol.clone(), depth_info))
+            .with_context(|| format!("Error when querying depth info {:?}", request))
     }
 }

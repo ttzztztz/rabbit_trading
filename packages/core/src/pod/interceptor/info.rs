@@ -1,13 +1,11 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::{collections::HashMap, time::Duration};
 
 use crate::{
     broker::common::info::InfoInterceptorTrait,
     metrics::common::registry::MetricRegistryTrait,
-    model::{
-        common::error::Error,
-        trading::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
-    },
+    model::trading::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
     pod::event::event_bus::EventBus,
 };
 

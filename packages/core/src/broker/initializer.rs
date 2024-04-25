@@ -1,7 +1,8 @@
+use anyhow::{anyhow, Error};
 use std::sync::{atomic::AtomicBool, Arc};
 
 use super::common::broker::{BrokerInterceptorFactoryTrait, BrokerTrait};
-use crate::model::common::{error::Error, types::ConfigMap};
+use crate::model::common::types::ConfigMap;
 
 #[cfg(feature = "broker__interactive_brokers")]
 use super::interactive_brokers::broker::InteractiveBrokersBroker;
@@ -16,8 +17,6 @@ pub fn get_broker_instance(
     config_map: ConfigMap,
     stopped_indicator: Arc<AtomicBool>,
 ) -> Result<Box<dyn BrokerTrait>, Error> {
-    const IDENTIFIER_NOT_MATCHED_ERROR_CODE: &'static str = "IDENTIFIER_NOT_MATCHED";
-
     match identifier {
         #[cfg(feature = "broker__longbridge")]
         identifier if identifier == LongBridgeBroker::get_identifier() => Result::Ok(Box::new(
@@ -38,9 +37,6 @@ pub fn get_broker_instance(
             )))
         }
 
-        _ => Result::Err(Error {
-            code: IDENTIFIER_NOT_MATCHED_ERROR_CODE.to_owned(),
-            message: format!("Broker: {}", identifier),
-        }),
+        _ => Result::Err(anyhow!("IDENTIFIER_NOT_MATCHED Broker: {}", identifier)),
     }
 }

@@ -1,9 +1,10 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::time::{Duration, Instant};
 use tokio::sync::mpsc::Receiver;
 
 use crate::model::{
-    common::{error::Error, types::ConfigMap},
+    common::types::ConfigMap,
     trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
 };
 

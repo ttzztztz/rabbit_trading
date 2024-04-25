@@ -1,5 +1,7 @@
+use anyhow::{anyhow, Error};
+
 use super::common::store::PersistentKVStoreTrait;
-use crate::model::common::{error::Error, types::ConfigMap};
+use crate::model::common::types::ConfigMap;
 
 #[cfg(feature = "persistent__fs")]
 use super::fs::store::FileSystemKVStore;
@@ -10,8 +12,6 @@ pub async fn get_persistent_kv_instance(
     identifier: String,
     config_map: ConfigMap,
 ) -> Result<Box<dyn PersistentKVStoreTrait>, Error> {
-    const IDENTIFIER_NOT_MATCHED_ERROR_CODE: &'static str = "IDENTIFIER_NOT_MATCHED";
-
     match identifier {
         #[cfg(feature = "persistent__fs")]
         identifier if identifier == FileSystemKVStore::get_identifier() => {
@@ -23,9 +23,9 @@ pub async fn get_persistent_kv_instance(
             Result::Ok(Box::new(MemoryKVStore::new(config_map).await))
         }
 
-        _ => Result::Err(Error {
-            code: IDENTIFIER_NOT_MATCHED_ERROR_CODE.to_owned(),
-            message: format!("PersistentKV: {}", identifier),
-        }),
+        _ => Result::Err(anyhow!(
+            "IDENTIFIER_NOT_MATCHED PersistentKV: {}",
+            identifier
+        )),
     }
 }

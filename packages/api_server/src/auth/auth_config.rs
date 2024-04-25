@@ -1,4 +1,4 @@
-use rabbit_trading_core::model::common::error::Error;
+use anyhow::{anyhow, Error};
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq)]
@@ -20,10 +20,7 @@ impl FromStr for AuthConfig {
             "basic" | "basicauth" => Result::Ok(Self::BasicAuth),
             "bearer" | "bearerauth" => Result::Ok(Self::BearerAuth),
             "krb" | "kerberos" | "kerberosauth" => Result::Ok(Self::KerberosAuth),
-            unknown_auth_kind => Result::Err(Error {
-                code: UNKNOWN_AUTH_ERROR_CODE.to_owned(),
-                message: format!("unknown {}", unknown_auth_kind),
-            }),
+            unknown_auth_kind => Result::Err(anyhow!("UNKNOWN_AUTH kind: {}", unknown_auth_kind)),
         }
     }
 }

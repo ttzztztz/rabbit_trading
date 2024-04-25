@@ -1,9 +1,7 @@
+use anyhow::Error;
 use tokio::sync::broadcast::Receiver;
 
-use crate::model::{
-    common::{error::Error, types::ConfigMap},
-    trading::event::RabbitTradingEvent,
-};
+use crate::model::{common::types::ConfigMap, trading::event::RabbitTradingEvent};
 
 pub trait EventListenerTrait {
     fn new(config_map: ConfigMap) -> Self

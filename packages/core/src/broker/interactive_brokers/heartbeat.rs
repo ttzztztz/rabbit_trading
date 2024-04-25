@@ -1,3 +1,4 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use ibkr_client_portal::client::IBClientPortal;
 use std::sync::{
@@ -7,11 +8,7 @@ use std::sync::{
 use tokio::time::{sleep, Duration};
 
 use super::broker::InteractiveBrokersBroker;
-use crate::{
-    broker::common::heartbeat::HeartbeatTrait,
-    model::common::{error::Error, types::ConfigMap},
-    utils::error::reqwest_middleware_error_to_rabbit_trading_error,
-};
+use crate::{broker::common::heartbeat::HeartbeatTrait, model::common::types::ConfigMap};
 
 pub struct InteractiveBrokersHeartbeat {
     client_portal: IBClientPortal,
@@ -33,13 +30,8 @@ impl HeartbeatTrait for InteractiveBrokersHeartbeat {
                 return Result::Ok(());
             }
 
-            if let Err(err) = self
-                .client_portal
-                .tickle()
-                .await
-                .map_err(reqwest_middleware_error_to_rabbit_trading_error)
-            {
-                log::error!("Error when tickle {}", err.message);
+            if let Err(err) = self.client_portal.tickle().await {
+                log::error!("Error when tickle {}", err);
             }
             sleep(Duration::from_millis(1000)).await;
         }

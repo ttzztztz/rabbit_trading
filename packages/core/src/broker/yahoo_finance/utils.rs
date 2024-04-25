@@ -1,7 +1,7 @@
+use anyhow::{anyhow, Error};
 use yahoo_finance_api::YahooError;
 
 use super::broker::YahooFinanceBroker;
-use crate::model::common::error::Error;
 
 impl YahooFinanceBroker {
     pub fn to_rabbit_trading_err(err: YahooError) -> Error {
@@ -15,9 +15,6 @@ impl YahooFinanceBroker {
             YahooError::BuilderFailed => "BuilderFailed",
         };
 
-        Error {
-            code: code.to_owned(),
-            message: err.to_string(),
-        }
+        anyhow!("YahooError {}, message:{}", code, err.to_string())
     }
 }

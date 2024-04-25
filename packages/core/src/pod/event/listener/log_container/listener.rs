@@ -1,3 +1,4 @@
+use anyhow::Error;
 use std::{
     collections::LinkedList,
     sync::{
@@ -8,10 +9,7 @@ use std::{
 use tokio::sync::{broadcast::Receiver, RwLock, RwLockReadGuard};
 
 use crate::{
-    model::{
-        common::{error::Error, types::ConfigMap},
-        trading::event::RabbitTradingEvent,
-    },
+    model::{common::types::ConfigMap, trading::event::RabbitTradingEvent},
     pod::event::listener::common::listener::EventListenerTrait,
 };
 

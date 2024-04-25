@@ -1,17 +1,14 @@
-use std::sync::atomic::Ordering;
-
+use anyhow::{anyhow, Error};
 use async_trait::async_trait;
+use std::sync::atomic::Ordering;
 use time::{format_description, OffsetDateTime};
 use tokio::select;
 
 use crate::{
-    model::{
-        common::error::Error,
-        trading::{
-            market::Market,
-            quote::{QueryInfoRequest, QuoteKind},
-            symbol::Symbol,
-        },
+    model::trading::{
+        market::Market,
+        quote::{QueryInfoRequest, QuoteKind},
+        symbol::Symbol,
     },
     strategy::common::strategy::{StrategyContext, StrategyTrait},
 };
@@ -32,10 +29,6 @@ impl StrategyTrait for PrintLivePriceStrategy {
     }
 
     async fn start(&self) -> Result<(), Error> {
-        const EMPTY_MESSAGE_RECEIVED_ERROR_CODE: &'static str = "EMPTY_MESSAGE_RECEIVED";
-        const EMPTY_MESSAGE_RECEIVED_ERROR_MESSAGE: &'static str =
-            "Received empty data from socket subscription, program will exit.";
-
         let broker = &self.strategy_context.broker_list[0];
         let subscription = broker.create_subscription().await;
 
@@ -51,7 +44,11 @@ impl StrategyTrait for PrintLivePriceStrategy {
         let format = format_description::parse("[year]-[month]-[day] [hour]:[minute]:[second] [offset_hour sign:mandatory]:[offset_minute]:[offset_second]").unwrap();
 
         loop {
-            if self.strategy_context.stopped_indicator.load(Ordering::Relaxed) {
+            if self
+                .strategy_context
+                .stopped_indicator
+                .load(Ordering::Relaxed)
+            {
                 return Result::Ok(());
             }
 
@@ -71,10 +68,7 @@ impl StrategyTrait for PrintLivePriceStrategy {
                             );
                         },
                         None => {
-                            return Result::Err(Error {
-                                code: EMPTY_MESSAGE_RECEIVED_ERROR_CODE.to_owned(),
-                                message: EMPTY_MESSAGE_RECEIVED_ERROR_MESSAGE.to_owned(),
-                            });
+                            return Result::Err(anyhow!("EMPTY_MESSAGE_RECEIVED, Received empty data from socket subscription, program will exit"));
                         }
                     }
                 }

@@ -1,7 +1,8 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use std::sync::{atomic::AtomicBool, Arc};
 
-use crate::model::common::{error::Error, types::ConfigMap};
+use crate::model::common::types::ConfigMap;
 
 #[async_trait]
 pub trait HeartbeatTrait: Send + Sync {

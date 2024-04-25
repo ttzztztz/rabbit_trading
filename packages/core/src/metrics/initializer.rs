@@ -1,5 +1,7 @@
+use anyhow::{anyhow, Error};
+
 use super::common::factory::MetricRegistryFactoryTrait;
-use crate::model::common::{error::Error, types::ConfigMap};
+use crate::model::common::types::ConfigMap;
 
 #[cfg(feature = "metrics__noops")]
 use crate::metrics::noops::factory::NoOpMetricRegistryFactory;
@@ -10,8 +12,6 @@ pub fn get_metrics_registry_factory(
     identifier: String,
     config_map: ConfigMap,
 ) -> Result<Box<dyn MetricRegistryFactoryTrait>, Error> {
-    const IDENTIFIER_NOT_MATCHED_ERROR_CODE: &'static str = "IDENTIFIER_NOT_MATCHED";
-
     match identifier {
         #[cfg(feature = "metrics__noops")]
         identifier if identifier == NoOpMetricRegistryFactory::get_identifier() => {
@@ -23,9 +23,9 @@ pub fn get_metrics_registry_factory(
             Result::Ok(Box::new(StatsDMetricRegistryFactory::new(config_map)))
         }
 
-        _ => Result::Err(Error {
-            code: IDENTIFIER_NOT_MATCHED_ERROR_CODE.to_owned(),
-            message: format!("MetricsRegistryFactory: {}", identifier),
-        }),
+        _ => Result::Err(anyhow!(
+            "IDENTIFIER_NOT_MATCHED MetricsRegistryFactory: {}",
+            identifier
+        )),
     }
 }

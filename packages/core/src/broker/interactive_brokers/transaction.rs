@@ -1,10 +1,11 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use ibkr_client_portal::client::IBClientPortal;
 
 use crate::{
     broker::common::transaction::TransactionTrait,
     model::{
-        common::{error::Error, types::ConfigMap},
+        common::types::ConfigMap,
         trading::{
             balance::BalanceHashMap,
             position::PositionList,
