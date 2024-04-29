@@ -1,17 +1,53 @@
+use reqwest_retry::policies::ExponentialBackoff;
 use rust_decimal::Decimal;
 use serial_test::serial;
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::model::streaming::{
-    BulletinsArgs, NotificationsArgs, StreamingDataResponse, StreamingDataStructuredRequest,
-    TopicArgsResponse,
+use crate::{
+    client::IBClientPortal,
+    model::streaming::{
+        BulletinsArgs, NotificationsArgs, StreamingDataResponse, StreamingDataStructuredRequest,
+        SubscribeAccountSummaryRequest, ToStructuredRequest, TopicArgsResponse,
+    },
+    test::utils::{get_test_account, TEST_HOST},
 };
 
 #[tokio::test]
 #[serial]
-#[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
+#[cfg_attr(feature = "ci", ignore)]
 async fn test_connect_to_websocket() {
-    todo!()
+    let ib_cp_client = IBClientPortal::new(
+        get_test_account(),
+        TEST_HOST.to_owned(),
+        false,
+        ExponentialBackoff::builder().build_with_max_retries(3),
+    );
+
+    let (sender, receiver) = ib_cp_client.connect_to_websocket().await.unwrap();
+    sender.send_keep_alive_message().await.unwrap();
+    sender
+        .send_streaming_structured_data_request(
+            SubscribeAccountSummaryRequest {
+                account_id: get_test_account(),
+                keys: vec!["AccruedCash-S".to_owned(), "ExcessLiquidity-S".to_owned()],
+                fields: vec!["currency".to_owned(), "monetaryValue".to_owned()],
+            }
+            .to_structured_request(),
+        )
+        .await
+        .unwrap();
+
+    for _ in 1..=20 {
+        match receiver.receive().await {
+            Ok(message) => {
+                if let StreamingDataResponse::AccountUpdate(_) = message {
+                    return;
+                }
+            }
+            Err(e) => println!("{:?}", e),
+        }
+    }
+    panic!("Failed: AccountUpdate not received!");
 }
 
 #[test]

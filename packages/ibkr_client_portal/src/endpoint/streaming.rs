@@ -16,7 +16,10 @@ use crate::{
             reqwest_error_to_streaming_error, tokio_tungstenite_error_to_streaming_error,
             StreamingError,
         },
-        streaming::{StreamingDataResponse, StreamingDataStructuredRequest},
+        streaming::{
+            StreamingDataResponse, StreamingDataStructuredRequest, TickleRequest,
+            ToStructuredRequest,
+        },
     },
 };
 
@@ -82,6 +85,15 @@ impl IBStreamingReceiver {
 
         match self.receive_raw_data().await? {
             Message::Text(str) => Result::Ok(StreamingDataResponse::from_str(str.as_str())),
+            Message::Binary(bin) => Result::Ok(StreamingDataResponse::from_str(
+                String::from_utf8(bin)
+                    .map_err(|_| {
+                        StreamingError::OtherError(
+                            "Failed to transform Vec<u8> to String".to_owned(),
+                        )
+                    })?
+                    .as_str(),
+            )),
             _ => Result::Err(StreamingError::OtherError(ILLEGAL_MESSAGE_TYPE.to_owned())),
         }
     }
@@ -126,7 +138,8 @@ impl IBStreamingSender {
     }
 
     pub async fn send_keep_alive_message(&self) -> Result<(), StreamingError> {
-        self.send_raw_data(Message::Text("tic".to_owned())).await
+        self.send_streaming_structured_data_request(TickleRequest {}.to_structured_request())
+            .await
     }
 
     pub async fn run_keep_alive_loop(&self) -> Result<(), StreamingError> {

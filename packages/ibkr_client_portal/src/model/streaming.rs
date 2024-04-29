@@ -34,8 +34,6 @@ pub enum StreamingDataResponse {
     Notifications(TopicArgsResponse<NotificationsArgs>),
     /// (sts) When initially connecting to the websocket endpoint, the topic sts will relay back the current authentication status of the user. Authentication status updates, for example those resulting from competing sessions, are also relayed back to the websocket client via this topic.
     AuthenticationStatus(TopicArgsResponse<AuthenticationStatusArgs>),
-    /// (system) When initially connecting to websocket the topic system relays back a confirmation with the corresponding username. While the websocket is connecting every 10 seconds there after a heartbeat with corresponding unix time (in millisecond format) is relayed back.
-    SystemConnection(SystemConnectionMessage),
     /// (sbd)
     BookTraderPriceLadder(BookTraderPriceLadderResponse),
     /// (ssd)
@@ -56,6 +54,8 @@ pub enum StreamingDataResponse {
     MarketData(MarketDataResponse),
 
     ResultMessage(ResultMessageResponse),
+    /// (system) When initially connecting to websocket the topic system relays back a confirmation with the corresponding username. While the websocket is connecting every 10 seconds there after a heartbeat with corresponding unix time (in millisecond format) is relayed back.
+    SystemConnection(SystemConnectionMessage),
     #[serde(skip_serializing)]
     Unknown(String),
 }
@@ -115,7 +115,8 @@ pub struct SystemConnectionMessage {
     /// Equals to "system"
     pub topic: String,
     ///  Returns the username logged in with that has built the websocket.
-    pub success: String,
+    pub success: Option<String>,
+    pub hb: Option<i64>,
 }
 
 pub trait ToStructuredRequest {

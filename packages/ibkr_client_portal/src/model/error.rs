@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum StreamingError {
     RequestError(reqwest::Error),
     RequestMiddlewareError(anyhow::Error),
