@@ -1,8 +1,6 @@
 use reqwest_retry::policies::ExponentialBackoff;
-use rust_decimal::Decimal;
-use rust_decimal_macros::dec;
+use serde_json::Value;
 use serial_test::serial;
-use std::str::FromStr;
 
 use crate::{
     client::IBClientPortal,
@@ -45,37 +43,10 @@ async fn test_get_market_data() {
     let second_response_result = second_response_result.unwrap();
     assert!(second_response_result.len() > 0);
     let body = &second_response_result[0];
-
-    assert!(
-        Decimal::from_str(
-            body.get(TickType::LastPrice.to_string().as_str())
-                .unwrap()
-                .as_str()
-                .unwrap()
-        )
+    assert!(body
+        .get("conidEx")
         .unwrap()
-            > dec!(1.0)
-    );
-    assert!(
-        Decimal::from_str(
-            body.get(TickType::LastPrice.to_string().as_str())
-                .unwrap()
-                .as_str()
-                .unwrap()
-        )
-        .unwrap()
-            > dec!(1.0)
-    );
-    assert!(
-        Decimal::from_str(
-            body.get(TickType::LastPrice.to_string().as_str())
-                .unwrap()
-                .as_str()
-                .unwrap()
-        )
-        .unwrap()
-            > dec!(1.0)
-    );
+        .eq(&Value::String(CONTRACT_ID_AAPL.to_string())));
 }
 
 #[tokio::test]

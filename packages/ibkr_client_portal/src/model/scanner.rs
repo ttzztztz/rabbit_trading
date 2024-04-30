@@ -131,7 +131,7 @@ pub struct ScannerRunContract {
     pub symbol: Option<String>,
     /// conid and exchange. Format supports conid or conid@exchange
     #[serde(rename = "conidex")]
-    pub conid_and_exchange: Option<String>,
+    pub conidex: Option<String>,
     #[serde(rename = "con_id")]
     pub conid: Option<i64>,
     /// List of available chart periods

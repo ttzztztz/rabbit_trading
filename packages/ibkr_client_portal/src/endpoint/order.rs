@@ -6,10 +6,10 @@ use crate::{
     client::IBClientPortal,
     model::order::{
         CancelOrderRequest, CancelOrderResponse, GetLiveOrderResponse, GetOrderStatusRequest,
-        ModifyOrderRequest, ModifyOrderResponse, PlaceOrderForFinancialAdvisorsRequest,
-        PlaceOrderForFinancialAdvisorsResponse, PlaceOrderReplyRequest, PlaceOrderReplyResponse,
-        PlaceOrderRequest, PlaceOrderResponse, PlaceOrdersRequest, PlaceOrdersResponse,
-        PreviewOrderRequest, PreviewOrderResponse,
+        ModifyOrderRequest, ModifyOrderResponse, OrderStatus,
+        PlaceOrderForFinancialAdvisorsRequest, PlaceOrderForFinancialAdvisorsResponse,
+        PlaceOrderReplyRequest, PlaceOrderReplyResponse, PlaceOrderRequest, PlaceOrderResponse,
+        PlaceOrdersRequest, PlaceOrdersResponse, PreviewOrderRequest, PreviewOrderResponse,
     },
 };
 
@@ -55,7 +55,7 @@ impl IBClientPortal {
     pub async fn get_order_status(
         &self,
         request: GetOrderStatusRequest,
-    ) -> Result<GetLiveOrderResponse, Error> {
+    ) -> Result<OrderStatus, Error> {
         let path = format!("/iserver/account/order/status/{}", request.order_id);
         let response = self
             .client

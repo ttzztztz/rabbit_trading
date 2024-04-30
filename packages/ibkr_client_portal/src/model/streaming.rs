@@ -331,7 +331,7 @@ pub struct MarketDataResponse {
     pub server_id: Option<String>,
     /// Returns the passed conid field. May include exchange if specified in request.
     #[serde(rename = "conidEx")]
-    pub conid_ex: Option<String>,
+    pub conidex: Option<String>,
     /// Returns the contract id of the request
     pub conid: i64,
     /// Returns the epoch time of the update in a 13 character integer
@@ -809,7 +809,7 @@ pub struct TradeDataArgument {
     pub sec_type: Option<String>,
     /// Returns the conidEx of the order if specified. Otherwise returns conid.
     #[serde(rename = "conidEx")]
-    pub conid_exchange: Option<String>,
+    pub conidex: Option<String>,
     /// Returns if the execution was a closing trade.
     /// Returns "???" if the position was already open, but not a closing order.
     pub open_close: Option<String>,

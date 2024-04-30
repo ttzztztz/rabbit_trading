@@ -151,10 +151,10 @@ pub struct LiveOrder {
     pub orig_order_type: Option<String>,
     /// Supports Tax Optimization with 0 for no and 1 for yes
     #[serde(rename = "supportsTaxOpt")]
-    pub supports_tax_opt: Option<i64>,
+    pub supports_tax_opt: Option<String>,
     /// Last status update in format YYMMDDhhmms based in GMT
     #[serde(rename = "lastExecutionTime")]
-    pub last_execution_time: Option<i64>,
+    pub last_execution_time: Option<String>,
     /// Last status update unix time in ms
     #[serde(rename = "lastExecutionTime_r")]
     pub last_execution_time_r: Option<i64>,
@@ -206,6 +206,8 @@ pub struct OrderStatus {
     /// conid and exchange. Format supports conid or conid@exchange
     #[serde(rename = "conidex")]
     pub conidex: Option<String>,
+    #[serde(rename = "conid")]
+    pub conid: Option<i64>,
     /// Underlying symbol
     #[serde(rename = "symbol")]
     pub symbol: Option<String>,
@@ -321,7 +323,7 @@ pub struct OrderStatus {
 }
 
 pub struct GetOrderStatusRequest {
-    pub order_id: i64,
+    pub order_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -426,6 +428,8 @@ pub struct OrderRequest {
     /// The IB Algo parameters for the specified algorithm.
     #[serde(rename = "strategyParameters", skip_serializing_if = "Option::is_none")]
     pub strategy_parameters: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub originator: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -456,39 +460,28 @@ pub struct PreviewOrderResponse {
 
 pub struct CancelOrderRequest {
     pub account_id: String,
-    pub order_id: i64,
+    pub order_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CancelOrderResponse {
-    #[serde(rename = "order_id")]
     pub order_id: Option<i64>,
-    #[serde(rename = "msg")]
     pub msg: Option<String>,
-    #[serde(rename = "conid")]
     pub conid: Option<i64>,
-    #[serde(rename = "account")]
     pub account: Option<String>,
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PlaceOrderReplyRequest {
     #[serde(skip)]
-    pub reply_id: i64,
+    pub reply_id: String,
     /// answer to question, true means yes, false means no
     #[serde(rename = "confirmed")]
     pub confirmed: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PlaceOrderReplyResponse {
-    #[serde(rename = "order_id")]
-    pub order_id: Option<String>,
-    #[serde(rename = "order_status")]
-    pub order_status: Option<String>,
-    #[serde(rename = "local_order_id")]
-    pub local_order_id: Option<String>,
-}
+pub type PlaceOrderReplyResponse = PlaceOrdersResponse;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PlaceOrdersRequest {
@@ -499,13 +492,45 @@ pub struct PlaceOrdersRequest {
     pub orders: Vec<OrderRequest>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PlaceOrdersResponse {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum PlaceOrdersResponse {
+    Ok(Vec<PlaceOrModifyOrderResult>),
+    Error(PlaceOrModifyOrderError),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct PlaceOrModifyOrderError {
+    pub error: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum PlaceOrModifyOrderResult {
+    Success(PlaceOrModifyOrderInfo),
+    Question(PlaceOrModifyOrderQuestion),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct PlaceOrModifyOrderInfo {
+    pub order_id: String,
+    pub local_order_id: Option<String>,
+    pub order_status: Option<String>,
+    pub parent_order_id: Option<String>,
+    pub encrypt_message: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct PlaceOrModifyOrderQuestion {
     #[serde(rename = "id")]
-    pub id: Option<String>,
+    pub id: String,
     /// Please note here, if the message is a question, you have to reply to question in order to submit the order successfully. See more in the \"/iserver/reply/{replyid}\" endpoint.
     #[serde(rename = "message")]
-    pub message: Option<Vec<String>>,
+    pub message: Vec<String>,
+    #[serde(rename = "isSuppressed")]
+    pub is_suppressed: Option<bool>,
+    #[serde(rename = "messageIds")]
+    pub message_ids: Option<Vec<String>>,
 }
 
 pub struct PlaceOrderForFinancialAdvisorsRequest {
@@ -520,12 +545,14 @@ pub struct ModifyOrderRequest {
     #[serde(skip)]
     pub account_id_or_financial_advisors_group: String,
     #[serde(skip)]
-    pub order_id: i64,
+    pub order_id: String,
 
     #[serde(rename = "acctId", skip_serializing_if = "Option::is_none")]
     pub account_id: Option<String>,
     #[serde(rename = "conid", skip_serializing_if = "Option::is_none")]
     pub conid: Option<i64>,
+    #[serde(rename = "conidex", skip_serializing_if = "Option::is_none")]
+    pub conidex: Option<String>,
     /// for example LMT
     #[serde(rename = "orderType", skip_serializing_if = "Option::is_none")]
     pub order_type: Option<String>,
@@ -553,14 +580,8 @@ pub struct ModifyOrderRequest {
     /// Set to true if you want to pause a working order. For details refer to the [TWS Users' Guide:](https://guides.interactivebrokers.com/tws/twsguide.html#usersguidebook/getstarted/pause_execution.htm)
     #[serde(rename = "deactivated", skip_serializing_if = "Option::is_none")]
     pub deactivated: Option<bool>,
+    #[serde(rename = "useAdaptive", skip_serializing_if = "Option::is_none")]
+    pub use_adaptive: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ModifyOrderResponse {
-    #[serde(rename = "order_id")]
-    pub order_id: Option<String>,
-    #[serde(rename = "local_order_id")]
-    pub local_order_id: Option<String>,
-    #[serde(rename = "order_status")]
-    pub order_status: Option<String>,
-}
+pub type ModifyOrderResponse = PlaceOrdersResponse; 
