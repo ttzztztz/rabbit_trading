@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ibkr_client_portal::{client::IBClientPortal, ExponentialBackoff};
+use ibkr_client_portal::{client::IBClientPortal, retry_policies::ExponentialBackoff};
 use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{
