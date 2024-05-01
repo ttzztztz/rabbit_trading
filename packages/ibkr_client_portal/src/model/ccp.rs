@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CCPOrderDataWarning {
     #[serde(rename = "PRICECAP")]
     price_cap: Option<String>,
@@ -9,7 +9,7 @@ pub struct CCPOrderDataWarning {
     time: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CCPOrderData {
     #[serde(rename = "clientOrderId")]
     pub client_order_id: Option<String>,
@@ -93,6 +93,7 @@ pub struct CCPOrderData {
     pub realized_pnl: Option<String>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetCCPTradesRequest {
     /// From Date (YYYYMMDD-HH:mm:ss) or offset (-1,-2,-3..)
     pub from: Option<String>,
@@ -100,13 +101,13 @@ pub struct GetCCPTradesRequest {
     pub to: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetCCPTradesResponse {
     #[serde(rename = "orders")]
     pub orders: Option<Vec<CCPOrderData>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetCCPStatusResponse {
     /// Login session is authenticated to the CCP.
     #[serde(rename = "authenticated")]
@@ -119,7 +120,7 @@ pub struct GetCCPStatusResponse {
     pub name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetCCPAccountListResponse {
     /// The primary or parent account.
     #[serde(rename = "mainAcct")]
@@ -129,7 +130,7 @@ pub struct GetCCPAccountListResponse {
     pub account_list: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetCCPPositionResponse {
     /// Contract identifier from IBKR's database.
     #[serde(rename = "conid")]
@@ -142,6 +143,7 @@ pub struct GetCCPPositionResponse {
     pub avg_cost: Option<Decimal>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetCCPOrderStatusRequest {
     /// User Account
     pub account: String,
@@ -149,13 +151,13 @@ pub struct GetCCPOrderStatusRequest {
     pub cancelled: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetCCPOrderStatusResponse {
     #[serde(rename = "orders")]
     pub orders: Option<Vec<CCPOrderData>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct StartCCPSessionRequest {
     /// Allow competing CCP session to run
     pub compete: bool,
@@ -170,20 +172,20 @@ pub struct StartCCPSessionRequest {
     pub username: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct StartCCPSessionResponse {
     /// Challenge in hex format
     #[serde(rename = "challenge")]
     pub challenge: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CompleteCCPSessionRequest {
     #[serde(rename = "response")]
     pub response: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CompleteCCPSessionResponse {
     /// If sso authentication completed
     #[serde(rename = "passed")]
@@ -199,6 +201,7 @@ pub struct CompleteCCPSessionResponse {
     pub competing: Option<bool>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubmitCCPOrderRequest {
     /// User Account
     pub account: String,
@@ -226,6 +229,7 @@ pub struct SubmitCCPOrderRequest {
 }
 pub type SubmitCCPOrderResponse = CCPOrderData;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct DeleteCCPOrderRequest {
     /// Account Number
     pub account: String,
@@ -234,6 +238,7 @@ pub struct DeleteCCPOrderRequest {
 }
 pub type DeleteCCPOrderResponse = CCPOrderData;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UpdateCCPOrderRequest {
     /// User Account
     pub account: String,

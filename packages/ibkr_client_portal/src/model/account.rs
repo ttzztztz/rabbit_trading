@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use super::session::ServerInfo;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountLedger {
     #[serde(rename = "commoditymarketvalue")]
     pub commodity_market_value: Decimal,
@@ -45,7 +45,7 @@ pub struct AccountLedger {
     pub severity: Decimal,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountProperties {
     /// Returns whether or not child accounts exist for the account.
     #[serde(rename = "hasChildAccounts")]
@@ -66,7 +66,7 @@ pub struct AccountProperties {
     pub allow_customer_time: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountAllowFeatures {
     /// Returns if the account can access market data.
     #[serde(rename = "showGFIS")]
@@ -125,7 +125,7 @@ pub struct AccountAllowFeatures {
     pub allowed_asset_types: String,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetAccountsResponse {
     /// Unique account id
     pub accounts: Vec<String>,
@@ -161,13 +161,13 @@ pub struct GetAccountsResponse {
     pub is_paper: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SwitchAccountRequest {
     #[serde(rename = "acctId")]
     pub account_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SwitchAccountResponse {
     pub set: bool,
     #[serde(rename = "acctId")]
@@ -176,7 +176,7 @@ pub struct SwitchAccountResponse {
 
 pub type GetAccountLedgerResponse = HashMap<String, AccountLedger>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountParent {
     #[serde(rename = "mmc")]
     mmc: Option<Vec<String>>,
@@ -194,7 +194,7 @@ pub struct AccountParent {
     is_multiplex: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Account {
     /// The account identification value
     #[serde(rename = "id")]
@@ -245,23 +245,27 @@ pub struct Account {
 pub type GetPortfolioAccountsResponse = Vec<Account>;
 pub type GetAccountMetadataResponse = Account;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetSubAccountsV2Request {
     pub page: i32,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetAccountMetadataRequest {
     pub account_id: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetAccountSummaryRequest {
     pub account_id: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetAccountAllocationRequest {
     pub account_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubAccount {
     /// The account identification value
     #[serde(rename = "id")]
@@ -303,7 +307,7 @@ pub struct SubAccount {
 
 pub type GetSubAccountsResponse = Vec<Account>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetSubAccountsV2Response {
     #[serde(rename = "metadata")]
     pub metadata: Option<SubAccount>,
@@ -311,7 +315,7 @@ pub struct GetSubAccountsV2Response {
     pub sub_accounts: Option<Vec<Account>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Summary {
     #[serde(rename = "amount")]
     pub amount: Option<Decimal>,
@@ -325,7 +329,7 @@ pub struct Summary {
     pub value: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetAccountSummaryResponse {
     #[serde(rename = "accountready")]
     pub account_ready: Option<Summary>,
@@ -590,7 +594,7 @@ pub struct GetAccountSummaryResponse {
 pub type AllocationAssetClassLong = FinancialDerivatives<Decimal>;
 pub type AllocationAssetClassShort = FinancialDerivatives<Decimal>;
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct FinancialDerivatives<T> {
     #[serde(rename = "STK")]
     pub stock: Option<T>,
@@ -620,7 +624,7 @@ pub struct FinancialDerivatives<T> {
     pub crypto: Option<T>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AllocationAssetClass {
     #[serde(rename = "long")]
     pub long: Option<AllocationAssetClassLong>,
@@ -628,7 +632,7 @@ pub struct AllocationAssetClass {
     pub short: Option<AllocationAssetClassShort>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AllocationSectorLong {
     #[serde(rename = "Others")]
     pub others: Option<Decimal>,
@@ -644,7 +648,7 @@ pub struct AllocationSectorLong {
     pub communications: Option<Decimal>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AllocationSectorShort {
     #[serde(rename = "Industrial")]
     pub industrial: Option<Decimal>,
@@ -654,7 +658,7 @@ pub struct AllocationSectorShort {
     pub diversified: Option<Decimal>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AllocationSector {
     #[serde(rename = "long")]
     pub long: Option<AllocationSectorLong>,
@@ -662,7 +666,7 @@ pub struct AllocationSector {
     pub short: Option<AllocationSectorShort>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AllocationGroupLong {
     #[serde(rename = "Computers")]
     pub computers: Option<Decimal>,
@@ -678,7 +682,7 @@ pub struct AllocationGroupLong {
     pub communications: Option<Decimal>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AllocationInnerGroupShort {
     #[serde(rename = "Banks")]
     pub banks: Option<Decimal>,
@@ -688,7 +692,7 @@ pub struct AllocationInnerGroupShort {
     pub internet: Option<Decimal>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AllocationGroup {
     #[serde(rename = "long")]
     pub long: Option<AllocationGroupLong>,
@@ -696,7 +700,7 @@ pub struct AllocationGroup {
     pub short: Option<AllocationInnerGroupShort>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Allocation {
     #[serde(rename = "assetClass")]
     pub asset_class: Option<AllocationAssetClass>,
@@ -709,7 +713,7 @@ pub struct Allocation {
 // todo: add data definitions for this response -- missing in the official docs
 pub type GetAccountPnLPartitionedResponse = HashMap<String, Value>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountTrade {
     /// execution identifier for the order
     #[serde(rename = "execution_id")]

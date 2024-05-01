@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ScannerType {
     #[serde(rename = "display_name")]
     pub display_name: Option<String>,
@@ -11,7 +11,7 @@ pub struct ScannerType {
     pub instruments: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Instrument {
     #[serde(rename = "display_name")]
     pub display_name: Option<String>,
@@ -21,7 +21,7 @@ pub struct Instrument {
     pub filters: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Filter {
     #[serde(rename = "group")]
     pub group: Option<String>,
@@ -33,7 +33,7 @@ pub struct Filter {
     pub _type: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Location {
     #[serde(rename = "display_name")]
     pub display_name: Option<String>,
@@ -41,7 +41,7 @@ pub struct Location {
     pub _type: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct LocationTree {
     #[serde(rename = "display_name")]
     pub display_name: Option<String>,
@@ -51,7 +51,7 @@ pub struct LocationTree {
     pub locations: Option<Vec<Location>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetScannerParametersResponse {
     #[serde(rename = "scan_type_list")]
     pub scan_type_list: Vec<ScannerType>,
@@ -63,7 +63,7 @@ pub struct GetScannerParametersResponse {
     pub location_tree: Vec<LocationTree>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ScannerResultContract {
     #[serde(rename = "inScanTime")]
     pub in_scan_time: Option<String>,
@@ -73,7 +73,7 @@ pub struct ScannerResultContract {
     pub contract_id: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct HmdsScannerFilter {
     #[serde(rename = "code", skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
@@ -82,7 +82,7 @@ pub struct HmdsScannerFilter {
     pub value: Option<Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct RunScannerBetaRequest {
     #[serde(rename = "instrument", skip_serializing_if = "Option::is_none")]
     pub instrument: Option<String>,
@@ -96,13 +96,13 @@ pub struct RunScannerBetaRequest {
     pub filters: Option<Vec<HmdsScannerFilter>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ScannerResultContracts {
     #[serde(rename = "Contract")]
     pub contract: Vec<ScannerResultContract>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct RunScannerBetaResponse {
     #[serde(rename = "total")]
     pub total: Option<i32>,
@@ -120,7 +120,7 @@ pub struct RunScannerBetaResponse {
     pub contracts: Option<ScannerResultContracts>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ScannerRunContract {
     #[serde(rename = "server_id")]
     pub server_id: Option<String>,
@@ -149,12 +149,12 @@ pub struct ScannerRunContract {
     pub sec_type: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ScannerRunResponse {
     pub contracts: Vec<ScannerRunContract>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ScannerFilter {
     #[serde(rename = "code", skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
@@ -162,7 +162,7 @@ pub struct ScannerFilter {
     pub value: Option<Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ScannerRunRequest {
     /// Contains an instrument, which to scan for. For example - \"STK\"
     #[serde(rename = "instrument", skip_serializing_if = "Option::is_none")]

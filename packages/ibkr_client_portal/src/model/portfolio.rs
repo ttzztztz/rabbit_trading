@@ -9,7 +9,7 @@ use super::{
     definition::{AssetClass, OptionRight},
 };
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Position {
     #[serde(rename = "acct_id")]
@@ -60,14 +60,14 @@ pub struct Position {
     pub unrealized_pnl: Decimal,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DisplayRule {
     pub display_rule_step: Vec<DisplayRuleStep>,
     pub magnification: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DisplayRuleStep {
     pub decimal_digits: i64,
@@ -75,14 +75,14 @@ pub struct DisplayRuleStep {
     pub whole_digits: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioPositionsRequest {
     pub page: i32,
 }
 
 pub type GetPortfolioPositionsResponse = Vec<Position>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioAllocationRequest {
     #[serde(rename = "acctIds")]
     pub account_id_list: Vec<String>,
@@ -90,6 +90,7 @@ pub struct GetPortfolioAllocationRequest {
 
 pub type GetPortfolioAllocationResponse = Allocation;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioPositionByAccountAndConIdRequest {
     pub account_id: String,
     pub conid: i64,
@@ -97,10 +98,12 @@ pub struct GetPortfolioPositionByAccountAndConIdRequest {
 
 pub type GetPortfolioPositionByAccountAndConIdResponse = Vec<Position>;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct InvalidatePortfolioCacheRequest {
     pub account_id: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioPositionByConIdRequest {
     pub conid: i64,
 }

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, Hash, Default)]
 pub enum AssetClass {
     #[serde(rename = "BOND")]
     Bond,
@@ -44,7 +44,7 @@ impl Display for AssetClass {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, Hash)]
 pub enum OptionRight {
     #[serde(rename = "C")]
     Call,
@@ -52,7 +52,7 @@ pub enum OptionRight {
     Put,
 }
 
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
+#[derive(Clone, Debug, Deserialize_repr, Eq, PartialEq, Serialize_repr)]
 #[repr(u32)]
 pub enum TickType {
     ///Last Price - The last price at which the contract traded. May contain one of the following prefixes:

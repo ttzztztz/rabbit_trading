@@ -76,14 +76,14 @@ pub struct SubmitOrderResponse {
     pub order_id: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EstimateMaxBuyingPowerRequest {
     pub symbol: Symbol,
     pub direction: Direction,
     pub price: Price,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct BuyingPower {
     pub cash_max_quantity: Decimal,
     pub margin_max_quantity: Decimal,

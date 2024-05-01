@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetFYIUnreadNumberResponse {
     /// unread number
     #[serde(rename = "BN")]
     pub bn: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct FYISetting {
     /// optional, if A doesn't exist, it means user can't toggle this option. 0-off, 1-on.
     #[serde(rename = "A")]
@@ -28,11 +28,12 @@ pub struct FYISetting {
 
 pub type GetFYISettingsResponse = Vec<FYISetting>;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetFYIDisclaimerRequest {
     pub type_code: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetFYIDisclaimerResponse {
     /// disclaimer message
     #[serde(rename = "DT")]
@@ -42,18 +43,19 @@ pub struct GetFYIDisclaimerResponse {
     pub fyi_code: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ToggleFYISettingsRequest {
     #[serde(skip)]
     pub type_code: String,
     pub enabled: bool,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ReadFYIDisclaimerRequest {
     pub type_code: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ReadFYIDisclaimerResponse {
     #[serde(rename = "T")]
     pub T: Option<i32>,
@@ -61,7 +63,7 @@ pub struct ReadFYIDisclaimerResponse {
     pub V: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Notification {
     /// notification date
     #[serde(rename = "D")]
@@ -86,14 +88,17 @@ pub struct Notification {
 pub type GetNotificationListResponse = Vec<Notification>;
 pub type GetMoreNotificationListResponse = Vec<Notification>;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ReadNotificationRequest {
     pub id: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetMoreNotificationListRequest {
     pub id: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetNotificationListRequest {
     /// max number of fyis in response, max <= 10
     pub max: i64,
@@ -103,7 +108,7 @@ pub struct GetNotificationListRequest {
     pub include: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct DeliveryOptionDevice {
     /// device name
     #[serde(rename = "NM")]
@@ -119,7 +124,7 @@ pub struct DeliveryOptionDevice {
     pub is_enabled: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetFYIDeliveryOptionsResponse {
     /// Email option is enabled or not 0-off, 1-on.
     #[serde(rename = "M")]
@@ -128,7 +133,7 @@ pub struct GetFYIDeliveryOptionsResponse {
     pub device_list: Option<Vec<DeliveryOptionDevice>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ToggleFYIDeliveryOptionsForEmailResponse {
     #[serde(rename = "T")]
     pub T: Option<i32>,
@@ -136,7 +141,7 @@ pub struct ToggleFYIDeliveryOptionsForEmailResponse {
     pub V: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ToggleFYIDeliveryOptionsForDeviceResponse {
     #[serde(rename = "T")]
     pub T: Option<i32>,
@@ -144,15 +149,17 @@ pub struct ToggleFYIDeliveryOptionsForDeviceResponse {
     pub V: Option<i32>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct DeleteFYIDeliveryOptionsForDeviceRequest {
     pub device_id: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ToggleFYIDeliveryOptionsForEmailRequest {
     pub enabled: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ToggleFYIDeliveryOptionsForDeviceRequest {
     #[serde(rename = "devicename", skip_serializing_if = "Option::is_none")]
     pub device_name: Option<String>,

@@ -6,6 +6,7 @@ use tokio_tungstenite::tungstenite::Message;
 
 use super::{account::GetAccountsResponse, market_data::MarketHistoryBarData};
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct StreamingDataStructuredRequest {
     pub topic: String,
     pub arguments: Option<Vec<String>>,
@@ -25,7 +26,7 @@ impl StreamingDataStructuredRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum StreamingDataResponse {
     /// (blt) If there are urgent messages concerning exchange issues, system problems, and other trading information, the topic blt is sent along with the message argument and a unique identifier for the bulletin.
@@ -67,19 +68,19 @@ impl StreamingDataResponse {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TopicArgsResponse<T> {
     pub topic: String,
     pub args: T,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AuthenticationStatusArgs {
     ///  Returns whether the user is authenticated to the brokerage session.
     pub authenticated: bool,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct BulletinsArgs {
     /// The ID for the specific bulletin.
     pub id: String,
@@ -87,7 +88,7 @@ pub struct BulletinsArgs {
     pub message: String,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct NotificationsArgs {
     /// The identifier for the specific notification.
     pub id: String,
@@ -99,18 +100,18 @@ pub struct NotificationsArgs {
     pub url: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ResultMessageResponse {
     pub result: String,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountSummaryResponse {
     /// Array of JSON objects, each corresponding to an account summary value for the account.
     pub result: Vec<AccountSummaryResult>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SystemConnectionMessage {
     /// Equals to "system"
     pub topic: String,
@@ -124,7 +125,7 @@ pub trait ToStructuredRequest {
 }
 
 /// Subscribes to a stream of account summary messages for the specified account.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeAccountSummaryRequest {
     /// Must pass the account ID whose account summary data will be subscribed.
     pub account_id: String,
@@ -152,7 +153,7 @@ impl ToStructuredRequest for SubscribeAccountSummaryRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountSummaryResult {
     /// The name of the account summary value.
     pub key: String,
@@ -171,7 +172,7 @@ pub struct AccountSummaryResult {
 }
 
 /// Unsubscribes the user from account summary information for the specified account.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeAccountSummaryRequest {
     /// Must pass the account ID whose account summary messages will be unsubscribed.
     pub account_id: String,
@@ -188,7 +189,7 @@ impl ToStructuredRequest for UnsubscribeAccountSummaryRequest {
 }
 
 ///  Subscribes to a stream of account ledger messages for the specified account, with contents sorted by currency.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeAccountLedgerRequest {
     /// Must pass the account ID whose ledger data will be subscribed.
     pub account_id: String,
@@ -203,7 +204,7 @@ pub struct SubscribeAccountLedgerRequest {
 /// A new message is published every 10 seconds until the sld topic is unsubscribed. A given message will only deliver a currency’s field data when a change occurred for that currency in the preceding interval. If no change occurred, the currency’s entry in the sld message will be “blank”, containing only the currency key and a timestamp.
 ///
 /// Note that all currency values of JSON number type will be presented with a fractional component following a decimal point, and may also include an exponential component following an E if sufficiently large.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountLedgerResponse {
     /// sld+DU1234567
     pub topic: String,
@@ -211,7 +212,7 @@ pub struct AccountLedgerResponse {
     pub result: Vec<AccountLedgerResult>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountLedgerResult {
     /// Currency identifier string in the form “LedgerListXXX”, where XXX is the three-character currency code of a currency in the requested account, or “LedgerListBASE”, corresponding to the account’s base currency.
     /// This is always returned.
@@ -281,7 +282,7 @@ impl ToStructuredRequest for SubscribeAccountLedgerRequest {
 }
 
 /// Unsubscribes from account ledger messages for the specified account.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeAccountLedgerRequest {
     /// Must pass the account ID whose ledger messages will be unsubscribed.
     pub account_id: String,
@@ -301,7 +302,7 @@ impl ToStructuredRequest for UnsubscribeAccountLedgerRequest {
 /// Streaming, top-of-the-book, level one, market data is available for all instruments using Client Portal API’s websocket endpoint.
 ///
 /// NOTE: The maximum number of market data subscriptions is based on your account’s Market Data Lines.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeMarketDataRequest {
     /// Must pass a single contract identifier.
     /// Contracts requested use SMART routing by default. To specify the exchange, the contract identifier should be modified to: conId@EXCHANGE, where EXCHANGE is the requested data source.
@@ -323,7 +324,7 @@ impl ToStructuredRequest for SubscribeMarketDataRequest {
 }
 
 #[mixin::insert(MarketDataMixin)]
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct MarketDataResponse {
     /// smd+conid
     pub topic: String,
@@ -340,7 +341,7 @@ pub struct MarketDataResponse {
 }
 
 ///  Unubscribes the user from watchlist market data.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeMarketDataRequest {
     /// Must pass a single contract identifier.
     pub conid: String,
@@ -363,7 +364,7 @@ impl ToStructuredRequest for UnsubscribeMarketDataRequest {
 /// NOTE: Only a max of 5 concurrent historical data request available at a time.
 ///
 /// NOTE: Historical data will only respond once, though customers will still need to unsubscribe from the endpoint.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeHistoricalDataRequest {
     /// Contracts requested use SMART routing by default. To specify the exchange, the contract identifier should be modified to: conId@EXCHANGE, where EXCHANGE is the requested data source.
     pub conid: String,
@@ -401,7 +402,7 @@ impl ToStructuredRequest for SubscribeHistoricalDataRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct HistoricalDataResponse {
     /// Represents the request sent.
     pub topic: String,
@@ -458,7 +459,7 @@ pub struct HistoricalDataResponse {
     pub points: i64,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AccountUpdateMessage {
     /// (act) Returns the topic of the given request.
     pub topic: String,
@@ -467,7 +468,7 @@ pub struct AccountUpdateMessage {
 }
 
 /// Unsubscribes the user from historical bar data.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeHistoricalDataRequest {
     /// serverId is passe initially from the historical data request.
     pub server_id: String,
@@ -485,7 +486,7 @@ impl ToStructuredRequest for UnsubscribeHistoricalDataRequest {
 
 /// Subscribes the user to BookTrader price ladder data.
 /// Streaming BookTrader data requires users to maintain a L2, Depth of Book, market data subscription. See the Market Data Subscriptions page for more details.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeBookTraderPriceLadderRequest {
     /// Must pass a single AccountId.
     pub account_id: String,
@@ -511,7 +512,7 @@ impl ToStructuredRequest for SubscribeBookTraderPriceLadderRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct BookTraderPriceLadderResponse {
     /// sbd+acctId+conid
     pub topic: String,
@@ -519,7 +520,7 @@ pub struct BookTraderPriceLadderResponse {
     pub data: Vec<BookTraderPriceLadderData>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct BookTraderPriceLadderData {
     /// Returns the row identifier of the ladder data.
     pub row: i32,
@@ -535,7 +536,7 @@ pub struct BookTraderPriceLadderData {
 }
 
 /// Unsubscribes the user from price ladder data.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeBookTraderPriceLadderRequest {
     /// Must pass the account ID of the account that made the request.
     pub account_id: String,
@@ -555,7 +556,7 @@ impl ToStructuredRequest for UnsubscribeBookTraderPriceLadderRequest {
 /// To maintain a session for accessing /iserver or /ccp endpoints, use the topic tic. It is advised to ping the session at least once per minute.
 ///
 /// Note: It is still required to send a request to the /tickle endpoint every few minutes or when the session expires (/sso/validate is returning a 0).
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TickleRequest {}
 
 impl ToStructuredRequest for TickleRequest {
@@ -569,7 +570,7 @@ impl ToStructuredRequest for TickleRequest {
 }
 
 /// As long as an order is active, it is possible to retrieve it using Client Portal API. Live streaming orders can be requested by subscribing to the sor topic. Once live orders are requested we will start to relay back when there is an update. To receive all orders for the current day the endpoint /iserver/account/orders can be used. It is advised to query all orders for the current day first before subscribing to live orders.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeLiveOrderUpdateRequest {}
 
 impl ToStructuredRequest for SubscribeLiveOrderUpdateRequest {
@@ -582,14 +583,14 @@ impl ToStructuredRequest for SubscribeLiveOrderUpdateRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct OrderUpdateResponse {
     /// sor
     pub topic: String,
     pub args: Vec<OrderUpdateArgument>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct OrderUpdateArgument {
     /// Returns the account Id of which account made the request.
     #[serde(rename = "acct")]
@@ -663,7 +664,7 @@ pub struct OrderUpdateArgument {
 }
 
 /// Cancels the live order updates subscription.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeLiveOrderUpdatesRequest {}
 
 impl ToStructuredRequest for UnsubscribeLiveOrderUpdatesRequest {
@@ -677,7 +678,7 @@ impl ToStructuredRequest for UnsubscribeLiveOrderUpdatesRequest {
 }
 
 /// Subscribes the user to live profit and loss information.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeProfitAndLossRequest {}
 
 impl ToStructuredRequest for SubscribeProfitAndLossRequest {
@@ -691,7 +692,7 @@ impl ToStructuredRequest for SubscribeProfitAndLossRequest {
 }
 
 /// Subscribes the user to live profit and loss information.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ProfitAndLossUpdateResponse {
     /// Returns the topic of the given request.
     pub topic: String,
@@ -700,7 +701,7 @@ pub struct ProfitAndLossUpdateResponse {
     pub args: HashMap<String, ProfitAndLossUpdateArgument>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ProfitAndLossUpdateArgument {
     /// The row value of the request. Will increment with additional accounts.
     #[serde(rename = "rowType")]
@@ -718,7 +719,7 @@ pub struct ProfitAndLossUpdateArgument {
 }
 
 /// Cancels the subscriptions to profit and loss information.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeProfitAndLossRequest {}
 
 impl ToStructuredRequest for UnsubscribeProfitAndLossRequest {
@@ -732,7 +733,7 @@ impl ToStructuredRequest for UnsubscribeProfitAndLossRequest {
 }
 
 /// Subscribes the user to trades data. This will return all executions data while streamed.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubscribeTradeDataRequest {
     /// Decide whether you want to display any historical executions, or only the executions available in real time.
     /// Set to false by default.
@@ -757,7 +758,7 @@ impl ToStructuredRequest for SubscribeTradeDataRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TradeDataResponse {
     /// Returns the topic of the given request.
     pub topic: String,
@@ -765,7 +766,7 @@ pub struct TradeDataResponse {
     pub args: Vec<TradeDataArgument>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TradeDataArgument {
     /// Execution identifier of the specific trade.
     pub execution_id: String,
@@ -820,7 +821,7 @@ pub struct TradeDataArgument {
 }
 
 /// Cancels the trades data subscription
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeTradeDataRequest {}
 
 impl ToStructuredRequest for UnsubscribeTradeDataRequest {

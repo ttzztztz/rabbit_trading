@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AlertCondition {
     /// Types: 1-Price, 3-Time, 4-Margin, 5-Trade, 6-Volume, 7: MTA market 8: MTA Position, 9: MTA Acc. Daily PN&
     #[serde(rename = "condition_type")]
@@ -28,7 +28,7 @@ pub struct AlertCondition {
     pub condition_time_zone: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Alert {
     /// account id
     #[serde(rename = "account")]
@@ -108,11 +108,12 @@ pub struct Alert {
 pub type GetMTAAlertResponse = Alert;
 pub type GetAlertDetailsResponse = Alert;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetAlertDetailsRequest {
     pub alert_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AlertSummary {
     #[serde(rename = "order_id")]
     pub order_id: Option<i64>,
@@ -135,18 +136,20 @@ pub struct AlertSummary {
     pub alert_repeatable: Option<i32>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetListOfAvailableAlertsRequest {
     pub account_id: String,
 }
 
 pub type GetListOfAvailableAlertsResponse = Vec<AlertSummary>;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct DeleteAlertRequest {
     pub account_id: String,
     pub alert_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct DeleteAlertResponse {
     #[serde(rename = "order_id")]
     pub order_id: Option<i64>,
@@ -158,7 +161,7 @@ pub struct DeleteAlertResponse {
     pub account: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TogglerAlertActivationRequest {
     #[serde(skip)]
     pub account_id: String,
@@ -170,7 +173,7 @@ pub struct TogglerAlertActivationRequest {
     pub alert_active: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TogglerAlertActivationResponse {
     #[serde(rename = "request_id")]
     pub request_id: i64,
@@ -186,7 +189,7 @@ pub struct TogglerAlertActivationResponse {
     pub failure_list: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UpsertAlertCondition {
     /// Types: 1-Price, 3-Time, 4-Margin, 5-Trade, 6-Volume, 7: MTA market 8: MTA Position, 9: MTA Acc. Daily PN&
     #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
@@ -211,7 +214,7 @@ pub struct UpsertAlertCondition {
     pub time_zone: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UpsertAlertRequest {
     #[serde(skip)]
     pub account_id: String,
@@ -258,7 +261,7 @@ pub struct UpsertAlertRequest {
     pub conditions: Option<Vec<UpsertAlertCondition>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UpsertAlertResponse {
     #[serde(rename = "request_id")]
     pub request_id: Option<i64>,

@@ -1,10 +1,11 @@
 use rust_decimal::Decimal;
-use std::{any::Any, collections::HashMap};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::{currency::Currency, symbol::Symbol};
 
 // todo: prev_close, trading_session, is_trading
-#[derive(Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct QuoteRealTimeInfo {
     pub symbol: Symbol,
     pub sequence: u64,
@@ -16,10 +17,10 @@ pub struct QuoteRealTimeInfo {
     pub open_price: Option<Decimal>,
     pub prev_close: Option<Decimal>,
     pub turnover: Option<Decimal>,
-    pub extra: Option<HashMap<String, Box<dyn Any + Send + Sync>>>,
+    pub extra: Option<HashMap<String, String>>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct QuoteBasicInfo {
     pub symbol: Symbol,
     pub currency: Option<Currency>,
@@ -32,7 +33,7 @@ pub struct QuoteBasicInfo {
     pub dividend_yield: Decimal,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Depth {
     pub position: Decimal,
     pub price: Decimal,
@@ -40,7 +41,7 @@ pub struct Depth {
     pub order_count: Decimal,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct QuoteDepthInfo {
     pub symbol: Symbol,
     pub sequence: u64,
@@ -49,14 +50,14 @@ pub struct QuoteDepthInfo {
     pub bid_list: Vec<Depth>,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum QuoteKind {
     Stock,
     Option,
     // todo: add more
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct QueryInfoRequest {
     pub symbol: Symbol,
     pub kind: QuoteKind,

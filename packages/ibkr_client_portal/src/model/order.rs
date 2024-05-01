@@ -2,7 +2,7 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderTicket {
     /// acctId is optional. It should be one of the accounts returned by /iserver/accounts. If not passed, the first one in the list is selected.
@@ -85,12 +85,12 @@ pub struct OrderTicket {
     pub strategy_parameters: Option<Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrderRequest {
     pub orders: Vec<OrderTicket>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrderResponse {
     #[serde(rename = "id")]
     pub id: Option<String>,
@@ -99,7 +99,7 @@ pub struct PlaceOrderResponse {
     pub message: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct LiveOrder {
     /// Account number
     #[serde(rename = "acct")]
@@ -181,7 +181,7 @@ pub struct LiveOrder {
     pub foreground_color: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetLiveOrderResponse {
     #[serde(rename = "filters")]
     filters: Option<Vec<String>>,
@@ -192,7 +192,7 @@ pub struct GetLiveOrderResponse {
     snapshot: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct OrderStatus {
     /// order sub-type
     #[serde(rename = "sub_type")]
@@ -322,11 +322,12 @@ pub struct OrderStatus {
     pub oca_group_id: Option<String>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetOrderStatusRequest {
     pub order_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PreviewOrderAmount {
     /// for example 23,000 USD
     #[serde(rename = "amount")]
@@ -338,7 +339,7 @@ pub struct PreviewOrderAmount {
     pub total: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PreviewOrderEquity {
     #[serde(rename = "current")]
     pub current: Option<String>,
@@ -348,7 +349,7 @@ pub struct PreviewOrderEquity {
     pub after: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct OrderRequest {
     /// acctId is optional. It should be one of the accounts returned by /iserver/accounts. If not passed, the first one in the list is selected.
     #[serde(rename = "acctId", skip_serializing_if = "Option::is_none")]
@@ -432,7 +433,7 @@ pub struct OrderRequest {
     pub originator: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PreviewOrderRequest {
     #[serde(skip)]
     pub account_id: String,
@@ -442,7 +443,7 @@ pub struct PreviewOrderRequest {
     pub orders: Vec<OrderRequest>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PreviewOrderResponse {
     #[serde(rename = "amount")]
     pub amount: Option<PreviewOrderAmount>,
@@ -458,12 +459,13 @@ pub struct PreviewOrderResponse {
     pub error: Option<String>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CancelOrderRequest {
     pub account_id: String,
     pub order_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CancelOrderResponse {
     pub order_id: Option<i64>,
     pub msg: Option<String>,
@@ -472,7 +474,7 @@ pub struct CancelOrderResponse {
     pub error: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrderReplyRequest {
     #[serde(skip)]
     pub reply_id: String,
@@ -483,7 +485,7 @@ pub struct PlaceOrderReplyRequest {
 
 pub type PlaceOrderReplyResponse = PlaceOrdersResponse;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrdersRequest {
     #[serde(skip)]
     pub account_id: String,
@@ -492,26 +494,26 @@ pub struct PlaceOrdersRequest {
     pub orders: Vec<OrderRequest>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum PlaceOrdersResponse {
     Ok(Vec<PlaceOrModifyOrderResult>),
     Error(PlaceOrModifyOrderError),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrModifyOrderError {
     pub error: String,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum PlaceOrModifyOrderResult {
     Success(PlaceOrModifyOrderInfo),
     Question(PlaceOrModifyOrderQuestion),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrModifyOrderInfo {
     pub order_id: String,
     pub local_order_id: Option<String>,
@@ -520,7 +522,7 @@ pub struct PlaceOrModifyOrderInfo {
     pub encrypt_message: Option<String>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrModifyOrderQuestion {
     #[serde(rename = "id")]
     pub id: String,
@@ -533,6 +535,7 @@ pub struct PlaceOrModifyOrderQuestion {
     pub message_ids: Option<Vec<String>>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PlaceOrderForFinancialAdvisorsRequest {
     pub financial_advisors_group: String,
     pub order: OrderRequest,
@@ -540,7 +543,7 @@ pub struct PlaceOrderForFinancialAdvisorsRequest {
 
 pub type PlaceOrderForFinancialAdvisorsResponse = PlaceOrdersResponse;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ModifyOrderRequest {
     #[serde(skip)]
     pub account_id_or_financial_advisors_group: String,
@@ -584,4 +587,4 @@ pub struct ModifyOrderRequest {
     pub use_adaptive: Option<bool>,
 }
 
-pub type ModifyOrderResponse = PlaceOrdersResponse; 
+pub type ModifyOrderResponse = PlaceOrdersResponse;

@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PerformanceCpsData {
     #[serde(rename = "id")]
     pub id: Option<String>,
@@ -21,7 +21,7 @@ pub struct PerformanceCpsData {
     pub end: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PerformanceCps {
     /// array of dates, the length should be same as the length of returns inside data.
     #[serde(rename = "dates")]
@@ -33,7 +33,7 @@ pub struct PerformanceCps {
     pub data: Option<Vec<PerformanceCpsData>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PerformanceTpps {
     /// array of dates, the length should be same as the length of returns inside data.
     #[serde(rename = "dates")]
@@ -45,7 +45,7 @@ pub struct PerformanceTpps {
     pub data: Option<Vec<PerformanceCpsData>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PerformanceNav {
     /// array of dates, the length should be same as the length of returns inside data.
     #[serde(rename = "dates")]
@@ -57,7 +57,7 @@ pub struct PerformanceNav {
     pub data: Option<Vec<PerformanceCpsData>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioPerformanceResponse {
     #[serde(rename = "id")]
     pub id: Option<String>,
@@ -77,7 +77,7 @@ pub struct GetPortfolioPerformanceResponse {
     pub rc: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioPerformanceRequest {
     #[serde(rename = "acctIds", skip_serializing_if = "Option::is_none")]
     pub account_id_list: Option<Vec<String>>,
@@ -86,7 +86,7 @@ pub struct GetPortfolioPerformanceRequest {
     pub freq: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioTransactionsRequest {
     #[serde(rename = "acctIds")]
     pub account_id_list: Vec<String>,
@@ -100,7 +100,7 @@ pub struct GetPortfolioTransactionsRequest {
     pub days: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PortfolioTransactions {
     #[serde(rename = "acctid")]
     pub account_id: Option<String>,
@@ -132,7 +132,7 @@ pub struct PortfolioTransactions {
     pub amount: Option<Decimal>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetPortfolioTransactionsResponse {
     /// will always be getTransactions
     #[serde(rename = "id")]

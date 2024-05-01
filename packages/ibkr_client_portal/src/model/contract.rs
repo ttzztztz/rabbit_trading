@@ -7,13 +7,13 @@ use super::{
     portfolio::DisplayRule,
 };
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SecurityDefinitions {
     pub secdef: Vec<Contract>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Contract {
     /// List of exchanges and venues contract trades.
@@ -105,7 +105,7 @@ pub mod unpack_exchanges {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IncrementRule {
     #[serde(with = "rust_decimal::serde::float")]
@@ -114,7 +114,7 @@ pub struct IncrementRule {
     pub lower_edge: Decimal,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ContractDetail {
     /// true means you can trade outside RTH(regular trading hours)
     #[serde(rename = "r_t_h")]
@@ -150,13 +150,14 @@ pub struct ContractDetail {
     pub classifier: Option<String>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetContractDetailRequest {
     pub conid: i64,
 }
 
 pub type StockContracts = HashMap<String, Vec<StockContractInfo>>;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StockContractInfo {
     pub asset_class: AssetClass,
@@ -165,11 +166,12 @@ pub struct StockContractInfo {
     pub name: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetStocksBySymbolRequest {
     pub symbols: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchForSecurityRequest {
     /// symbol or name to be searched
@@ -182,7 +184,7 @@ pub struct SearchForSecurityRequest {
     pub sec_type: AssetClass,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SearchForSecurityResponseSection {
     /// Asset Class
     #[serde(rename = "secType")]
@@ -201,7 +203,7 @@ pub struct SearchForSecurityResponseSection {
     leg_sec_type: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SearchForSecurityItem {
     /// Contract Identifier
     #[serde(rename = "conid")]
@@ -234,13 +236,13 @@ pub struct SearchForSecurityItem {
 
 pub type SearchForSecurityResponse = Vec<SearchForSecurityItem>;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetSecurityDefinitionByConIdRequest {
     #[serde(rename = "conids")]
     pub conid_list: Vec<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TradingSession {
     #[serde(rename = "openingTime")]
     pub opening_time: Option<String>,
@@ -251,7 +253,7 @@ pub struct TradingSession {
     pub prop: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TradingTime {
     #[serde(rename = "openingTime")]
     pub opening_time: Option<String>,
@@ -261,7 +263,7 @@ pub struct TradingTime {
     pub cancel_day_orders: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TradingSchedule {
     #[serde(rename = "clearingCycleEndTime")]
     pub clearing_cycle_end_time: Option<String>,
@@ -274,7 +276,7 @@ pub struct TradingSchedule {
     pub trading_times: Option<TradingTime>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetSecurityTradingScheduleRequest {
     pub asset_class: AssetClass,
     pub symbol: String,
@@ -282,7 +284,7 @@ pub struct GetSecurityTradingScheduleRequest {
     pub exchange_filter: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SecurityTradingSchedule {
     /// Exchange parameter id
     #[serde(rename = "id")]
@@ -297,6 +299,7 @@ pub struct SecurityTradingSchedule {
 
 pub type GetSecurityTradingScheduleResponse = Vec<SecurityTradingSchedule>;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetSecurityStrikesRequest {
     pub conid: i64,
     pub sectype: AssetClass,
@@ -304,7 +307,7 @@ pub struct GetSecurityStrikesRequest {
     pub exchange: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetSecurityStrikesResponse {
     #[serde(rename = "call")]
     pub call: Option<Vec<Decimal>>,
@@ -312,7 +315,7 @@ pub struct GetSecurityStrikesResponse {
     pub put: Option<Vec<Decimal>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct OrderDefault {
     /// Outside of Regular Trading Hours
     #[serde(rename = "ORTH")]
@@ -346,7 +349,7 @@ pub struct OrderDefault {
     pub use_net_price_for_bonds: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TradingRule {
     /// Contract supports algo orders
     #[serde(rename = "algoEligible")]
@@ -427,7 +430,7 @@ pub struct TradingRule {
     pub increment_digits: Option<Decimal>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SecurityTradingRuleAndInfo {
     /// Classification of Financial Instrument codes
     #[serde(rename = "cfi_code")]
@@ -509,7 +512,7 @@ pub struct SecurityTradingRuleAndInfo {
     pub rules: Option<TradingRule>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SecurityTradingRule {
     #[serde(rename = "algoEligible")]
     pub algo_eligible: Option<bool>,
@@ -589,6 +592,7 @@ pub struct SecurityTradingRule {
     pub increment_digits: Option<Decimal>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetInfoAndRulesByConIdRequest {
     pub conid: i64,
     pub is_buy: bool,
@@ -597,7 +601,7 @@ pub struct GetInfoAndRulesByConIdRequest {
 pub type GetInfoAndRulesByConIdResponse = SecurityTradingRuleAndInfo;
 pub type GetContractRulesResponse = SecurityTradingRule;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetContractRulesRequest {
     /// IBKR contract identifier
     #[serde(rename = "conid")]
@@ -607,7 +611,7 @@ pub struct GetContractRulesRequest {
     pub is_buy: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ContractAlgorithmsParameter {
     /// The algo parameter
     #[serde(rename = "id")]
@@ -647,7 +651,7 @@ pub struct ContractAlgorithmsParameter {
     pub enabled_conditions: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AlgorithmParametersObject {
     #[serde(rename = "name")]
     pub name: Option<String>,
@@ -661,6 +665,7 @@ pub struct AlgorithmParametersObject {
 
 pub type GetIBAlgorithmParametersResponse = AlgorithmParametersObject;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetIBAlgorithmParametersRequest {
     pub conid: i64,
     pub algos: Option<String>,
@@ -670,7 +675,7 @@ pub struct GetIBAlgorithmParametersRequest {
 
 pub type FuturesContracts = HashMap<String, Vec<FuturesContract>>;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FuturesContract {
     pub conid: i64,
@@ -681,10 +686,12 @@ pub struct FuturesContract {
     pub underlying_conid: i64,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetFuturesBySymbolRequest {
     pub symbols: Vec<String>,
 }
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SecurityDefinitionsRequest {
     /// underlying contract id
     pub underlying_conid: i64,
@@ -700,7 +707,7 @@ pub struct SecurityDefinitionsRequest {
     pub right: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SecurityDefinition {
     /// IBKR contract identifier
     #[serde(rename = "conid")]

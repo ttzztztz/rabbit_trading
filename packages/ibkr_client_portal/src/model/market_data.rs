@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use super::definition::TickType;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetMarketDataRequest {
     /// list of conids
     pub conid_list: Vec<i64>,
@@ -17,7 +17,7 @@ pub struct GetMarketDataRequest {
 
 pub type GetMarketDataResponse = Vec<HashMap<String, Value>>;
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct MarketHistoryBarData {
     /// Time - Formatted in unix time in ms.
     #[serde(rename = "t")]
@@ -39,7 +39,7 @@ pub struct MarketHistoryBarData {
     pub volume: Option<Decimal>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MarketDataHistory {
     /// Underlying symbol
@@ -111,7 +111,7 @@ pub struct GetMarketDataHistoryRequest {
     pub start_time: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeAllMarketDataResponse {
     /// true means market data is cancelled, false means it is not.
     #[serde(rename = "confirmed")]
@@ -122,14 +122,14 @@ pub struct UnsubscribeMarketDataRequest {
     pub conid: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct UnsubscribeMarketDataResponse {
     /// true means market data is cancelled, false means it is not.
     #[serde(rename = "confirmed")]
     pub confirmed: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct MarketHistoryDataBars {
     /// First price returned for bar value.
     #[serde(rename = "open")]
@@ -183,14 +183,14 @@ pub struct GetMarketDataHistoryBetaRequest {
     pub outside_regular_trading_hours: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct GetMarketDataHistoryBetaResponse {
     #[serde(rename = "bars")]
     pub bars: MarketHistoryDataBars,
 }
 
 #[mixin::declare]
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct MarketDataMixin {
     /// Last Price - The last price at which the contract traded. May contain one of the following prefixes:   * C - Previous day's closing price.   * H - Trading has halted.
     #[serde(rename = "31")]
@@ -459,7 +459,7 @@ pub struct MarketDataMixin {
 }
 
 #[mixin::insert(MarketDataMixin)]
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct MarketDataSnapshot {
     /// IBKR Contract identifier
     #[serde(rename = "conid")]
