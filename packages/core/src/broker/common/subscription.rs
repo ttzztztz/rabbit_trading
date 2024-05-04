@@ -1,6 +1,9 @@
 use anyhow::Error;
 use async_trait::async_trait;
-use std::time::{Duration, Instant};
+use std::{
+    sync::{atomic::AtomicBool, Arc},
+    time::{Duration, Instant},
+};
 use tokio::sync::mpsc::Receiver;
 
 use crate::model::{
@@ -10,7 +13,7 @@ use crate::model::{
 
 #[async_trait]
 pub trait SubscriptionTrait: Send + Sync {
-    fn new(config_map: ConfigMap) -> Self
+    fn new(config_map: ConfigMap, global_stopped_indicator: Arc<AtomicBool>) -> Self
     where
         Self: Sized;
     async fn real_time_info(
@@ -90,7 +93,7 @@ impl SubscriptionProxy {
 
 #[async_trait]
 impl SubscriptionTrait for SubscriptionProxy {
-    fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap, _global_stopped_indicator: Arc<AtomicBool>) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

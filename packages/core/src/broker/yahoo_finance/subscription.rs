@@ -1,7 +1,7 @@
 use anyhow::Error;
 use async_trait::async_trait;
-use std::sync::Arc;
-use tokio::sync::{mpsc, Mutex};
+use std::sync::{atomic::AtomicBool, Arc};
+use tokio::sync::mpsc;
 
 use super::worker::real_time_info::{
     YahooFinanceQuoteRealTimeInfoSubscriptionController,
@@ -18,12 +18,16 @@ use crate::model::{
 
 pub struct YahooFinanceSubscription {
     config_map: ConfigMap,
+    global_stopped_indicator: Arc<AtomicBool>,
 }
 
 #[async_trait]
 impl SubscriptionTrait for YahooFinanceSubscription {
-    fn new(config_map: ConfigMap) -> Self {
-        YahooFinanceSubscription { config_map }
+    fn new(config_map: ConfigMap, global_stopped_indicator: Arc<AtomicBool>) -> Self {
+        YahooFinanceSubscription {
+            config_map,
+            global_stopped_indicator,
+        }
     }
 
     async fn real_time_info(
@@ -32,14 +36,16 @@ impl SubscriptionTrait for YahooFinanceSubscription {
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
         let (sender, receiver) = mpsc::channel(64);
 
-        let working_flag = Arc::new(Mutex::new(true));
+        let local_stopped_indicator = Arc::new(AtomicBool::new(false));
         let worker = YahooFinanceQuoteRealTimeInfoSubscriptionWorker::new(
             request,
             sender,
-            working_flag.clone(),
+            local_stopped_indicator.clone(),
+            self.global_stopped_indicator.clone(),
         );
-        let controller =
-            YahooFinanceQuoteRealTimeInfoSubscriptionController::new(working_flag.clone());
+        let controller = YahooFinanceQuoteRealTimeInfoSubscriptionController::new(
+            local_stopped_indicator.clone(),
+        );
 
         tokio::task::spawn(worker.start());
         Result::Ok((receiver, Box::new(controller)))

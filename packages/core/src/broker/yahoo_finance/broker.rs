@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{info::YahooFinanceInfo, subscription::YahooFinanceSubscription};
@@ -19,7 +18,6 @@ pub struct YahooFinanceBroker {
     stopped_indicator: Arc<AtomicBool>,
 }
 
-#[async_trait]
 impl BrokerTrait for YahooFinanceBroker {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
@@ -47,8 +45,10 @@ impl BrokerTrait for YahooFinanceBroker {
     }
 
     fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
-        let yahoo_finance_subscription =
-            Box::new(YahooFinanceSubscription::new(self.config_map.clone()));
+        let yahoo_finance_subscription = Box::new(YahooFinanceSubscription::new(
+            self.config_map.clone(),
+            self.stopped_indicator.clone(),
+        ));
         Box::new(SubscriptionProxy::new(
             yahoo_finance_subscription,
             self.interceptor_factory.create_subscription_interceptor(),

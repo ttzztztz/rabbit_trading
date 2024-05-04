@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use std::sync::{atomic::AtomicBool, Arc};
 
 use super::{
@@ -21,7 +20,6 @@ pub struct LongBridgeBroker {
     stopped_indicator: Arc<AtomicBool>,
 }
 
-#[async_trait]
 impl BrokerTrait for LongBridgeBroker {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
@@ -49,8 +47,10 @@ impl BrokerTrait for LongBridgeBroker {
     }
 
     fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
-        let longbridge_subscription =
-            Box::new(LongBridgeSubscription::new(self.config_map.clone()));
+        let longbridge_subscription = Box::new(LongBridgeSubscription::new(
+            self.config_map.clone(),
+            self.stopped_indicator.clone(),
+        ));
         Box::new(SubscriptionProxy::new(
             longbridge_subscription,
             self.interceptor_factory.create_subscription_interceptor(),

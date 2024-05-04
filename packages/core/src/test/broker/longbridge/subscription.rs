@@ -1,3 +1,5 @@
+use std::sync::{atomic::AtomicBool, Arc};
+
 use log;
 use rust_decimal_macros::dec;
 use tokio::time::{sleep, Duration};
@@ -19,7 +21,8 @@ use crate::{
 #[tokio::test]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_quote_real_time_info() {
-    let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new());
+    let longbridge_subscription =
+        LongBridgeSubscription::new(ConfigMap::new(), Arc::new(AtomicBool::new(false)));
     let (mut receiver, _) = longbridge_subscription
         .real_time_info(QueryInfoRequest {
             symbol: Symbol {
@@ -49,7 +52,8 @@ async fn test_quote_real_time_info() {
 #[tokio::test]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_quote_depth_info() {
-    let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new());
+    let longbridge_subscription =
+        LongBridgeSubscription::new(ConfigMap::new(), Arc::new(AtomicBool::new(false)));
     let (mut receiver, _) = longbridge_subscription
         .depth_info(QueryInfoRequest {
             symbol: Symbol {

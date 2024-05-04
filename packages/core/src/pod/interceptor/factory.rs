@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use super::{
     info::PodInfoInterceptor, subscription::PodSubscriptionInterceptor,
     transaction::PodTransactionInterceptor,
@@ -30,7 +28,6 @@ impl PodBrokerInterceptorCollectionFactory {
     }
 }
 
-#[async_trait]
 impl BrokerInterceptorFactoryTrait for PodBrokerInterceptorCollectionFactory {
     fn create_info_interceptor(&self) -> Option<Box<dyn InfoInterceptorTrait>> {
         let info_interceptor = PodInfoInterceptor::new(

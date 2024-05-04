@@ -1,6 +1,6 @@
 use anyhow::{Context, Error};
 use async_trait::async_trait;
-use std::sync::Arc;
+use std::sync::{atomic::AtomicBool, Arc};
 use tokio::sync::{mpsc, Mutex};
 
 use super::{
@@ -25,14 +25,18 @@ use crate::{
 };
 
 // https://crates.io/crates/longbridge
-pub struct LongBridgeSubscription {}
+pub struct LongBridgeSubscription {
+    pub global_stopped_indicator: Arc<AtomicBool>,
+}
 
 impl LongBridgeSubscription {}
 
 #[async_trait]
 impl SubscriptionTrait for LongBridgeSubscription {
-    fn new(_config_map: ConfigMap) -> Self {
-        LongBridgeSubscription {}
+    fn new(_config_map: ConfigMap, global_stopped_indicator: Arc<AtomicBool>) -> Self {
+        LongBridgeSubscription {
+            global_stopped_indicator,
+        }
     }
 
     async fn real_time_info(
@@ -74,15 +78,19 @@ impl SubscriptionTrait for LongBridgeSubscription {
         let (sys_sender, sys_receiver) = mpsc::channel(64);
         let longbridge_context_ref = Arc::new(Mutex::new(longbridge_context));
 
+        let local_stopped_indicator = Arc::new(AtomicBool::new(false));
         let worker = LongBridgeQuoteDepthInfoSubscriptionWorker::new(
             request.symbol.clone(),
             sys_sender,
             longbridge_context_ref.clone(),
             longbridge_receiver,
+            local_stopped_indicator.clone(),
+            self.global_stopped_indicator.clone(),
         );
         let controller = LongBridgeQuoteDepthInfoSubscriptionController::new(
             request.symbol.clone(),
             longbridge_context_ref.clone(),
+            local_stopped_indicator.clone(),
         );
         tokio::task::spawn(worker.start());
         Result::Ok((sys_receiver, Box::new(controller)))

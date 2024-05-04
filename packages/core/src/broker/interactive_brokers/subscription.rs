@@ -1,6 +1,7 @@
 use anyhow::Error;
 use async_trait::async_trait;
 use ibkr_client_portal::client::IBClientPortal;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait},
@@ -16,7 +17,7 @@ pub struct InteractiveBrokersSubscription {
 
 #[async_trait]
 impl SubscriptionTrait for InteractiveBrokersSubscription {
-    fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap, global_stopped_indicator: Arc<AtomicBool>) -> Self {
         todo!()
     }
 

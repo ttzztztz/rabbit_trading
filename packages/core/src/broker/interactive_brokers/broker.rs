@@ -75,8 +75,10 @@ impl BrokerTrait for InteractiveBrokersBroker {
     }
 
     fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
-        let interactive_brokers_subscription =
-            Box::new(InteractiveBrokersSubscription::new(self.config_map.clone()));
+        let interactive_brokers_subscription = Box::new(InteractiveBrokersSubscription::new(
+            self.config_map.clone(),
+            self.stopped_indicator.clone(),
+        ));
         Box::new(SubscriptionProxy::new(
             interactive_brokers_subscription,
             self.interceptor_factory.create_subscription_interceptor(),

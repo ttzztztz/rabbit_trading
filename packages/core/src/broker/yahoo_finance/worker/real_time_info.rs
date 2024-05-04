@@ -1,34 +1,42 @@
 use anyhow::Error;
 use async_trait::async_trait;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use tokio::sync::{mpsc::Sender, Mutex};
+use tokio::sync::mpsc::Sender;
 use tokio::time::{sleep, Duration};
 
-use crate::broker::common::info::InfoTrait;
 use crate::broker::{
-    common::subscription::{SubscriptionController, SubscriptionWorker},
+    common::{
+        info::InfoTrait,
+        subscription::{SubscriptionController, SubscriptionWorker},
+    },
     yahoo_finance::info::YahooFinanceInfo,
 };
-use crate::model::common::types::ConfigMap;
-use crate::model::trading::quote::{QueryInfoRequest, QuoteRealTimeInfo};
+use crate::model::{
+    common::types::ConfigMap,
+    trading::quote::{QueryInfoRequest, QuoteRealTimeInfo},
+};
 
 pub struct YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
     request: QueryInfoRequest,
     sender: Sender<QuoteRealTimeInfo>,
 
-    working_flag: Arc<Mutex<bool>>,
+    local_stopped_indicator: Arc<AtomicBool>,
+    global_stopped_indicator: Arc<AtomicBool>,
 }
 
 impl YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
     pub fn new(
         request: QueryInfoRequest,
         sender: Sender<QuoteRealTimeInfo>,
-        working_flag: Arc<Mutex<bool>>,
+        local_stopped_indicator: Arc<AtomicBool>,
+        global_stopped_indicator: Arc<AtomicBool>,
     ) -> Self {
         YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
             request,
             sender,
-            working_flag,
+            local_stopped_indicator,
+            global_stopped_indicator,
         }
     }
 }
@@ -39,7 +47,9 @@ impl SubscriptionWorker for YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
         let info = YahooFinanceInfo::new(ConfigMap::new());
 
         loop {
-            if *self.working_flag.lock().await == false {
+            if self.local_stopped_indicator.load(Ordering::Relaxed)
+                || self.global_stopped_indicator.load(Ordering::Relaxed)
+            {
                 return Result::Ok(());
             }
 
@@ -55,19 +65,21 @@ impl SubscriptionWorker for YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
 }
 
 pub struct YahooFinanceQuoteRealTimeInfoSubscriptionController {
-    working_flag: Arc<Mutex<bool>>,
+    local_stopped_indicator: Arc<AtomicBool>,
 }
 
 impl YahooFinanceQuoteRealTimeInfoSubscriptionController {
-    pub fn new(working_flag: Arc<Mutex<bool>>) -> Self {
-        YahooFinanceQuoteRealTimeInfoSubscriptionController { working_flag }
+    pub fn new(local_stopped_indicator: Arc<AtomicBool>) -> Self {
+        YahooFinanceQuoteRealTimeInfoSubscriptionController {
+            local_stopped_indicator,
+        }
     }
 }
 
 #[async_trait]
 impl SubscriptionController for YahooFinanceQuoteRealTimeInfoSubscriptionController {
     async fn stop(self) -> Result<(), Error> {
-        *self.working_flag.lock().await = false;
+        self.local_stopped_indicator.store(false, Ordering::Relaxed);
         Result::Ok(())
     }
 }

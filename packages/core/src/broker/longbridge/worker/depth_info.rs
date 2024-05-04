@@ -4,7 +4,10 @@ use longbridge::{
     quote::{PushDepth, PushEvent, SubFlags},
     QuoteContext,
 };
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 use tokio::sync::{
     mpsc::{Sender, UnboundedReceiver},
     Mutex,
@@ -24,6 +27,8 @@ pub struct LongBridgeQuoteDepthInfoSubscriptionWorker {
     sys_sender: Sender<QuoteDepthInfo>,
     longbridge_context: Arc<Mutex<QuoteContext>>,
     longbridge_receiver: UnboundedReceiver<PushEvent>,
+    local_stopped_indicator: Arc<AtomicBool>,
+    global_stopped_indicator: Arc<AtomicBool>,
 }
 
 impl LongBridgeQuoteDepthInfoSubscriptionWorker {
@@ -32,12 +37,16 @@ impl LongBridgeQuoteDepthInfoSubscriptionWorker {
         sys_sender: Sender<QuoteDepthInfo>,
         longbridge_context: Arc<Mutex<QuoteContext>>,
         longbridge_receiver: UnboundedReceiver<PushEvent>,
+        local_stopped_indicator: Arc<AtomicBool>,
+        global_stopped_indicator: Arc<AtomicBool>,
     ) -> Self {
         LongBridgeQuoteDepthInfoSubscriptionWorker {
             symbol,
             sys_sender,
             longbridge_context,
             longbridge_receiver,
+            local_stopped_indicator,
+            global_stopped_indicator,
         }
     }
 
@@ -84,6 +93,12 @@ impl SubscriptionWorker for LongBridgeQuoteDepthInfoSubscriptionWorker {
             })?;
 
         while let Some(event_detail) = longbridge_receiver.recv().await.map(|event| event.detail) {
+            if self.global_stopped_indicator.load(Ordering::Relaxed)
+                || self.local_stopped_indicator.load(Ordering::Relaxed)
+            {
+                return Result::Ok(());
+            }
+
             match event_detail {
                 longbridge::quote::PushEventDetail::Depth(longbridge_depth) => {
                     let depth_info =
@@ -105,13 +120,19 @@ impl SubscriptionWorker for LongBridgeQuoteDepthInfoSubscriptionWorker {
 pub struct LongBridgeQuoteDepthInfoSubscriptionController {
     symbol: Symbol,
     longbridge_context: Arc<Mutex<QuoteContext>>,
+    local_stopped_indicator: Arc<AtomicBool>,
 }
 
 impl LongBridgeQuoteDepthInfoSubscriptionController {
-    pub fn new(symbol: Symbol, longbridge_context: Arc<Mutex<QuoteContext>>) -> Self {
+    pub fn new(
+        symbol: Symbol,
+        longbridge_context: Arc<Mutex<QuoteContext>>,
+        local_stopped_indicator: Arc<AtomicBool>,
+    ) -> Self {
         LongBridgeQuoteDepthInfoSubscriptionController {
             symbol,
             longbridge_context,
+            local_stopped_indicator,
         }
     }
 }
@@ -119,6 +140,8 @@ impl LongBridgeQuoteDepthInfoSubscriptionController {
 #[async_trait]
 impl SubscriptionController for LongBridgeQuoteDepthInfoSubscriptionController {
     async fn stop(self) -> Result<(), Error> {
+        self.local_stopped_indicator.store(false, Ordering::Relaxed);
+
         let symbol_identifier = self.symbol.to_string();
         self.longbridge_context
             .lock()
