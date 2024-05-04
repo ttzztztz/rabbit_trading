@@ -10,7 +10,7 @@ use crate::model::{
 
 #[async_trait]
 pub trait SubscriptionTrait: Send + Sync {
-    async fn new(config_map: ConfigMap) -> Self
+    fn new(config_map: ConfigMap) -> Self
     where
         Self: Sized;
     async fn real_time_info(
@@ -90,7 +90,7 @@ impl SubscriptionProxy {
 
 #[async_trait]
 impl SubscriptionTrait for SubscriptionProxy {
-    async fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

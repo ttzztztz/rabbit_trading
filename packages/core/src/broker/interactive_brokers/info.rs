@@ -17,7 +17,7 @@ pub struct InteractiveBrokersInfo {
 
 #[async_trait]
 impl InfoTrait for InteractiveBrokersInfo {
-    async fn new(config_map: ConfigMap) -> Self {
+    fn new(config_map: ConfigMap) -> Self {
         let client_portal = InteractiveBrokersBroker::create_ib_client_portal(config_map);
         InteractiveBrokersInfo { client_portal }
     }

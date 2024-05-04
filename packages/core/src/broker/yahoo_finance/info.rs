@@ -42,7 +42,7 @@ impl YahooFinanceInfo {
 
 #[async_trait]
 impl InfoTrait for YahooFinanceInfo {
-    async fn new(config_map: ConfigMap) -> Self {
+    fn new(config_map: ConfigMap) -> Self {
         let provider = YahooConnector::new();
         YahooFinanceInfo {
             config_map,

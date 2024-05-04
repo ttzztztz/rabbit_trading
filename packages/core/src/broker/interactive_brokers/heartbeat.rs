@@ -17,7 +17,7 @@ pub struct InteractiveBrokersHeartbeat {
 
 #[async_trait]
 impl HeartbeatTrait for InteractiveBrokersHeartbeat {
-    async fn new(config_map: ConfigMap, stopped_indicator: Arc<AtomicBool>) -> Self {
+    fn new(config_map: ConfigMap, stopped_indicator: Arc<AtomicBool>) -> Self {
         InteractiveBrokersHeartbeat {
             client_portal: InteractiveBrokersBroker::create_ib_client_portal(config_map),
             stopped_indicator,
@@ -35,5 +35,10 @@ impl HeartbeatTrait for InteractiveBrokersHeartbeat {
             }
             sleep(Duration::from_millis(1000)).await;
         }
+    }
+
+    async fn stop(&self) -> Result<(), Error> {
+        self.stopped_indicator.store(true, Ordering::Relaxed);
+        Result::Ok(())
     }
 }

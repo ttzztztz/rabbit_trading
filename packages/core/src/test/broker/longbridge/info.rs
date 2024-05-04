@@ -17,7 +17,7 @@ use crate::{
 #[tokio::test]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_query_basic_info() {
-    let longbridge_info = LongBridgeInfo::new(ConfigMap::new()).await;
+    let longbridge_info = LongBridgeInfo::new(ConfigMap::new());
     let quote_basic_info_result = longbridge_info
         .query_basic_info(QueryInfoRequest {
             symbol: Symbol {
@@ -43,7 +43,7 @@ async fn test_query_basic_info() {
 #[tokio::test]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_query_real_time_info() {
-    let longbridge_info = LongBridgeInfo::new(ConfigMap::new()).await;
+    let longbridge_info = LongBridgeInfo::new(ConfigMap::new());
     let quote_real_time_info_result = longbridge_info
         .query_real_time_info(QueryInfoRequest {
             symbol: Symbol {
@@ -70,7 +70,7 @@ async fn test_query_real_time_info() {
 #[tokio::test]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_query_depth() {
-    let longbridge_info = LongBridgeInfo::new(ConfigMap::new()).await;
+    let longbridge_info = LongBridgeInfo::new(ConfigMap::new());
     let quote_depth_info_result = longbridge_info
         .query_depth(QueryInfoRequest {
             symbol: Symbol {

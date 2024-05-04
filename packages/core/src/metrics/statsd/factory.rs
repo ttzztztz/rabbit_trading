@@ -22,7 +22,7 @@ impl MetricRegistryFactoryTrait for StatsDMetricRegistryFactory {
         StatsDMetricRegistryFactory { config_map }
     }
 
-    async fn create(&self) -> Box<dyn MetricRegistryTrait> {
+    fn create(&self) -> Box<dyn MetricRegistryTrait> {
         const CONFIG_KEY_CLIENT_FROM_ADDRESS: &'static str = "metrics.statsd.from.address";
         const CONFIG_KEY_CLIENT_TO_ADDRESS: &'static str = "metrics.statsd.to.address";
         const CONFIG_KEY_CLIENT_PREFIX: &'static str = "metrics.statsd.prefix";

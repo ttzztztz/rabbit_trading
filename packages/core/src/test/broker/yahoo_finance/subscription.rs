@@ -19,7 +19,7 @@ use crate::{
 
 #[tokio::test]
 async fn test_subscribe_quote_real_time_info() {
-    let yahoo_finance_subscription = YahooFinanceSubscription::new(ConfigMap::new()).await;
+    let yahoo_finance_subscription = YahooFinanceSubscription::new(ConfigMap::new());
     let subscription_instance_result = yahoo_finance_subscription
         .real_time_info(QueryInfoRequest {
             symbol: Symbol {

@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Context, Error};
 use async_trait::async_trait;
 use longbridge::quote::{SecurityDepth, SecurityQuote, SecurityStaticInfo};
-use longbridge::QuoteContext;
 use std::result::Result;
 
 use super::broker::LongBridgeBroker;
@@ -15,9 +14,7 @@ use crate::model::{
 };
 use crate::utils::time::get_now_unix_timestamp;
 
-pub struct LongBridgeInfo {
-    longbridge_context: QuoteContext,
-}
+pub struct LongBridgeInfo {}
 
 impl LongBridgeInfo {
     fn to_quote_real_time_info(symbol: Symbol, security_quote: SecurityQuote) -> QuoteRealTimeInfo {
@@ -86,18 +83,23 @@ impl LongBridgeInfo {
     fn get_missing_element_error() -> Error {
         anyhow!("longbridge_api_internal_error: Missing elements from the api response.")
     }
+
+    async fn get_longbridge_quote_context(&self) -> longbridge::QuoteContext {
+        let (longbridge_quote_context, _) = LongBridgeBroker::create_quote_context().await.unwrap();
+        longbridge_quote_context
+    }
 }
 
 #[async_trait]
 impl InfoTrait for LongBridgeInfo {
-    async fn new(_config_map: ConfigMap) -> Self {
-        let (longbridge_context, _) = LongBridgeBroker::create_quote_context().await.unwrap();
-        LongBridgeInfo { longbridge_context }
+    fn new(_config_map: ConfigMap) -> Self {
+        LongBridgeInfo {}
     }
 
     async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
         let symbol_identifier = request.symbol.to_string();
-        self.longbridge_context
+        self.get_longbridge_quote_context()
+            .await
             .static_info([symbol_identifier])
             .await
             .with_context(|| format!("Error when querying basic info {:?}", request))
@@ -115,7 +117,8 @@ impl InfoTrait for LongBridgeInfo {
     ) -> Result<QuoteRealTimeInfo, Error> {
         // todo: support option
         let symbol_identifier = request.symbol.to_string();
-        self.longbridge_context
+        self.get_longbridge_quote_context()
+            .await
             .quote([symbol_identifier])
             .await
             .with_context(|| format!("Error when querying real time info {:?}", request))
@@ -130,7 +133,8 @@ impl InfoTrait for LongBridgeInfo {
 
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
         let symbol_identifier = request.symbol.to_string();
-        self.longbridge_context
+        self.get_longbridge_quote_context()
+            .await
             .depth(symbol_identifier)
             .await
             .map(|depth_info| Self::to_quote_depth_info(request.symbol.clone(), depth_info))

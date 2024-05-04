@@ -36,7 +36,7 @@ impl YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
 #[async_trait]
 impl SubscriptionWorker for YahooFinanceQuoteRealTimeInfoSubscriptionWorker {
     async fn start(self) -> Result<(), Error> {
-        let info = YahooFinanceInfo::new(ConfigMap::new()).await;
+        let info = YahooFinanceInfo::new(ConfigMap::new());
 
         loop {
             if *self.working_flag.lock().await == false {

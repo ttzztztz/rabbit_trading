@@ -40,37 +40,32 @@ impl BrokerTrait for LongBridgeBroker {
         IDENTIFIER.to_owned()
     }
 
-    async fn create_info(&self) -> Box<dyn InfoTrait> {
-        let longbridge_info = Box::new(LongBridgeInfo::new(self.config_map.clone()).await);
+    fn create_info(&self) -> Box<dyn InfoTrait> {
+        let longbridge_info = Box::new(LongBridgeInfo::new(self.config_map.clone()));
         Box::new(InfoProxy::new(
             longbridge_info,
-            self.interceptor_factory.create_info_interceptor().await,
+            self.interceptor_factory.create_info_interceptor(),
         ))
     }
 
-    async fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
+    fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
         let longbridge_subscription =
-            Box::new(LongBridgeSubscription::new(self.config_map.clone()).await);
+            Box::new(LongBridgeSubscription::new(self.config_map.clone()));
         Box::new(SubscriptionProxy::new(
             longbridge_subscription,
-            self.interceptor_factory
-                .create_subscription_interceptor()
-                .await,
+            self.interceptor_factory.create_subscription_interceptor(),
         ))
     }
 
-    async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
-        let longbridge_transaction =
-            Box::new(LongBridgeTransaction::new(self.config_map.clone()).await);
+    fn create_transaction(&self) -> Box<dyn TransactionTrait> {
+        let longbridge_transaction = Box::new(LongBridgeTransaction::new(self.config_map.clone()));
         Box::new(TransactionProxy::new(
             longbridge_transaction,
-            self.interceptor_factory
-                .create_transaction_interceptor()
-                .await,
+            self.interceptor_factory.create_transaction_interceptor(),
         ))
     }
 
-    async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
+    fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
         Option::None
     }
 }

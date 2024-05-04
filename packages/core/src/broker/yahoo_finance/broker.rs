@@ -38,30 +38,28 @@ impl BrokerTrait for YahooFinanceBroker {
         IDENTIFIER.to_owned()
     }
 
-    async fn create_info(&self) -> Box<dyn InfoTrait> {
-        let yahoo_finance_info = Box::new(YahooFinanceInfo::new(self.config_map.clone()).await);
+    fn create_info(&self) -> Box<dyn InfoTrait> {
+        let yahoo_finance_info = Box::new(YahooFinanceInfo::new(self.config_map.clone()));
         Box::new(InfoProxy::new(
             yahoo_finance_info,
-            self.interceptor_factory.create_info_interceptor().await,
+            self.interceptor_factory.create_info_interceptor(),
         ))
     }
 
-    async fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
+    fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
         let yahoo_finance_subscription =
-            Box::new(YahooFinanceSubscription::new(self.config_map.clone()).await);
+            Box::new(YahooFinanceSubscription::new(self.config_map.clone()));
         Box::new(SubscriptionProxy::new(
             yahoo_finance_subscription,
-            self.interceptor_factory
-                .create_subscription_interceptor()
-                .await,
+            self.interceptor_factory.create_subscription_interceptor(),
         ))
     }
 
-    async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
+    fn create_transaction(&self) -> Box<dyn TransactionTrait> {
         panic!("Yahoo Finance cannot be used for trading")
     }
 
-    async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
+    fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
         Option::None
     }
 }

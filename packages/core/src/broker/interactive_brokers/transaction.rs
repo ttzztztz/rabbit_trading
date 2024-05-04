@@ -24,7 +24,7 @@ pub struct InteractiveBrokersTransaction {
 
 #[async_trait]
 impl TransactionTrait for InteractiveBrokersTransaction {
-    async fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap) -> Self {
         todo!()
     }
 

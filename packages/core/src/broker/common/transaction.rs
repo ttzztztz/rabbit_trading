@@ -17,7 +17,7 @@ use crate::model::{
 
 #[async_trait]
 pub trait TransactionTrait: Send + Sync {
-    async fn new(config_map: ConfigMap) -> Self
+    fn new(config_map: ConfigMap) -> Self
     where
         Self: Sized;
 
@@ -166,7 +166,7 @@ impl TransactionProxy {
 
 #[async_trait]
 impl TransactionTrait for TransactionProxy {
-    async fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

@@ -41,10 +41,10 @@ fn test_to_symbol() {
 
     assert!(matches!(
         LongBridgeBroker::to_symbol("META.US"),
-        Ok(symbol1),
+        Ok(res) if res == symbol1,
     ));
     assert!(matches!(
         LongBridgeBroker::to_symbol("0700.HK"),
-        Ok(symbol2),
+        Ok(res) if res == symbol2,
     ));
 }

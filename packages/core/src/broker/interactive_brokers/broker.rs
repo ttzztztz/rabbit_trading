@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use ibkr_client_portal::{client::IBClientPortal, retry_policies::ExponentialBackoff};
 use std::sync::{atomic::AtomicBool, Arc};
 
@@ -48,7 +47,6 @@ impl InteractiveBrokersBroker {
     }
 }
 
-#[async_trait]
 impl BrokerTrait for InteractiveBrokersBroker {
     fn new(
         interceptor_factory: Box<dyn BrokerInterceptorFactoryTrait>,
@@ -67,44 +65,37 @@ impl BrokerTrait for InteractiveBrokersBroker {
         IDENTIFIER.to_owned()
     }
 
-    async fn create_info(&self) -> Box<dyn InfoTrait> {
+    fn create_info(&self) -> Box<dyn InfoTrait> {
         let interactive_brokers_info =
-            Box::new(InteractiveBrokersInfo::new(self.config_map.clone()).await);
+            Box::new(InteractiveBrokersInfo::new(self.config_map.clone()));
         Box::new(InfoProxy::new(
             interactive_brokers_info,
-            self.interceptor_factory.create_info_interceptor().await,
+            self.interceptor_factory.create_info_interceptor(),
         ))
     }
 
-    async fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
+    fn create_subscription(&self) -> Box<dyn SubscriptionTrait> {
         let interactive_brokers_subscription =
-            Box::new(InteractiveBrokersSubscription::new(self.config_map.clone()).await);
+            Box::new(InteractiveBrokersSubscription::new(self.config_map.clone()));
         Box::new(SubscriptionProxy::new(
             interactive_brokers_subscription,
-            self.interceptor_factory
-                .create_subscription_interceptor()
-                .await,
+            self.interceptor_factory.create_subscription_interceptor(),
         ))
     }
 
-    async fn create_transaction(&self) -> Box<dyn TransactionTrait> {
+    fn create_transaction(&self) -> Box<dyn TransactionTrait> {
         let interactive_brokers_transaction =
-            Box::new(InteractiveBrokersTransaction::new(self.config_map.clone()).await);
+            Box::new(InteractiveBrokersTransaction::new(self.config_map.clone()));
         Box::new(TransactionProxy::new(
             interactive_brokers_transaction,
-            self.interceptor_factory
-                .create_transaction_interceptor()
-                .await,
+            self.interceptor_factory.create_transaction_interceptor(),
         ))
     }
 
-    async fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
-        Option::Some(Box::new(
-            InteractiveBrokersHeartbeat::new(
-                self.config_map.clone(),
-                self.stopped_indicator.clone(),
-            )
-            .await,
-        ))
+    fn create_heartbeat(&self) -> Option<Box<dyn HeartbeatTrait>> {
+        Option::Some(Box::new(InteractiveBrokersHeartbeat::new(
+            self.config_map.clone(),
+            self.stopped_indicator.clone(),
+        )))
     }
 }

@@ -12,5 +12,5 @@ pub trait MetricRegistryFactoryTrait: Send + Sync {
     where
         Self: Sized;
 
-    async fn create(&self) -> Box<dyn MetricRegistryTrait>;
+    fn create(&self) -> Box<dyn MetricRegistryTrait>;
 }

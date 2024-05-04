@@ -10,7 +10,10 @@ use tokio::sync::RwLockReadGuard;
 
 use super::event::{event_bus::EventBus, listener::initializer::get_event_listener};
 use crate::{
-    broker::{common::broker::BrokerTrait, initializer::get_broker_instance},
+    broker::{
+        common::{broker::BrokerTrait, heartbeat::HeartbeatTrait},
+        initializer::get_broker_instance,
+    },
     metrics::initializer::get_metrics_registry_factory,
     model::{config::pod::PodConfig, trading::event::RabbitTradingEvent},
     persistent_kv::{
@@ -27,6 +30,11 @@ pub struct Pod {
     pod_config: PodConfig,
     event_bus: EventBus,
     stopped_indicator: Arc<AtomicBool>,
+}
+
+pub struct InitializerContext {
+    pub heartbeat_list: Vec<Box<dyn HeartbeatTrait>>,
+    pub strategy: Box<dyn StrategyTrait>,
 }
 
 impl Pod {
@@ -127,17 +135,21 @@ impl Pod {
         }
     }
 
-    async fn initialize(&self) -> Result<Box<dyn StrategyTrait>, Error> {
+    async fn initialize(&self) -> Result<InitializerContext, Error> {
         let broker_list = self.initialize_broker_list()?;
-        for broker in broker_list.iter() {
-            if let Some(heartbeat) = broker.create_heartbeat().await {
-                heartbeat.start().await?;
-                // todo: manager the lifecycle of heartbeat (stop)
-            }
-        }
+        let heartbeat_list = (&broker_list)
+            .into_iter()
+            .map_while(|broker| broker.create_heartbeat())
+            .collect();
+
         let persistent_kv_store = self.initialize_persistent_kv_store().await?;
         self.initialize_event_listeners()?;
-        self.initialize_strategy(broker_list, persistent_kv_store)
+        let strategy = self.initialize_strategy(broker_list, persistent_kv_store)?;
+
+        Result::Ok(InitializerContext {
+            heartbeat_list,
+            strategy,
+        })
     }
 
     pub async fn inspect_log(&self) -> RwLockReadGuard<'_, LinkedList<RabbitTradingEvent>> {
@@ -145,8 +157,15 @@ impl Pod {
     }
 
     pub async fn start(&self) -> Result<(), Error> {
-        let strategy_instance = self.initialize().await?;
-        tokio::task::spawn(async move { strategy_instance.start().await });
+        let InitializerContext {
+            heartbeat_list,
+            strategy,
+        } = self.initialize().await?;
+
+        tokio::task::spawn(async move { strategy.start().await });
+        heartbeat_list.into_iter().for_each(|heartbeat| {
+            tokio::task::spawn(async move { heartbeat.start().await });
+        });
         Result::Ok(())
     }
 

@@ -9,7 +9,7 @@ use crate::model::{
 
 #[async_trait]
 pub trait InfoTrait: Send + Sync {
-    async fn new(config_map: ConfigMap) -> Self
+    fn new(config_map: ConfigMap) -> Self
     where
         Self: Sized;
 
@@ -91,7 +91,7 @@ impl InfoProxy {
 
 #[async_trait]
 impl InfoTrait for InfoProxy {
-    async fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap) -> Self {
         panic!("Cannot Call \"new\" on the proxy method!");
     }
 

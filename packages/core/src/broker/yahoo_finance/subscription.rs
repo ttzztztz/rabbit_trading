@@ -22,7 +22,7 @@ pub struct YahooFinanceSubscription {
 
 #[async_trait]
 impl SubscriptionTrait for YahooFinanceSubscription {
-    async fn new(config_map: ConfigMap) -> Self {
+    fn new(config_map: ConfigMap) -> Self {
         YahooFinanceSubscription { config_map }
     }
 

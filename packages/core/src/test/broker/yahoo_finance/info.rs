@@ -15,7 +15,7 @@ use crate::{
 
 #[tokio::test]
 async fn test_query_quote_info() {
-    let yahoo_finance_info = YahooFinanceInfo::new(ConfigMap::new()).await;
+    let yahoo_finance_info = YahooFinanceInfo::new(ConfigMap::new());
 
     let quote_info_result = yahoo_finance_info
         .query_real_time_info(QueryInfoRequest {

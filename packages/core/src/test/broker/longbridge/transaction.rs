@@ -10,7 +10,7 @@ use crate::{
 #[tokio::test]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_account_balance() {
-    let longbridge_transaction = LongBridgeTransaction::new(ConfigMap::new()).await;
+    let longbridge_transaction = LongBridgeTransaction::new(ConfigMap::new());
 
     let account_balance_result = longbridge_transaction.account_balance().await;
     assert!(account_balance_result.is_ok());
@@ -28,7 +28,7 @@ async fn test_account_balance() {
 #[tokio::test]
 #[cfg_attr(feature = "ci", ignore)]
 async fn test_positions() {
-    let longbridge_transaction = LongBridgeTransaction::new(ConfigMap::new()).await;
+    let longbridge_transaction = LongBridgeTransaction::new(ConfigMap::new());
 
     let positions_result = longbridge_transaction.positions().await;
     assert!(positions_result.is_ok());

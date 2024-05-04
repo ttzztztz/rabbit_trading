@@ -1,12 +1,9 @@
 use anyhow::{anyhow, Context, Error};
 use async_trait::async_trait;
-use longbridge::{
-    trade::{
-        AccountBalance, EstimateMaxPurchaseQuantityOptions, EstimateMaxPurchaseQuantityResponse,
-        OrderSide, OrderType, OutsideRTH, ReplaceOrderOptions, StockPosition, SubmitOrderOptions,
-        TimeInForceType,
-    },
-    TradeContext,
+use longbridge::trade::{
+    AccountBalance, EstimateMaxPurchaseQuantityOptions, EstimateMaxPurchaseQuantityResponse,
+    OrderSide, OrderType, OutsideRTH, ReplaceOrderOptions, StockPosition, SubmitOrderOptions,
+    TimeInForceType,
 };
 use rust_decimal::prelude::ToPrimitive;
 use time::Date;
@@ -29,10 +26,7 @@ use crate::{
     },
 };
 
-pub struct LongBridgeTransaction {
-    config_map: ConfigMap,
-    longbridge_context: TradeContext,
-}
+pub struct LongBridgeTransaction {}
 
 impl LongBridgeTransaction {
     fn to_order_side(direction: &Direction) -> OrderSide {
@@ -335,24 +329,25 @@ impl LongBridgeTransaction {
         };
         Result::Ok(order_detail)
     }
+
+    async fn get_longbridge_trade_context(&self) -> longbridge::TradeContext {
+        let (longbridge_quote_context, _) = LongBridgeBroker::create_trade_context().await.unwrap();
+        longbridge_quote_context
+    }
 }
 
 #[async_trait]
 impl TransactionTrait for LongBridgeTransaction {
-    async fn new(config_map: ConfigMap) -> Self {
-        let (longbridge_context, _) = LongBridgeBroker::create_trade_context().await.unwrap();
-
-        LongBridgeTransaction {
-            config_map,
-            longbridge_context,
-        }
+    fn new(_config_map: ConfigMap) -> Self {
+        LongBridgeTransaction {}
     }
 
     async fn submit_order(
         &mut self,
         request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
-        self.longbridge_context
+        self.get_longbridge_trade_context()
+            .await
             .submit_order(Self::to_submit_order_options(&request))
             .await
             .map(Self::to_submit_order_response)
@@ -360,7 +355,8 @@ impl TransactionTrait for LongBridgeTransaction {
     }
 
     async fn edit_order(&mut self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
-        self.longbridge_context
+        self.get_longbridge_trade_context()
+            .await
             .replace_order(Self::to_replace_order_options(&request))
             .await
             .map(|_| EditOrderResponse {})
@@ -371,7 +367,8 @@ impl TransactionTrait for LongBridgeTransaction {
         &mut self,
         request: CancelOrderRequest,
     ) -> Result<CancelOrderResponse, Error> {
-        self.longbridge_context
+        self.get_longbridge_trade_context()
+            .await
             .cancel_order(request.order_id.clone())
             .await
             .map(|_| CancelOrderResponse {})
@@ -382,7 +379,8 @@ impl TransactionTrait for LongBridgeTransaction {
         &self,
         request: EstimateMaxBuyingPowerRequest,
     ) -> Result<BuyingPower, Error> {
-        self.longbridge_context
+        self.get_longbridge_trade_context()
+            .await
             .estimate_max_purchase_quantity(Self::to_estimate_max_purchase_quantity_options(
                 request.clone(),
             ))
@@ -397,7 +395,8 @@ impl TransactionTrait for LongBridgeTransaction {
     }
 
     async fn order_detail(&self, request: OrderDetailRequest) -> Result<OrderDetail, Error> {
-        self.longbridge_context
+        self.get_longbridge_trade_context()
+            .await
             .order_detail(request.order_id.clone())
             .await
             .with_context(|| format!("Error when calling order_detail, request: {:?}", request))
@@ -405,7 +404,8 @@ impl TransactionTrait for LongBridgeTransaction {
     }
 
     async fn account_balance(&self) -> Result<BalanceHashMap, Error> {
-        self.longbridge_context
+        self.get_longbridge_trade_context()
+            .await
             .account_balance(Option::None)
             .await
             .map(|currencies_balance| {
@@ -428,7 +428,8 @@ impl TransactionTrait for LongBridgeTransaction {
     }
 
     async fn positions(&self) -> Result<PositionList, Error> {
-        self.longbridge_context
+        self.get_longbridge_trade_context()
+            .await
             .stock_positions(Option::None)
             .await
             .map(|response| {

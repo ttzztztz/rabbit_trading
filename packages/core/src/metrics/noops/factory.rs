@@ -19,7 +19,7 @@ impl MetricRegistryFactoryTrait for NoOpMetricRegistryFactory {
         NoOpMetricRegistryFactory {}
     }
 
-    async fn create(&self) -> Box<dyn MetricRegistryTrait> {
+    fn create(&self) -> Box<dyn MetricRegistryTrait> {
         Box::new(NoOpMetricRegistry {})
     }
 }

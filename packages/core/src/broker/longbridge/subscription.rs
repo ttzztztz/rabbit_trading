@@ -31,7 +31,7 @@ impl LongBridgeSubscription {}
 
 #[async_trait]
 impl SubscriptionTrait for LongBridgeSubscription {
-    async fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap) -> Self {
         LongBridgeSubscription {}
     }
 

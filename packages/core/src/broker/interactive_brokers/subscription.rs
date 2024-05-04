@@ -16,7 +16,7 @@ pub struct InteractiveBrokersSubscription {
 
 #[async_trait]
 impl SubscriptionTrait for InteractiveBrokersSubscription {
-    async fn new(_config_map: ConfigMap) -> Self {
+    fn new(_config_map: ConfigMap) -> Self {
         todo!()
     }
 

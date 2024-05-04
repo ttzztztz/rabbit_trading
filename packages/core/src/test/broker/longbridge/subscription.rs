@@ -19,7 +19,7 @@ use crate::{
 #[tokio::test]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_quote_real_time_info() {
-    let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new()).await;
+    let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new());
     let (mut receiver, _) = longbridge_subscription
         .real_time_info(QueryInfoRequest {
             symbol: Symbol {
@@ -49,7 +49,7 @@ async fn test_quote_real_time_info() {
 #[tokio::test]
 #[cfg_attr(not(feature = "flaky_test_cases"), ignore)]
 async fn test_quote_depth_info() {
-    let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new()).await;
+    let longbridge_subscription = LongBridgeSubscription::new(ConfigMap::new());
     let (mut receiver, _) = longbridge_subscription
         .depth_info(QueryInfoRequest {
             symbol: Symbol {

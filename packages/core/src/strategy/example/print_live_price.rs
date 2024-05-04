@@ -30,7 +30,7 @@ impl StrategyTrait for PrintLivePriceStrategy {
 
     async fn start(&self) -> Result<(), Error> {
         let broker = &self.strategy_context.broker_list[0];
-        let subscription = broker.create_subscription().await;
+        let subscription = broker.create_subscription();
 
         let (mut receiver, _) = subscription
             .real_time_info(QueryInfoRequest {
