@@ -4,13 +4,16 @@ use longbridge::{
     quote::{PushDepth, PushEvent, SubFlags},
     QuoteContext,
 };
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
+use std::{
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    time::Duration,
 };
-use tokio::sync::{
-    mpsc::{Sender, UnboundedReceiver},
-    Mutex,
+use tokio::{
+    sync::mpsc::{Sender, UnboundedReceiver},
+    time::timeout,
 };
 
 use crate::{
@@ -25,7 +28,7 @@ use crate::{
 pub struct LongBridgeQuoteDepthInfoSubscriptionWorker {
     symbol: Symbol,
     sys_sender: Sender<QuoteDepthInfo>,
-    longbridge_context: Arc<Mutex<QuoteContext>>,
+    longbridge_context: QuoteContext,
     longbridge_receiver: UnboundedReceiver<PushEvent>,
     local_stopped_indicator: Arc<AtomicBool>,
     global_stopped_indicator: Arc<AtomicBool>,
@@ -35,7 +38,7 @@ impl LongBridgeQuoteDepthInfoSubscriptionWorker {
     pub fn new(
         symbol: Symbol,
         sys_sender: Sender<QuoteDepthInfo>,
-        longbridge_context: Arc<Mutex<QuoteContext>>,
+        longbridge_context: QuoteContext,
         longbridge_receiver: UnboundedReceiver<PushEvent>,
         local_stopped_indicator: Arc<AtomicBool>,
         global_stopped_indicator: Arc<AtomicBool>,
@@ -81,9 +84,7 @@ impl SubscriptionWorker for LongBridgeQuoteDepthInfoSubscriptionWorker {
         let sys_sender = self.sys_sender;
         let mut longbridge_receiver = self.longbridge_receiver;
         self.longbridge_context
-            .lock()
-            .await
-            .subscribe([symbol_identifier], SubFlags::DEPTH, true)
+            .subscribe([symbol_identifier.clone()], SubFlags::DEPTH, true)
             .await
             .with_context(|| {
                 format!(
@@ -92,46 +93,54 @@ impl SubscriptionWorker for LongBridgeQuoteDepthInfoSubscriptionWorker {
                 )
             })?;
 
-        while let Some(event_detail) = longbridge_receiver.recv().await.map(|event| event.detail) {
+        loop {
             if self.global_stopped_indicator.load(Ordering::Relaxed)
                 || self.local_stopped_indicator.load(Ordering::Relaxed)
             {
+                self.longbridge_context
+                    .unsubscribe([symbol_identifier], SubFlags::QUOTE)
+                    .await
+                    .with_context(|| {
+                        format!(
+                            "Error when stopping the subscription {}",
+                            self.symbol.to_string()
+                        )
+                    })?;
                 return Result::Ok(());
             }
 
-            match event_detail {
-                longbridge::quote::PushEventDetail::Depth(longbridge_depth) => {
-                    let depth_info =
-                        Self::to_quote_depth_info(self.symbol.clone(), longbridge_depth);
-                    if let Err(send_result_err) = sys_sender.send(depth_info).await {
-                        log::error!("error when sending into mpsc {}", send_result_err);
+            match timeout(Duration::from_secs(3), longbridge_receiver.recv()).await {
+                Err(_) => continue,
+                Ok(push_event_optional) => {
+                    if let Some(event_detail) = push_event_optional.map(|event| event.detail) {
+                        match event_detail {
+                            longbridge::quote::PushEventDetail::Depth(longbridge_depth) => {
+                                let depth_info = Self::to_quote_depth_info(
+                                    self.symbol.clone(),
+                                    longbridge_depth,
+                                );
+                                if let Err(send_result_err) = sys_sender.send(depth_info).await {
+                                    log::error!("error when sending into mpsc {}", send_result_err);
+                                }
+                            }
+                            _ => {
+                                log::error!("event not supported! {event_detail:?}");
+                            }
+                        }
                     }
-                }
-                _ => {
-                    log::error!("event not supported! {event_detail:?}");
                 }
             }
         }
-
-        Result::Ok(())
     }
 }
 
 pub struct LongBridgeQuoteDepthInfoSubscriptionController {
-    symbol: Symbol,
-    longbridge_context: Arc<Mutex<QuoteContext>>,
     local_stopped_indicator: Arc<AtomicBool>,
 }
 
 impl LongBridgeQuoteDepthInfoSubscriptionController {
-    pub fn new(
-        symbol: Symbol,
-        longbridge_context: Arc<Mutex<QuoteContext>>,
-        local_stopped_indicator: Arc<AtomicBool>,
-    ) -> Self {
+    pub fn new(local_stopped_indicator: Arc<AtomicBool>) -> Self {
         LongBridgeQuoteDepthInfoSubscriptionController {
-            symbol,
-            longbridge_context,
             local_stopped_indicator,
         }
     }
@@ -141,18 +150,6 @@ impl LongBridgeQuoteDepthInfoSubscriptionController {
 impl SubscriptionController for LongBridgeQuoteDepthInfoSubscriptionController {
     async fn stop(self) -> Result<(), Error> {
         self.local_stopped_indicator.store(false, Ordering::Relaxed);
-
-        let symbol_identifier = self.symbol.to_string();
-        self.longbridge_context
-            .lock()
-            .await
-            .unsubscribe([symbol_identifier], SubFlags::QUOTE)
-            .await
-            .with_context(|| {
-                format!(
-                    "Error when stopping the subscription {}",
-                    self.symbol.to_string()
-                )
-            })
+        Result::Ok(())
     }
 }
