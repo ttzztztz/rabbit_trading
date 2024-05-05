@@ -5,8 +5,7 @@ use futures_util::{
     SinkExt, StreamExt,
 };
 use serde_json::json;
-use std::cell::RefCell;
-use tokio::net::TcpStream;
+use tokio::{net::TcpStream, sync::Mutex};
 use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
 use crate::{
@@ -57,7 +56,7 @@ impl IBClientPortal {
 }
 
 pub struct IBStreamingReceiver {
-    stream: RefCell<SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>>,
+    stream: Mutex<SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>>,
 }
 
 impl IBStreamingReceiver {
@@ -66,14 +65,14 @@ impl IBStreamingReceiver {
         Self: Sized,
     {
         IBStreamingReceiver {
-            stream: RefCell::new(stream),
+            stream: Mutex::new(stream),
         }
     }
 
     pub async fn receive_raw_data(&self) -> Result<Message, StreamingError> {
         const STREAM_ENDED_MESSAGE: &'static str = "stream ended";
 
-        let mut in_stream = self.stream.borrow_mut();
+        let mut in_stream = self.stream.lock().await;
         if let Some(message) = in_stream.next().await {
             return message.map_err(tokio_tungstenite_error_to_streaming_error);
         }
@@ -100,7 +99,7 @@ impl IBStreamingReceiver {
 }
 
 pub struct IBStreamingSender {
-    stream: RefCell<SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>>,
+    stream: Mutex<SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>>,
 }
 
 impl IBStreamingSender {
@@ -109,12 +108,12 @@ impl IBStreamingSender {
         Self: Sized,
     {
         IBStreamingSender {
-            stream: RefCell::new(stream),
+            stream: Mutex::new(stream),
         }
     }
 
     pub async fn send_raw_data(&self, message: Message) -> Result<(), StreamingError> {
-        let mut out_stream = self.stream.borrow_mut();
+        let mut out_stream = self.stream.lock().await;
         out_stream
             .send(message)
             .await
@@ -130,7 +129,7 @@ impl IBStreamingSender {
     }
 
     pub async fn close(&self) -> Result<(), StreamingError> {
-        let mut out_stream = self.stream.borrow_mut();
+        let mut out_stream = self.stream.lock().await;
         out_stream
             .close()
             .await

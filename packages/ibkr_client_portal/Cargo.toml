@@ -1,6 +1,6 @@
 [package]
 name = "ibkr_client_portal"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 authors = ["Rabbit <ttzztztz@outlook.com>"]
 description = "Unofficial API Client implement for Interactive Brokers (IBKR / IB) Client Portal."

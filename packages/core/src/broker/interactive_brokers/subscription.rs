@@ -1,10 +1,13 @@
 use anyhow::Error;
 use async_trait::async_trait;
-use ibkr_client_portal::client::IBClientPortal;
 use std::sync::{atomic::AtomicBool, Arc};
+use tokio::sync::mpsc;
 
+use super::worker::real_time_info::{
+    IBQuoteRealTimeInfoSubscriptionController, IBQuoteRealTimeInfoSubscriptionWorker,
+};
 use crate::{
-    broker::common::subscription::{SubscriptionData, SubscriptionTrait},
+    broker::common::subscription::{SubscriptionData, SubscriptionTrait, SubscriptionWorker},
     model::{
         common::types::ConfigMap,
         trading::quote::{QueryInfoRequest, QuoteDepthInfo, QuoteRealTimeInfo},
@@ -12,20 +15,36 @@ use crate::{
 };
 
 pub struct InteractiveBrokersSubscription {
-    client_portal: IBClientPortal,
+    config_map: ConfigMap,
+    global_stopped_indicator: Arc<AtomicBool>,
 }
 
 #[async_trait]
 impl SubscriptionTrait for InteractiveBrokersSubscription {
-    fn new(_config_map: ConfigMap, global_stopped_indicator: Arc<AtomicBool>) -> Self {
-        todo!()
+    fn new(config_map: ConfigMap, global_stopped_indicator: Arc<AtomicBool>) -> Self {
+        InteractiveBrokersSubscription {
+            config_map,
+            global_stopped_indicator,
+        }
     }
 
     async fn real_time_info(
         &self,
-        _request: QueryInfoRequest,
+        request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteRealTimeInfo>, Error> {
-        todo!()
+        let (sys_sender, sys_receiver) = mpsc::channel(64);
+
+        let local_stopped_indicator = Arc::new(AtomicBool::new(false));
+        let worker = IBQuoteRealTimeInfoSubscriptionWorker::new(
+            self.config_map.clone(),
+            request.symbol.clone(),
+            sys_sender,
+            local_stopped_indicator.clone(),
+            self.global_stopped_indicator.clone(),
+        );
+        let controller = IBQuoteRealTimeInfoSubscriptionController::new(local_stopped_indicator);
+        tokio::task::spawn(worker.start());
+        Result::Ok((sys_receiver, Box::new(controller)))
     }
 
     async fn depth_info(
