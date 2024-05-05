@@ -7,14 +7,15 @@ use ibkr_client_portal::{
     },
 };
 use rust_decimal_macros::dec;
-use serde_json;
 
 use super::broker::InteractiveBrokersBroker;
 use crate::{
     broker::common::info::InfoTrait,
     model::{
         common::types::ConfigMap,
-        trading::quote::{QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
+        trading::quote::{
+            Depth, QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo,
+        },
     },
     utils::time::get_now_unix_timestamp,
 };
@@ -98,7 +99,48 @@ impl InfoTrait for InteractiveBrokersInfo {
         })
     }
 
-    async fn query_depth(&self, _request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
-        todo!()
+    async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
+        log::warn!("IBKR only supports 1 level depth data at this time"); // TODO: supports more
+
+        let conid = InteractiveBrokersBroker::get_conid_from_symbol(&request.symbol).await;
+        let response = self
+            .client_portal
+            .get_market_data(GetMarketDataRequest {
+                conid_list: vec![conid],
+                since: Option::None,
+                fields: Option::Some(vec![
+                    TickType::AskPrice,
+                    TickType::AskSize,
+                    TickType::BidPrice,
+                    TickType::BidSize,
+                ]),
+            })
+            .await?;
+        let result = response.first().unwrap(); // TODO: eliminate this unwrap()
+        let ask_depth = Depth {
+            position: Option::None,
+            price: serde_json::from_value(result[TickType::AskPrice.to_string().as_str()].clone())
+                .unwrap(),
+            volume: serde_json::from_value(result[TickType::AskSize.to_string().as_str()].clone())
+                .unwrap(),
+            order_count: Option::None,
+        };
+        let bid_depth = Depth {
+            position: Option::None,
+            price: serde_json::from_value(result[TickType::BidPrice.to_string().as_str()].clone())
+                .unwrap(),
+            volume: serde_json::from_value(result[TickType::BidSize.to_string().as_str()].clone())
+                .unwrap(),
+            order_count: Option::None,
+        };
+
+        let timestamp = get_now_unix_timestamp();
+        Result::Ok(QuoteDepthInfo {
+            symbol: request.symbol.clone(),
+            sequence: timestamp,
+            timestamp,
+            ask_list: vec![ask_depth],
+            bid_list: vec![bid_depth],
+        })
     }
 }

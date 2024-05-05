@@ -53,10 +53,10 @@ impl LongBridgeInfo {
 
     pub(super) fn to_depth(depth: longbridge::quote::Depth) -> crate::model::trading::quote::Depth {
         crate::model::trading::quote::Depth {
-            position: depth.position.into(),
+            position: Option::Some(depth.position.into()),
             price: depth.price,
             volume: depth.volume.into(),
-            order_count: depth.order_num.into(),
+            order_count: Option::Some(depth.order_num.into()),
         }
     }
 

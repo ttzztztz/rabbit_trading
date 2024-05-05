@@ -3,8 +3,11 @@ use async_trait::async_trait;
 use std::sync::{atomic::AtomicBool, Arc};
 use tokio::sync::mpsc;
 
-use super::worker::real_time_info::{
-    IBQuoteRealTimeInfoSubscriptionController, IBQuoteRealTimeInfoSubscriptionWorker,
+use super::worker::{
+    depth_info::{IBQuoteDepthInfoSubscriptionController, IBQuoteDepthInfoSubscriptionWorker},
+    real_time_info::{
+        IBQuoteRealTimeInfoSubscriptionController, IBQuoteRealTimeInfoSubscriptionWorker,
+    },
 };
 use crate::{
     broker::common::subscription::{SubscriptionData, SubscriptionTrait, SubscriptionWorker},
@@ -49,8 +52,20 @@ impl SubscriptionTrait for InteractiveBrokersSubscription {
 
     async fn depth_info(
         &self,
-        _request: QueryInfoRequest,
+        request: QueryInfoRequest,
     ) -> Result<SubscriptionData<QuoteDepthInfo>, Error> {
-        todo!()
+        let (sys_sender, sys_receiver) = mpsc::channel(64);
+
+        let local_stopped_indicator = Arc::new(AtomicBool::new(false));
+        let worker = IBQuoteDepthInfoSubscriptionWorker::new(
+            self.config_map.clone(),
+            request.symbol.clone(),
+            sys_sender,
+            local_stopped_indicator.clone(),
+            self.global_stopped_indicator.clone(),
+        );
+        let controller = IBQuoteDepthInfoSubscriptionController::new(local_stopped_indicator);
+        tokio::task::spawn(worker.start());
+        Result::Ok((sys_receiver, Box::new(controller)))
     }
 }

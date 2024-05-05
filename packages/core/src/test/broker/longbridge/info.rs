@@ -88,8 +88,8 @@ async fn test_query_depth() {
         .into_iter()
         .chain(quote_depth_info.bid_list.into_iter())
         .for_each(|depth| {
-            assert!(depth.order_count >= dec!(0.0));
-            assert!(depth.position > dec!(0.0));
+            assert!(depth.order_count.unwrap() >= dec!(0.0));
+            assert!(depth.position.unwrap() > dec!(0.0));
             assert!(depth.price > dec!(0.0));
             assert!(depth.volume > dec!(0.0));
         });

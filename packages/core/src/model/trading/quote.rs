@@ -35,10 +35,10 @@ pub struct QuoteBasicInfo {
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Depth {
-    pub position: Decimal,
+    pub position: Option<Decimal>,
     pub price: Decimal,
     pub volume: Decimal,
-    pub order_count: Decimal,
+    pub order_count: Option<Decimal>,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]

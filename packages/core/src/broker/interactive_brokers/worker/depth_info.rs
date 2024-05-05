@@ -2,7 +2,7 @@ use anyhow::{anyhow, Error};
 use async_trait::async_trait;
 use ibkr_client_portal::model::{
     definition::TickType,
-    streaming::{SubscribeMarketDataRequest, ToStructuredRequest, UnsubscribeMarketDataRequest},
+    streaming::{StreamingDataResponse, SubscribeMarketDataRequest, ToStructuredRequest, UnsubscribeMarketDataRequest},
 };
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -17,27 +17,27 @@ use crate::{
     },
     model::{
         common::types::ConfigMap,
-        trading::{quote::QuoteRealTimeInfo, symbol::Symbol},
+        trading::{quote::QuoteDepthInfo, symbol::Symbol},
     },
 };
 
-pub struct IBQuoteRealTimeInfoSubscriptionWorker {
+pub struct IBQuoteDepthInfoSubscriptionWorker {
     config_map: ConfigMap,
     symbol: Symbol,
-    sys_sender: Sender<QuoteRealTimeInfo>,
+    sys_sender: Sender<QuoteDepthInfo>,
     local_stopped_indicator: Arc<AtomicBool>,
     global_stopped_indicator: Arc<AtomicBool>,
 }
 
-impl IBQuoteRealTimeInfoSubscriptionWorker {
+impl IBQuoteDepthInfoSubscriptionWorker {
     pub fn new(
         config_map: ConfigMap,
         symbol: Symbol,
-        sys_sender: Sender<QuoteRealTimeInfo>,
+        sys_sender: Sender<QuoteDepthInfo>,
         local_stopped_indicator: Arc<AtomicBool>,
         global_stopped_indicator: Arc<AtomicBool>,
     ) -> Self {
-        IBQuoteRealTimeInfoSubscriptionWorker {
+        IBQuoteDepthInfoSubscriptionWorker {
             config_map,
             symbol,
             sys_sender,
@@ -48,7 +48,7 @@ impl IBQuoteRealTimeInfoSubscriptionWorker {
 }
 
 #[async_trait]
-impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
+impl SubscriptionWorker for IBQuoteDepthInfoSubscriptionWorker {
     async fn start(mut self) -> Result<(), Error> {
         let conid = InteractiveBrokersBroker::get_conid_from_symbol(&self.symbol).await;
         let client_portal =
@@ -59,12 +59,10 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
                 SubscribeMarketDataRequest {
                     conid: format!("{}", conid),
                     fields: vec![
-                        TickType::LastPrice,
-                        TickType::High,
-                        TickType::Low,
-                        TickType::Open,
-                        TickType::Volume,
-                        TickType::PriorClose,
+                        TickType::AskPrice,
+                        TickType::AskSize,
+                        TickType::BidPrice,
+                        TickType::BidSize,
                     ]
                     .into_iter()
                     .map(|field| field.to_string())
@@ -99,18 +97,12 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
                 Ok(streaming_data) => {
                     if let Err(send_err) = self
                         .sys_sender
-                        .send(QuoteRealTimeInfo {
+                        .send(QuoteDepthInfo {
                             symbol: todo!(),
                             sequence: todo!(),
                             timestamp: todo!(),
-                            current_price: todo!(),
-                            volume: todo!(),
-                            low_price: todo!(),
-                            high_price: todo!(),
-                            open_price: todo!(),
-                            prev_close: todo!(),
-                            turnover: todo!(),
-                            extra: todo!(),
+                            ask_list: todo!(),
+                            bid_list: todo!(),
                         })
                         .await
                     {
@@ -125,20 +117,20 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
     }
 }
 
-pub struct IBQuoteRealTimeInfoSubscriptionController {
+pub struct IBQuoteDepthInfoSubscriptionController {
     local_stopped_indicator: Arc<AtomicBool>,
 }
 
-impl IBQuoteRealTimeInfoSubscriptionController {
+impl IBQuoteDepthInfoSubscriptionController {
     pub fn new(local_stopped_indicator: Arc<AtomicBool>) -> Self {
-        IBQuoteRealTimeInfoSubscriptionController {
+        IBQuoteDepthInfoSubscriptionController {
             local_stopped_indicator,
         }
     }
 }
 
 #[async_trait]
-impl SubscriptionController for IBQuoteRealTimeInfoSubscriptionController {
+impl SubscriptionController for IBQuoteDepthInfoSubscriptionController {
     async fn stop(self) -> Result<(), Error> {
         self.local_stopped_indicator.store(false, Ordering::Relaxed);
         Result::Ok(())
