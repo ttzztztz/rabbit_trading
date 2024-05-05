@@ -1,5 +1,4 @@
 use reqwest_retry::policies::ExponentialBackoff;
-use serde_json::Value;
 use serial_test::serial;
 
 use crate::{
@@ -31,7 +30,21 @@ async fn test_get_market_data() {
     let request = GetMarketDataRequest {
         conid_list: vec![CONTRACT_ID_AAPL],
         since: Option::None,
-        fields: Option::Some(vec![TickType::LastPrice, TickType::Low, TickType::High]),
+        fields: Option::Some(vec![
+            TickType::LastPrice,
+            TickType::Low,
+            TickType::High,
+            TickType::Open,
+            TickType::Change,
+            TickType::ChangePct,
+            TickType::ChangeSinceOpen,
+            TickType::Volume,
+            TickType::PriorClose,
+            TickType::AskPrice,
+            TickType::BidPrice,
+            TickType::AskSize,
+            TickType::BidSize,
+        ]),
     };
     let first_response_result = ib_cp_client.get_market_data(request.clone()).await;
     assert!(first_response_result.is_ok());
@@ -43,10 +56,7 @@ async fn test_get_market_data() {
     let second_response_result = second_response_result.unwrap();
     assert!(second_response_result.len() > 0);
     let body = &second_response_result[0];
-    assert!(body
-        .get("conidEx")
-        .unwrap()
-        .eq(&Value::String(CONTRACT_ID_AAPL.to_string())));
+    assert_eq!(Option::Some(CONTRACT_ID_AAPL.to_string()), body.conidex);
 }
 
 #[tokio::test]

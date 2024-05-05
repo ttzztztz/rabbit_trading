@@ -2,6 +2,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use ibkr_client_portal::client::IBClientPortal;
 
+use super::broker::InteractiveBrokersBroker;
 use crate::{
     broker::common::transaction::TransactionTrait,
     model::{
@@ -24,8 +25,9 @@ pub struct InteractiveBrokersTransaction {
 
 #[async_trait]
 impl TransactionTrait for InteractiveBrokersTransaction {
-    fn new(_config_map: ConfigMap) -> Self {
-        todo!()
+    fn new(config_map: ConfigMap) -> Self {
+        let client_portal = InteractiveBrokersBroker::create_ib_client_portal(config_map);
+        InteractiveBrokersTransaction { client_portal }
     }
 
     async fn account_balance(&self) -> Result<BalanceHashMap, Error> {

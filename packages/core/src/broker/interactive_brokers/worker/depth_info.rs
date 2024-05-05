@@ -2,7 +2,10 @@ use anyhow::{anyhow, Error};
 use async_trait::async_trait;
 use ibkr_client_portal::model::{
     definition::TickType,
-    streaming::{StreamingDataResponse, SubscribeMarketDataRequest, ToStructuredRequest, UnsubscribeMarketDataRequest},
+    streaming::{
+        StreamingDataResponse, SubscribeMarketDataRequest, ToStructuredRequest,
+        UnsubscribeMarketDataRequest,
+    },
 };
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -17,8 +20,12 @@ use crate::{
     },
     model::{
         common::types::ConfigMap,
-        trading::{quote::QuoteDepthInfo, symbol::Symbol},
+        trading::{
+            quote::{Depth, QuoteDepthInfo},
+            symbol::Symbol,
+        },
     },
+    utils::time::get_now_unix_timestamp,
 };
 
 pub struct IBQuoteDepthInfoSubscriptionWorker {
@@ -94,21 +101,36 @@ impl SubscriptionWorker for IBQuoteDepthInfoSubscriptionWorker {
             }
 
             match receiver.receive().await {
-                Ok(streaming_data) => {
-                    if let Err(send_err) = self
-                        .sys_sender
-                        .send(QuoteDepthInfo {
-                            symbol: todo!(),
-                            sequence: todo!(),
-                            timestamp: todo!(),
-                            ask_list: todo!(),
-                            bid_list: todo!(),
-                        })
-                        .await
-                    {
-                        log::warn!("Error when sending message {:?}", send_err);
+                Ok(streaming_data) => match streaming_data {
+                    StreamingDataResponse::MarketData(data) => {
+                        // TODO: use the macro to unify the codes
+                        let timestamp = get_now_unix_timestamp();
+                        let ask_depth = Depth {
+                            position: Option::None,
+                            price: data.ask_price.unwrap(),
+                            volume: data.ask_size.unwrap(),
+                            order_count: Option::None,
+                        };
+                        let bid_depth = Depth {
+                            position: Option::None,
+                            price: data.bid_price.unwrap(),
+                            volume: data.bid_size.unwrap(),
+                            order_count: Option::None,
+                        };
+                        let quote_depth_info = QuoteDepthInfo {
+                            symbol: self.symbol.clone(),
+                            sequence: timestamp,
+                            timestamp,
+                            ask_list: vec![ask_depth],
+                            bid_list: vec![bid_depth],
+                        };
+
+                        if let Err(send_err) = self.sys_sender.send(quote_depth_info).await {
+                            log::warn!("Error when sending message {:?}", send_err);
+                        }
                     }
-                }
+                    _ => continue,
+                },
                 Err(streaming_err) => {
                     log::warn!("Streaming Error {:?}", streaming_err);
                 }

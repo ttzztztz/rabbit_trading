@@ -6,7 +6,9 @@ use ibkr_client_portal::{
         contract::GetContractDetailRequest, definition::TickType, market_data::GetMarketDataRequest,
     },
 };
+use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
+use std::str::FromStr;
 
 use super::broker::InteractiveBrokersBroker;
 use crate::{
@@ -74,29 +76,21 @@ impl InfoTrait for InteractiveBrokersInfo {
         let result = response.first().unwrap(); // TODO: eliminate this unwrap()
 
         let timestamp = get_now_unix_timestamp();
-        Result::Ok(QuoteRealTimeInfo {
+        let quote_real_time_info = QuoteRealTimeInfo {
             symbol: request.symbol.clone(),
             sequence: timestamp,
             timestamp,
-            current_price: serde_json::from_value(
-                result[TickType::LastPrice.to_string().as_str()].clone(),
-            )
-            .unwrap(), // TODO: eliminate this unwrap()
-            volume: serde_json::from_value(result[TickType::Volume.to_string().as_str()].clone())
-                .unwrap(), // TODO: eliminate this unwrap()
-            low_price: serde_json::from_value(result[TickType::Low.to_string().as_str()].clone())
-                .unwrap(), // TODO: eliminate this unwrap()
-            high_price: serde_json::from_value(result[TickType::High.to_string().as_str()].clone())
-                .unwrap(), // TODO: eliminate this unwrap()
-            open_price: serde_json::from_value(result[TickType::Open.to_string().as_str()].clone())
-                .unwrap(), // TODO: eliminate this unwrap()
-            prev_close: serde_json::from_value(
-                result[TickType::PriorClose.to_string().as_str()].clone(),
-            )
-            .unwrap(), // TODO: eliminate this unwrap()
-            turnover: Option::None, // TODO: eliminate this unwrap()
-            extra: Option::None,    // TODO: eliminate this unwrap()
-        })
+            // todo: Handle C and H prefix
+            current_price: Decimal::from_str(result.last_price.clone().unwrap().as_str()).unwrap(), // TODO: eliminate this unwrap()
+            volume: result.volume.clone().unwrap().parse().unwrap(), // TODO: eliminate this unwrap()
+            low_price: result.low_price, // TODO: eliminate this unwrap()
+            high_price: result.high_price, // TODO: eliminate this unwrap()
+            open_price: result.open,     // TODO: eliminate this unwrap()
+            prev_close: result.prior_close, // TODO: eliminate this unwrap()
+            turnover: Option::None,      // TODO: eliminate this unwrap()
+            extra: Option::None,         // TODO: eliminate this unwrap()
+        };
+        Result::Ok(quote_real_time_info)
     }
 
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
@@ -119,18 +113,14 @@ impl InfoTrait for InteractiveBrokersInfo {
         let result = response.first().unwrap(); // TODO: eliminate this unwrap()
         let ask_depth = Depth {
             position: Option::None,
-            price: serde_json::from_value(result[TickType::AskPrice.to_string().as_str()].clone())
-                .unwrap(),
-            volume: serde_json::from_value(result[TickType::AskSize.to_string().as_str()].clone())
-                .unwrap(),
+            price: result.ask_price.unwrap(),
+            volume: result.ask_size.unwrap(),
             order_count: Option::None,
         };
         let bid_depth = Depth {
             position: Option::None,
-            price: serde_json::from_value(result[TickType::BidPrice.to_string().as_str()].clone())
-                .unwrap(),
-            volume: serde_json::from_value(result[TickType::BidSize.to_string().as_str()].clone())
-                .unwrap(),
+            price: result.bid_price.unwrap(),
+            volume: result.bid_size.unwrap(),
             order_count: Option::None,
         };
 

@@ -2,11 +2,18 @@ use anyhow::{anyhow, Error};
 use async_trait::async_trait;
 use ibkr_client_portal::model::{
     definition::TickType,
-    streaming::{SubscribeMarketDataRequest, ToStructuredRequest, UnsubscribeMarketDataRequest},
+    streaming::{
+        StreamingDataResponse, SubscribeMarketDataRequest, ToStructuredRequest,
+        UnsubscribeMarketDataRequest,
+    },
 };
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
+use rust_decimal::Decimal;
+use std::{
+    str::FromStr,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
 };
 use tokio::sync::mpsc::Sender;
 
@@ -19,6 +26,7 @@ use crate::{
         common::types::ConfigMap,
         trading::{quote::QuoteRealTimeInfo, symbol::Symbol},
     },
+    utils::time::get_now_unix_timestamp,
 };
 
 pub struct IBQuoteRealTimeInfoSubscriptionWorker {
@@ -96,27 +104,33 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
             }
 
             match receiver.receive().await {
-                Ok(streaming_data) => {
-                    if let Err(send_err) = self
-                        .sys_sender
-                        .send(QuoteRealTimeInfo {
-                            symbol: todo!(),
-                            sequence: todo!(),
-                            timestamp: todo!(),
-                            current_price: todo!(),
-                            volume: todo!(),
-                            low_price: todo!(),
-                            high_price: todo!(),
-                            open_price: todo!(),
-                            prev_close: todo!(),
-                            turnover: todo!(),
-                            extra: todo!(),
-                        })
-                        .await
-                    {
-                        log::warn!("Error when sending message {:?}", send_err);
+                Ok(streaming_data) => match streaming_data {
+                    StreamingDataResponse::MarketData(data) => {
+                        let timestamp = get_now_unix_timestamp();
+                        let quote_real_time_info = QuoteRealTimeInfo {
+                            symbol: self.symbol.clone(),
+                            sequence: timestamp,
+                            timestamp,
+                            // todo: Handle C and H prefix
+                            current_price: Decimal::from_str(
+                                data.last_price.clone().unwrap().as_str(),
+                            )
+                            .unwrap(), // TODO: eliminate this unwrap()
+                            volume: data.volume.clone().unwrap().parse().unwrap(), // TODO: eliminate this unwrap()
+                            low_price: data.low_price, // TODO: eliminate this unwrap()
+                            high_price: data.high_price, // TODO: eliminate this unwrap()
+                            open_price: data.open,     // TODO: eliminate this unwrap()
+                            prev_close: data.prior_close, // TODO: eliminate this unwrap()
+                            turnover: Option::None,    // TODO: eliminate this unwrap()
+                            extra: Option::None,       // TODO: eliminate this unwrap()
+                        };
+
+                        if let Err(send_err) = self.sys_sender.send(quote_real_time_info).await {
+                            log::warn!("Error when sending message {:?}", send_err);
+                        }
                     }
-                }
+                    _ => continue,
+                },
                 Err(streaming_err) => {
                     log::warn!("Streaming Error {:?}", streaming_err);
                 }
