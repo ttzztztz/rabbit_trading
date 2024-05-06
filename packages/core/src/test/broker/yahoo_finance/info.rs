@@ -31,6 +31,6 @@ async fn test_query_quote_info() {
     log::warn!("quote_info: {quote_info:?}");
     assert_eq!("ABNB.US", quote_info.symbol.to_string());
     assert!(quote_info.current_price > dec!(0.0));
-    assert!(quote_info.volume > 0u64);
+    assert!(quote_info.volume > dec!(0.0));
     assert!(quote_info.timestamp > 0u64);
 }

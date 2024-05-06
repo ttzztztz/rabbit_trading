@@ -151,12 +151,86 @@ pub enum TickType {
     ConIdExchange = 7094,
     ///canBeTraded - If contract is a trade-able instrument. Returns 1(true) or 0(false).
     CanBeTraded = 7184,
+    /// IV Rank
+    IVRank7195 = 7195,
+    /// IV Rank
+    IVRank7196 = 7196,
+    /// IV Rank
+    IVRank7197 = 7197,
+    /// IV Percentile
+    IVPercentile7198 = 7198,
+    /// IV Percentile
+    IVPercentile7199 = 7199,
+    /// IV Percentile
+    IVPercentile7200 = 7200,
+    /// IV High Low
+    IVHighLow7201 = 7201,
+    /// IV High Low
+    IVHighLow7202 = 7202,
+    /// IV High Low
+    IVHighLow7203 = 7203,
+    /// IV High Low
+    IVHighLow7204 = 7204,
+    /// IV High Low
+    IVHighLow7205 = 7205,
+    /// IV High Low
+    IVHighLow7206 = 7206,
+    /// HV Rank
+    HVRank7207 = 7207,
+    /// HV Rank
+    HVRank7208 = 7208,
+    /// HV Rank
+    HVRank7209 = 7209,
+    /// HV Percentile
+    HVPercentile7210 = 7210,
+    /// HV Percentile
+    HVPercentile7211 = 7211,
+    /// HV Percentile
+    HVPercentile7212 = 7212,
     ///Contract Description
-    ContractDescription = 7219,
+    ContractDescription7219 = 7219,
     ///Contract Description
-    ContractDescription2 = 7220,
+    ContractDescription7220 = 7220,
     ///Listing Exchange
     ListingExchange = 7221,
+    /// HV High Low
+    HVHighLow7245 = 7245,
+    /// HV High Low
+    HVHighLow7246 = 7246,
+    /// HV High Low
+    HVHighLow7247 = 7247,
+    /// HV High Low
+    HVHighLow7248 = 7248,
+    /// HV High Low
+    HVHighLow7249 = 7249,
+    /// HV High Low
+    HVHighLow7263 = 7263,
+    /// ESG
+    ESG7264 = 7264,
+    /// ESG
+    ESG7265 = 7265,
+    /// ESG
+    ESG7266 = 7266,
+    /// ESG
+    ESG7267 = 7267,
+    /// ESG
+    ESG7268 = 7268,
+    /// ESG
+    ESG7269 = 7269,
+    /// ESG
+    ESG7271 = 7271,
+    /// ESG
+    ESG7272 = 7272,
+    /// ESG
+    ESG7273 = 7273,
+    /// ESG
+    ESG7274 = 7274,
+    /// ESG
+    ESG7275 = 7275,
+    /// ESG
+    ESG7276 = 7276,
+    /// ESG
+    ESG7277 = 7277,
     ///Industry - Displays the type of industry under which the underlying company can be categorized.
     Industry = 7280,
     ///Category - Displays a more detailed level of description within the industry under which the underlying company can be categorized.
@@ -202,6 +276,14 @@ pub enum TickType {
     Theta = 7310,
     ///Vega - The amount that the price of an option changes compared to a 1% change in the volatility.
     Vega = 7311,
+    /// Reuters Fundamentals
+    ReutersFundamentals = 7331,
+    /// ESG
+    ESG7370 = 7370,
+    /// ESG
+    ESG7371 = 7371,
+    /// ESG
+    ESG7372 = 7372,
     ///Opt. Volume Change % - Today's option volume as a percentage of the average option volume.
     OptVolumeChange = 7607,
     ///Implied Vol. % - The implied volatility for the specific strike of the option in percentage. To query the Option Implied Vol. % from the underlying refer to field 7283.
@@ -276,7 +358,7 @@ pub enum TickType {
     ///The yield to worst will be the lowest of the yield to maturity or yield to call (if the bond has prepayment provisions). Yield to worse may be the same as yield to maturity but never higher.
     BidYield = 7699,
     ///Probability of Max Return - Customer implied probability of maximum potential gain.
-    ProbabilityOfMaxReturn2 = 7700,
+    ProbabilityOfMaxReturn7700 = 7700,
     ///Probability of Max Loss - Customer implied probability of maximum potential loss.
     ProbabilityOfMaxLoss = 7702,
     ///Profit Probability - Customer implied probability of any gain.
@@ -303,10 +385,22 @@ pub enum TickType {
     AskYield = 7720,
     ///Prior Close - Yesterday's closing price
     PriorClose = 7741,
+    /// Reuters Fundamentals
+    ReutersFundamentals7743 = 7743,
+    /// ESG
+    ESG = 7761,
     ///Volume Long - High precision volume for the day. For formatted volume refer to field 87.
     VolumeLong = 7762,
     ///hasTradingPermissions - if user has trading permissions for specified contract. Returns 1(true) or 0(false).
     HasTradingPermissions = 7768,
+    /// 26 Week High - The highest price for the past 26 weeks.
+    _26WeekHigh = 7992,
+    /// 26 Week Low - The lowest price for the past 26 weeks.
+    _26WeekLw = 7993,
+    /// 13 Week High - The highest price for the past 13 weeks.
+    _13WeekHigh = 7994,
+    /// 13 Week Low - The lowest price for the past 13 weeks.
+    _13WeekLow = 7995,
 }
 
 impl ToString for TickType {

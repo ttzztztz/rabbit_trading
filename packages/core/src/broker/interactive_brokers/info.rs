@@ -68,7 +68,7 @@ impl InfoTrait for InteractiveBrokersInfo {
                     TickType::High,
                     TickType::Low,
                     TickType::Open,
-                    TickType::Volume,
+                    TickType::VolumeLong,
                     TickType::PriorClose,
                 ]),
             })
@@ -82,7 +82,7 @@ impl InfoTrait for InteractiveBrokersInfo {
             timestamp,
             // todo: Handle C and H prefix
             current_price: Decimal::from_str(result.last_price.clone().unwrap().as_str()).unwrap(), // TODO: eliminate this unwrap()
-            volume: result.volume.clone().unwrap().parse().unwrap(), // TODO: eliminate this unwrap()
+            volume: result.volume_long.unwrap(), // TODO: eliminate this unwrap()
             low_price: result.low_price, // TODO: eliminate this unwrap()
             high_price: result.high_price, // TODO: eliminate this unwrap()
             open_price: result.open,     // TODO: eliminate this unwrap()

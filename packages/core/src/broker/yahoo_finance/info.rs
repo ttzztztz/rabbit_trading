@@ -29,7 +29,7 @@ impl YahooFinanceInfo {
             timestamp: yahoo_quote.timestamp,
             current_price: Decimal::from_str_exact(format!("{:.2}", yahoo_quote.close).as_str())
                 .unwrap(),
-            volume: yahoo_quote.volume,
+            volume: yahoo_quote.volume.into(),
             low_price: Option::None,
             high_price: Option::None,
             open_price: Option::None,

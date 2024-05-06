@@ -201,12 +201,42 @@ pub struct MarketDataMixin {
     /// * H - Trading has halted.
     #[serde(rename = "31")]
     pub last_price: Option<String>,
+    ///Symbol
+    #[serde(rename = "55")]
+    pub symbol: Option<String>,
+    ///Text
+    #[serde(rename = "58")]
+    pub text: Option<String>,
     /// High - Current day high price
     #[serde(rename = "70")]
     pub high_price: Option<Decimal>,
     /// Low - Current day low price
     #[serde(rename = "71")]
     pub low_price: Option<Decimal>,
+    /// Market Value - The current market value of  your position in the security. Market Value is calculated with real time market data (even when not subscribed to market data).
+    #[serde(rename = "73")]
+    pub market_value: Option<Decimal>,
+    /// Avg Price - The average price of the position.
+    #[serde(rename = "74")]
+    pub avg_price: Option<Decimal>,
+    ///Unrealized PnL - Unrealized profit or loss. Unrealized PnL is calculated with real time market data (even when not subscribed to market data).
+    #[serde(rename = "75")]
+    pub unrealized_pnl: Option<String>,
+    ///Formatted position
+    #[serde(rename = "76")]
+    pub formatted_position: Option<String>,
+    ///Formatted Unrealized PnL
+    #[serde(rename = "77")]
+    pub formatted_unrealized_pnl: Option<String>,
+    ///Daily PnL - Your profit or loss of the day since prior close. Daily PnL is calculated with real time market data (even when not subscribed to market data).
+    #[serde(rename = "78")]
+    pub daily_pnl: Option<String>,
+    ///Realized PnL - Realized profit or loss. Realized PnL is calculated with real time market data (even when not subscribed to market data).
+    #[serde(rename = "79")]
+    pub realized_pnl: Option<String>,
+    ///Unrealized PnL % - Unrealized profit or loss expressed in percentage.
+    #[serde(rename = "80")]
+    pub unrealized_pnl_pct: Option<String>,
     /// Change - The difference between the last price and the close on the previous trading day
     #[serde(rename = "82")]
     pub change: Option<Decimal>,
@@ -228,9 +258,30 @@ pub struct MarketDataMixin {
     /// Bid Size - The number of contracts or shares bid for at the bid price. For US stocks, the number displayed is divided by 100.
     #[serde(rename = "88")]
     pub bid_size: Option<Decimal>,
+    /// Exchange
+    #[serde(rename = "6004")]
+    pub exchange: Option<String>,
+    /// Conid - Contract identifier from IBKR's database.
+    #[serde(rename = "6008")]
+    pub conid_6008: Option<String>,
+    /// SecType - The asset class of the instrument.
+    #[serde(rename = "6070")]
+    pub sec_type: Option<String>,
+    /// Months
+    #[serde(rename = "6072")]
+    pub months: Option<String>,
+    /// Regular Expiry
+    #[serde(rename = "6073")]
+    pub regular_expiry: Option<String>,
     /// Field value of the server_id. Returns the request’s identifier.
     #[serde(rename = "6119")]
     pub server_id_6119: Option<String>,
+    ///Underlying Conid. Use /trsrv/secdef to get more information about the security
+    #[serde(rename = "6457")]
+    pub underlying_conid: Option<String>,
+    ///Service Params.
+    #[serde(rename = "6508")]
+    pub service_params: Option<String>,
     /// Market Data Availability. The field may contain three chars.
     /// First char defines: R = RealTime, D = Delayed, Z = Frozen, Y = Frozen Delayed, N = Not Subscribed.
     /// Second char defines: P = Snapshot, p = Consolidated.
@@ -243,6 +294,9 @@ pub struct MarketDataMixin {
     /// * Book - Top of the book data is available for contract.
     #[serde(rename = "6509")]
     pub market_data_availability: Option<String>,
+    ///Company name
+    #[serde(rename = "7051")]
+    pub company_name: Option<String>,
     /// Ask Exch - Displays the exchange(s) offering the SMART price.
     /// A=AMEX, C=CBOE, I=ISE, X=PHLX, N=PSE, B=BOX, Q=NASDAQOM, Z=BATS, W=CBOE2, T=NASDAQBX, M=MIAX, H=GEMINI, E=EDGX, J=MERCURY
     #[serde(rename = "7057")]
@@ -258,6 +312,30 @@ pub struct MarketDataMixin {
     /// A=AMEX, C=CBOE, I=ISE, X=PHLX, N=PSE, B=BOX, Q=NASDAQOM, Z=BATS, W=CBOE2, T=NASDAQBX, M=MIAX, H=GEMINI, E=EDGX, J=MERCURY
     #[serde(rename = "7068")]
     pub bid_exchange: Option<String>,
+    ///Implied Vol./Hist. Vol % - The ratio of the implied volatility over the historical volatility, expressed as a percentage.
+    #[serde(rename = "7084")]
+    pub implied_vol_hist_vol: Option<String>,
+    ///Put/Call Interest - Put option open interest/call option open interest for the trading day.
+    #[serde(rename = "7085")]
+    pub put_call_interest: Option<String>,
+    ///Put/Call Volume - Put option volume/call option volume for the trading day.
+    #[serde(rename = "7086")]
+    pub put_call_volume: Option<String>,
+    ///Hist. Vol. % - 30-day real-time historical volatility.
+    #[serde(rename = "7087")]
+    pub hist_vol: Option<String>,
+    ///Hist. Vol. Close % - Shows the historical volatility based on previous close price.
+    #[serde(rename = "7088")]
+    pub hist_vol_close: Option<String>,
+    ///Opt. Volume - Option Volume
+    #[serde(rename = "7089")]
+    pub opt_volume: Option<String>,
+    ///Conid + Exchange
+    #[serde(rename = "7094")]
+    pub con_id_exchange: Option<String>,
+    ///canBeTraded - If contract is a trade-able instrument. Returns 1(true) or 0(false).
+    #[serde(rename = "7184")]
+    pub can_be_traded: Option<String>,
     /// IV Rank
     #[serde(rename = "7195")]
     pub iv_rank_7195: Option<String>,
@@ -312,6 +390,15 @@ pub struct MarketDataMixin {
     /// HV Percentile
     #[serde(rename = "7212")]
     pub hv_percentile_7212: Option<String>,
+    ///Contract Description
+    #[serde(rename = "7219")]
+    pub contract_description_7219: Option<String>,
+    ///Contract Description
+    #[serde(rename = "7220")]
+    pub contract_description_7220: Option<String>,
+    ///Listing Exchange
+    #[serde(rename = "7221")]
+    pub listing_exchange: Option<String>,
     /// HV High Low
     #[serde(rename = "7245")]
     pub hv_high_low_7245: Option<String>,
@@ -369,6 +456,12 @@ pub struct MarketDataMixin {
     /// ESG
     #[serde(rename = "7277")]
     pub esg_7277: Option<String>,
+    /// Industry - Displays the type of industry under which the underlying company can be categorized.
+    #[serde(rename = "7280")]
+    pub industry: Option<String>,
+    /// Category - Displays a more detailed level of description within the industry under which the underlying company can be categorized.
+    #[serde(rename = "7281")]
+    pub category: Option<String>,
     /// Average Volume - The average daily trading volume over 90 days.
     #[serde(rename = "7282")]
     pub average_volume: Option<String>,
@@ -379,6 +472,9 @@ pub struct MarketDataMixin {
     /// Historic Volume (30d)
     #[serde(rename = "7284")]
     pub historic_volume: Option<String>,
+    /// Put/Call Ratio
+    #[serde(rename = "7285")]
+    pub put_call_ratio: Option<String>,
     /// Dividend Amount - Displays the amount of the next dividend.
     #[serde(rename = "7286")]
     pub dividend_amount: Option<Decimal>,
@@ -395,6 +491,12 @@ pub struct MarketDataMixin {
     /// P/E
     #[serde(rename = "7290")]
     pub pe: Option<String>,
+    /// EPS
+    #[serde(rename = "7291")]
+    pub eps: Option<String>,
+    /// Cost Basis - Your current position in this security multiplied by the average price and multiplier.
+    #[serde(rename = "7292")]
+    pub cost_basis: Option<String>,
     /// 52 Week High - The highest price for the past 52 weeks.
     #[serde(rename = "7293")]
     pub _52_week_high: Option<String>,
@@ -407,6 +509,18 @@ pub struct MarketDataMixin {
     /// Close - Today's closing price.
     #[serde(rename = "7296")]
     pub close: Option<Decimal>,
+    ///Delta - The ratio of the change in the price of the option to the corresponding change in the price of the underlying.
+    #[serde(rename = "7308")]
+    pub delta: Option<String>,
+    ///Gamma - The rate of change for the delta with respect to the underlying asset's price.
+    #[serde(rename = "7309")]
+    pub gamma: Option<String>,
+    ///Theta - A measure of the rate of decline the value of an option due to the passage of time.
+    #[serde(rename = "7310")]
+    pub theta: Option<String>,
+    ///Vega - The amount that the price of an option changes compared to a 1% change in the volatility.
+    #[serde(rename = "7311")]
+    pub vega: Option<String>,
     /// Reuters Fundamentals
     #[serde(rename = "7331")]
     pub reuters_fundamentals_7331: Option<String>,
@@ -419,18 +533,40 @@ pub struct MarketDataMixin {
     /// ESG
     #[serde(rename = "7372")]
     pub esg_7372: Option<String>,
+    ///Opt. Volume Change % - Today's option volume as a percentage of the average option volume.
+    #[serde(rename = "7607")]
+    pub opt_volume_change: Option<String>,
+    ///Implied Vol. % - The implied volatility for the specific strike of the option in percentage. To query the Option Implied Vol. % from the underlying refer to field 7283.
+    #[serde(rename = "7633")]
+    pub implied_vol: Option<String>,
     /// Mark - The mark price is, the ask price if ask is less than last price, the bid price if bid is more than the last price, otherwise it's equal to last price
     #[serde(rename = "7635")]
     pub mark: Option<String>,
     /// shortable inventory
     #[serde(rename = "7636")]
-    pub shortable_inventory: Option<Decimal>,
+    pub shortable_inventory: Option<String>,
     /// Fee rebate rate
     #[serde(rename = "7637")]
-    pub free_rebate_rate: Option<String>,
+    pub fee_rebate_rate: Option<String>,
+    ///Option Open Interest
+    #[serde(rename = "7638")]
+    pub option_open_interest: Option<String>,
+    ///% of Mark Value - Displays the market value of the contract as a percentage of the total market value of the account.
+    //Mark Value is calculated with real time market data (even when not subscribed to market data).
+    #[serde(rename = "7639")]
+    pub pct_of_mark_value: Option<String>,
     /// Shortable - Describes the level of difficulty with which the security can be sold short.
     #[serde(rename = "7644")]
     pub shortable: Option<String>,
+    ///Morningstar Rating - Displays Morningstar Rating provided value. Requires [Morningstar](https://www.interactivebrokers.com/en/index.php?f=14262) subscription.
+    #[serde(rename = "7655")]
+    pub morningstar_rating: Option<String>,
+    ///Dividends - This value is the total of the expected dividend payments over the next twelve months per share.
+    #[serde(rename = "7671")]
+    pub dividends: Option<String>,
+    ///Dividends TTM - This value is the total of the expected dividend payments over the last twelve months per share.
+    #[serde(rename = "7672")]
+    pub dividends_ttm: Option<String>,
     /// EMA(200) - Exponential moving average (N=200).
     #[serde(rename = "7674")]
     pub ema_200: Option<String>,
@@ -443,9 +579,57 @@ pub struct MarketDataMixin {
     /// EMA(20) - Exponential moving average (N=20).
     #[serde(rename = "7677")]
     pub ema_20: Option<String>,
+    ///Price/EMA(200) - Price to Exponential moving average (N=200) ratio -1, displayed in percents.
+    #[serde(rename = "7677")]
+    pub price_ema_200: Option<String>,
+    ///Price/EMA(100) - Price to Exponential moving average (N=100) ratio -1, displayed in percents.
+    #[serde(rename = "7677")]
+    pub price_ema_100: Option<String>,
+    ///Price/EMA(50) - Price to Exponential moving average (N=50) ratio -1, displayed in percents.
+    #[serde(rename = "7677")]
+    pub price_ema_50: Option<String>,
     /// Price/EMA(20) - Price to Exponential moving average (N=20) ratio -1, displayed in percents.
     #[serde(rename = "7681")]
     pub price_ema_20: Option<String>,
+    ///Change Since Open - The difference between the last price and the open price.
+    #[serde(rename = "7682")]
+    pub change_since_open: Option<String>,
+    ///Upcoming Event - Shows the next major company event. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7683")]
+    pub upcoming_event: Option<String>,
+    ///Upcoming Event Date - The date of the next major company event. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7684")]
+    pub upcoming_event_date: Option<String>,
+    ///Upcoming Analyst Meeting - The date and time of the next scheduled analyst meeting. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7685")]
+    pub upcoming_analyst_meting: Option<String>,
+    ///Upcoming Earnings - The date and time of the next scheduled earnings/earnings call event. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7686")]
+    pub upcoming_earnings: Option<String>,
+    ///Upcoming Misc Event - The date and time of the next shareholder meeting, presentation or other event. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7687")]
+    pub upcoming_misc_event: Option<String>,
+    ///Recent Analyst Meeting - The date and time of the most recent analyst meeting. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7688")]
+    pub recent_analyst_meeting: Option<String>,
+    ///Recent Earnings - The date and time of the most recent earnings/earning call event. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7689")]
+    pub recent_earnings: Option<String>,
+    ///Recent Misc Event - The date and time of the most recent shareholder meeting, presentation or other event. Requires [Wall Street Horizon](https://www.interactivebrokers.com/en/index.php?f=24674) subscription.
+    #[serde(rename = "7690")]
+    pub recent_misc_event: Option<String>,
+    ///Probability of Max Return - Customer implied probability of maximum potential gain.
+    #[serde(rename = "7694")]
+    pub probability_of_max_return: Option<String>,
+    ///Break Even - Break even points
+    #[serde(rename = "7695")]
+    pub break_even: Option<String>,
+    ///SPX Delta - Beta Weighted Delta is calculated using the formula; Delta x dollar adjusted beta, where adjusted beta is adjusted by the ratio of the close price.
+    #[serde(rename = "7696")]
+    pub spx_delta: Option<String>,
+    ///Futures Open Interest - Total number of outstanding futures contracts
+    #[serde(rename = "7697")]
+    pub futures_open_interest: Option<String>,
     /// Last Yield - Implied yield of the bond if it is purchased at the current last price. Last yield is calculated using the Last price on all possible call dates. It is assumed that prepayment occurs if the bond has call or put provisions and the issuer can offer a lower coupon rate based on current market rates. The yield to worst will be the lowest of the yield to maturity or yield to call (if the bond has prepayment provisions). Yield to worse may be the same as yield to maturity but never higher.
     #[serde(rename = "7698")]
     pub last_yield: Option<String>,
@@ -455,9 +639,39 @@ pub struct MarketDataMixin {
     /// Yield to worse may be the same as yield to maturity but never higher.
     #[serde(rename = "7699")]
     pub bid_yield: Option<String>,
+    ///Probability of Max Return - Customer implied probability of maximum potential gain.
+    #[serde(rename = "7700")]
+    pub probability_of_max_return7700: Option<String>,
+    ///Probability of Max Loss - Customer implied probability of maximum potential loss.
+    #[serde(rename = "7702")]
+    pub probability_of_max_loss: Option<String>,
+    ///Profit Probability - Customer implied probability of any gain.
+    #[serde(rename = "7703")]
+    pub profit_probability: Option<String>,
+    ///Organization Type
+    #[serde(rename = "7704")]
+    pub organization_type: Option<String>,
+    ///Debt Class
+    #[serde(rename = "7705")]
+    pub debt_class: Option<String>,
+    ///Ratings - Ratings issued for bond contract.
+    #[serde(rename = "7706")]
+    pub ratings: Option<String>,
+    ///Bond State Code
+    #[serde(rename = "7707")]
+    pub bond_state_code: Option<String>,
+    ///Bond Type
+    #[serde(rename = "7708")]
+    pub bond_type: Option<String>,
+    ///Last Trading Date
+    #[serde(rename = "7714")]
+    pub last_trading_date: Option<String>,
+    ///Issue Date
+    #[serde(rename = "7715")]
+    pub issue_date: Option<String>,
     /// Beta - Beta is against standard index.
     #[serde(rename = "7718")]
-    pub beta: Option<String>,
+    pub beta: Option<Decimal>,
     /// Ask Yield - Implied yield of the bond if it is purchased at the current offer. Ask yield is calculated using the Bid on all possible call dates.
     /// It is assumed that prepayment occurs if the bond has call or put provisions and the issuer can offer a lower coupon rate based on current market rates.
     /// The yield to worst will be the lowest of the yield to maturity or yield to call (if the bond has prepayment provisions).
@@ -473,6 +687,12 @@ pub struct MarketDataMixin {
     /// ESG
     #[serde(rename = "7761")]
     pub esg: Option<String>,
+    /// Volume - Volume for the day, formatted with 'K' for thousands or 'M' for millions.
+    #[serde(rename = "7762")]
+    pub volume_long: Option<Decimal>,
+    ///hasTradingPermissions - if user has trading permissions for specified contract. Returns 1(true) or 0(false).
+    #[serde(rename = "7768")]
+    pub has_trading_permissions: Option<String>,
     /// 26 Week High - The highest price for the past 26 weeks.
     #[serde(rename = "7992")]
     pub _26_week_high: Option<String>,

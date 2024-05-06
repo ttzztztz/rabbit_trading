@@ -40,7 +40,7 @@ async fn test_quote_real_time_info() {
             log::warn!("quote_info: {quote_info:?}");
             assert_eq!("0700.HK", quote_info.symbol.to_string());
             assert!(quote_info.current_price > dec!(0.0));
-            assert!(quote_info.volume > 0u64);
+            assert!(quote_info.volume > dec!(0.0));
             assert!(quote_info.timestamp > 0u64);
         },
         _ = sleep(Duration::from_millis(3000))=> {
