@@ -396,7 +396,7 @@ pub enum TickType {
     /// 26 Week High - The highest price for the past 26 weeks.
     _26WeekHigh = 7992,
     /// 26 Week Low - The lowest price for the past 26 weeks.
-    _26WeekLw = 7993,
+    _26WeekLow = 7993,
     /// 13 Week High - The highest price for the past 13 weeks.
     _13WeekHigh = 7994,
     /// 13 Week Low - The lowest price for the past 13 weeks.
