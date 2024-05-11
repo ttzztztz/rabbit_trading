@@ -3,8 +3,8 @@ use async_trait::async_trait;
 use ibkr_client_portal::model::{
     definition::TickType,
     streaming::{
-        StreamingDataResponse, SubscribeMarketDataRequest, ToStructuredRequest,
-        UnsubscribeMarketDataRequest,
+        MarketDataResponse, StreamingDataResponse, StreamingDataStructuredRequest,
+        SubscribeMarketDataRequest, ToStructuredRequest, UnsubscribeMarketDataRequest,
     },
 };
 use rust_decimal::Decimal;
@@ -53,6 +53,56 @@ impl IBQuoteRealTimeInfoSubscriptionWorker {
             global_stopped_indicator,
         }
     }
+
+    fn create_subscribe_market_data_structured_request(
+        conid: i64,
+    ) -> StreamingDataStructuredRequest {
+        SubscribeMarketDataRequest {
+            conid: format!("{}", conid),
+            fields: vec![
+                TickType::LastPrice,
+                TickType::High,
+                TickType::Low,
+                TickType::Open,
+                TickType::Volume,
+                TickType::PriorClose,
+            ]
+            .into_iter()
+            .map(|field| field.to_string())
+            .collect(),
+        }
+        .to_structured_request()
+    }
+
+    fn create_unsubscribe_market_data_structured_request(
+        conid: i64,
+    ) -> StreamingDataStructuredRequest {
+        UnsubscribeMarketDataRequest {
+            conid: format!("{}", conid),
+        }
+        .to_structured_request()
+    }
+
+    fn market_data_response_to_quote_real_time_info(
+        symbol: Symbol,
+        data: MarketDataResponse,
+    ) -> QuoteRealTimeInfo {
+        let timestamp = get_now_unix_timestamp();
+        QuoteRealTimeInfo {
+            symbol,
+            sequence: timestamp,
+            timestamp,
+            // todo: Handle C and H prefix
+            current_price: Decimal::from_str(data.last_price.clone().unwrap().as_str()).unwrap(), // TODO: eliminate this unwrap()
+            volume: data.volume.clone().unwrap().parse().unwrap(), // TODO: eliminate this unwrap()
+            low_price: data.low_price,                             // TODO: eliminate this unwrap()
+            high_price: data.high_price,                           // TODO: eliminate this unwrap()
+            open_price: data.open,                                 // TODO: eliminate this unwrap()
+            prev_close: data.prior_close,                          // TODO: eliminate this unwrap()
+            turnover: Option::None,                                // TODO: eliminate this unwrap()
+            extra: Option::None,                                   // TODO: eliminate this unwrap()
+        }
+    }
 }
 
 #[async_trait]
@@ -64,21 +114,7 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
         let (sender, receiver) = client_portal.connect_to_websocket().await.unwrap();
         if let Err(err) = sender
             .send_streaming_structured_data_request(
-                SubscribeMarketDataRequest {
-                    conid: format!("{}", conid),
-                    fields: vec![
-                        TickType::LastPrice,
-                        TickType::High,
-                        TickType::Low,
-                        TickType::Open,
-                        TickType::Volume,
-                        TickType::PriorClose,
-                    ]
-                    .into_iter()
-                    .map(|field| field.to_string())
-                    .collect(),
-                }
-                .to_structured_request(),
+                Self::create_subscribe_market_data_structured_request(conid),
             )
             .await
         {
@@ -91,10 +127,7 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
             {
                 if let Err(err) = sender
                     .send_streaming_structured_data_request(
-                        UnsubscribeMarketDataRequest {
-                            conid: format!("{}", conid),
-                        }
-                        .to_structured_request(),
+                        Self::create_unsubscribe_market_data_structured_request(conid),
                     )
                     .await
                 {
@@ -106,26 +139,14 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
             match receiver.receive().await {
                 Ok(streaming_data) => match streaming_data {
                     StreamingDataResponse::MarketData(data) => {
-                        let timestamp = get_now_unix_timestamp();
-                        let quote_real_time_info = QuoteRealTimeInfo {
-                            symbol: self.symbol.clone(),
-                            sequence: timestamp,
-                            timestamp,
-                            // todo: Handle C and H prefix
-                            current_price: Decimal::from_str(
-                                data.last_price.clone().unwrap().as_str(),
-                            )
-                            .unwrap(), // TODO: eliminate this unwrap()
-                            volume: data.volume.clone().unwrap().parse().unwrap(), // TODO: eliminate this unwrap()
-                            low_price: data.low_price, // TODO: eliminate this unwrap()
-                            high_price: data.high_price, // TODO: eliminate this unwrap()
-                            open_price: data.open,     // TODO: eliminate this unwrap()
-                            prev_close: data.prior_close, // TODO: eliminate this unwrap()
-                            turnover: Option::None,    // TODO: eliminate this unwrap()
-                            extra: Option::None,       // TODO: eliminate this unwrap()
-                        };
-
-                        if let Err(send_err) = self.sys_sender.send(quote_real_time_info).await {
+                        if let Err(send_err) = self
+                            .sys_sender
+                            .send(Self::market_data_response_to_quote_real_time_info(
+                                self.symbol.clone(),
+                                data,
+                            ))
+                            .await
+                        {
                             log::warn!("Error when sending message {:?}", send_err);
                         }
                     }

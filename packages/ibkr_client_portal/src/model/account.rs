@@ -16,7 +16,7 @@ pub struct AccountLedger {
     #[serde(rename = "exchangerate")]
     pub exchange_rate: Decimal,
     #[serde(rename = "sessionid")]
-    pub session_id: Decimal,
+    pub session_id: Option<String>,
     #[serde(rename = "cashbalance")]
     pub cash_balance: Decimal,
     #[serde(rename = "corporatebondsmarketvalue")]
@@ -42,7 +42,7 @@ pub struct AccountLedger {
     pub issuer_options_market_value: Decimal,
     pub key: String,
     pub timestamp: u64,
-    pub severity: Decimal,
+    pub severity: Option<i64>,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]

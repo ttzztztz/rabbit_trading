@@ -3,8 +3,8 @@ use async_trait::async_trait;
 use ibkr_client_portal::model::{
     definition::TickType,
     streaming::{
-        StreamingDataResponse, SubscribeMarketDataRequest, ToStructuredRequest,
-        UnsubscribeMarketDataRequest,
+        MarketDataResponse, StreamingDataResponse, StreamingDataStructuredRequest,
+        SubscribeMarketDataRequest, ToStructuredRequest, UnsubscribeMarketDataRequest,
     },
 };
 use std::sync::{
@@ -52,6 +52,60 @@ impl IBQuoteDepthInfoSubscriptionWorker {
             global_stopped_indicator,
         }
     }
+
+    fn create_subscribe_market_data_structured_request(
+        conid: i64,
+    ) -> StreamingDataStructuredRequest {
+        SubscribeMarketDataRequest {
+            conid: format!("{}", conid),
+            fields: vec![
+                TickType::AskPrice,
+                TickType::AskSize,
+                TickType::BidPrice,
+                TickType::BidSize,
+            ]
+            .into_iter()
+            .map(|field| field.to_string())
+            .collect(),
+        }
+        .to_structured_request()
+    }
+
+    fn create_unsubscribe_market_data_structured_request(
+        conid: i64,
+    ) -> StreamingDataStructuredRequest {
+        UnsubscribeMarketDataRequest {
+            conid: format!("{}", conid),
+        }
+        .to_structured_request()
+    }
+
+    fn market_data_response_to_quote_depth_info(
+        symbol: Symbol,
+        data: MarketDataResponse,
+    ) -> QuoteDepthInfo {
+        // TODO: use the macro to unify the codes
+        let timestamp = get_now_unix_timestamp();
+        let ask_depth = Depth {
+            position: Option::None,
+            price: data.ask_price.unwrap(),
+            volume: data.ask_size.unwrap(),
+            order_count: Option::None,
+        };
+        let bid_depth = Depth {
+            position: Option::None,
+            price: data.bid_price.unwrap(),
+            volume: data.bid_size.unwrap(),
+            order_count: Option::None,
+        };
+        QuoteDepthInfo {
+            symbol,
+            sequence: timestamp,
+            timestamp,
+            ask_list: vec![ask_depth],
+            bid_list: vec![bid_depth],
+        }
+    }
 }
 
 #[async_trait]
@@ -63,19 +117,7 @@ impl SubscriptionWorker for IBQuoteDepthInfoSubscriptionWorker {
         let (sender, receiver) = client_portal.connect_to_websocket().await.unwrap();
         if let Err(err) = sender
             .send_streaming_structured_data_request(
-                SubscribeMarketDataRequest {
-                    conid: format!("{}", conid),
-                    fields: vec![
-                        TickType::AskPrice,
-                        TickType::AskSize,
-                        TickType::BidPrice,
-                        TickType::BidSize,
-                    ]
-                    .into_iter()
-                    .map(|field| field.to_string())
-                    .collect(),
-                }
-                .to_structured_request(),
+                Self::create_subscribe_market_data_structured_request(conid),
             )
             .await
         {
@@ -88,10 +130,7 @@ impl SubscriptionWorker for IBQuoteDepthInfoSubscriptionWorker {
             {
                 if let Err(err) = sender
                     .send_streaming_structured_data_request(
-                        UnsubscribeMarketDataRequest {
-                            conid: format!("{}", conid),
-                        }
-                        .to_structured_request(),
+                        Self::create_unsubscribe_market_data_structured_request(conid),
                     )
                     .await
                 {
@@ -103,29 +142,14 @@ impl SubscriptionWorker for IBQuoteDepthInfoSubscriptionWorker {
             match receiver.receive().await {
                 Ok(streaming_data) => match streaming_data {
                     StreamingDataResponse::MarketData(data) => {
-                        // TODO: use the macro to unify the codes
-                        let timestamp = get_now_unix_timestamp();
-                        let ask_depth = Depth {
-                            position: Option::None,
-                            price: data.ask_price.unwrap(),
-                            volume: data.ask_size.unwrap(),
-                            order_count: Option::None,
-                        };
-                        let bid_depth = Depth {
-                            position: Option::None,
-                            price: data.bid_price.unwrap(),
-                            volume: data.bid_size.unwrap(),
-                            order_count: Option::None,
-                        };
-                        let quote_depth_info = QuoteDepthInfo {
-                            symbol: self.symbol.clone(),
-                            sequence: timestamp,
-                            timestamp,
-                            ask_list: vec![ask_depth],
-                            bid_list: vec![bid_depth],
-                        };
-
-                        if let Err(send_err) = self.sys_sender.send(quote_depth_info).await {
+                        if let Err(send_err) = self
+                            .sys_sender
+                            .send(Self::market_data_response_to_quote_depth_info(
+                                self.symbol.clone(),
+                                data,
+                            ))
+                            .await
+                        {
                             log::warn!("Error when sending message {:?}", send_err);
                         }
                     }

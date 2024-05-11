@@ -3,7 +3,9 @@ use async_trait::async_trait;
 use ibkr_client_portal::{
     client::IBClientPortal,
     model::{
-        contract::GetContractDetailRequest, definition::TickType, market_data::GetMarketDataRequest,
+        contract::{ContractDetail, GetContractDetailRequest},
+        definition::TickType,
+        market_data::{GetMarketDataRequest, MarketData},
     },
 };
 use rust_decimal::Decimal;
@@ -15,8 +17,9 @@ use crate::{
     broker::common::info::InfoTrait,
     model::{
         common::types::ConfigMap,
-        trading::quote::{
-            Depth, QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo,
+        trading::{
+            quote::{Depth, QueryInfoRequest, QuoteBasicInfo, QuoteDepthInfo, QuoteRealTimeInfo},
+            symbol::Symbol,
         },
     },
     utils::time::get_now_unix_timestamp,
@@ -24,6 +27,73 @@ use crate::{
 
 pub struct InteractiveBrokersInfo {
     client_portal: IBClientPortal,
+}
+
+impl InteractiveBrokersInfo {
+    fn ib_contract_detail_to_quote_basic_info(
+        symbol: Symbol,
+        contract_detail: ContractDetail,
+    ) -> Result<QuoteBasicInfo, Error> {
+        Result::Ok(QuoteBasicInfo {
+            symbol, // TODO
+            currency: Option::Some(InteractiveBrokersBroker::to_currency(
+                &contract_detail.currency,
+            )?),
+            lot_size: 0,                 // TODO
+            total_shares: dec!(0),       // TODO
+            circulating_shares: dec!(0), // TODO
+            eps: dec!(0),                // TODO
+            eps_ttm: dec!(0),            // TODO
+            bps: dec!(0),                // TODO
+            dividend_yield: dec!(0),     // TODO
+        })
+    }
+
+    fn market_data_to_quote_real_time_info(
+        symbol: Symbol,
+        market_data: &MarketData,
+    ) -> QuoteRealTimeInfo {
+        let timestamp = get_now_unix_timestamp();
+        QuoteRealTimeInfo {
+            symbol,
+            sequence: timestamp,
+            timestamp,
+            // todo: Handle C and H prefix
+            current_price: Decimal::from_str(market_data.last_price.clone().unwrap().as_str())
+                .unwrap(), // TODO: eliminate this unwrap()
+            volume: market_data.volume_long.unwrap(), // TODO: eliminate this unwrap()
+            low_price: market_data.low_price,         // TODO: eliminate this unwrap()
+            high_price: market_data.high_price,       // TODO: eliminate this unwrap()
+            open_price: market_data.open,             // TODO: eliminate this unwrap()
+            prev_close: market_data.prior_close,      // TODO: eliminate this unwrap()
+            turnover: Option::None,                   // TODO: eliminate this unwrap()
+            extra: Option::None,                      // TODO: eliminate this unwrap()
+        }
+    }
+
+    fn market_data_to_quote_depth_info(symbol: Symbol, market_data: &MarketData) -> QuoteDepthInfo {
+        let ask_depth = Depth {
+            position: Option::None,
+            price: market_data.ask_price.unwrap(),
+            volume: market_data.ask_size.unwrap(),
+            order_count: Option::None,
+        };
+        let bid_depth = Depth {
+            position: Option::None,
+            price: market_data.bid_price.unwrap(),
+            volume: market_data.bid_size.unwrap(),
+            order_count: Option::None,
+        };
+
+        let timestamp = get_now_unix_timestamp();
+        QuoteDepthInfo {
+            symbol,
+            sequence: timestamp,
+            timestamp,
+            ask_list: vec![ask_depth],
+            bid_list: vec![bid_depth],
+        }
+    }
 }
 
 #[async_trait]
@@ -35,22 +105,15 @@ impl InfoTrait for InteractiveBrokersInfo {
 
     async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
         let conid = InteractiveBrokersBroker::get_conid_from_symbol(&request.symbol).await;
-        let response = self
+        let contract_detail = self
             .client_portal
             .get_contract_detail(GetContractDetailRequest { conid })
             .await?;
 
-        Result::Ok(QuoteBasicInfo {
-            symbol: request.symbol.clone(), // TODO
-            currency: Option::Some(InteractiveBrokersBroker::to_currency(&response.currency)?),
-            lot_size: 0,                 // TODO
-            total_shares: dec!(0),       // TODO
-            circulating_shares: dec!(0), // TODO
-            eps: dec!(0),                // TODO
-            eps_ttm: dec!(0),            // TODO
-            bps: dec!(0),                // TODO
-            dividend_yield: dec!(0),     // TODO
-        })
+        Result::Ok(Self::ib_contract_detail_to_quote_basic_info(
+            request.symbol.clone(),
+            contract_detail,
+        )?)
     }
 
     async fn query_real_time_info(
@@ -73,24 +136,11 @@ impl InfoTrait for InteractiveBrokersInfo {
                 ]),
             })
             .await?;
-        let result = response.first().unwrap(); // TODO: eliminate this unwrap()
-
-        let timestamp = get_now_unix_timestamp();
-        let quote_real_time_info = QuoteRealTimeInfo {
-            symbol: request.symbol.clone(),
-            sequence: timestamp,
-            timestamp,
-            // todo: Handle C and H prefix
-            current_price: Decimal::from_str(result.last_price.clone().unwrap().as_str()).unwrap(), // TODO: eliminate this unwrap()
-            volume: result.volume_long.unwrap(), // TODO: eliminate this unwrap()
-            low_price: result.low_price,         // TODO: eliminate this unwrap()
-            high_price: result.high_price,       // TODO: eliminate this unwrap()
-            open_price: result.open,             // TODO: eliminate this unwrap()
-            prev_close: result.prior_close,      // TODO: eliminate this unwrap()
-            turnover: Option::None,              // TODO: eliminate this unwrap()
-            extra: Option::None,                 // TODO: eliminate this unwrap()
-        };
-        Result::Ok(quote_real_time_info)
+        let market_data = response.first().unwrap(); // TODO: eliminate this unwrap()
+        Result::Ok(Self::market_data_to_quote_real_time_info(
+            request.symbol.clone(),
+            market_data,
+        ))
     }
 
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
@@ -110,27 +160,10 @@ impl InfoTrait for InteractiveBrokersInfo {
                 ]),
             })
             .await?;
-        let result = response.first().unwrap(); // TODO: eliminate this unwrap()
-        let ask_depth = Depth {
-            position: Option::None,
-            price: result.ask_price.unwrap(),
-            volume: result.ask_size.unwrap(),
-            order_count: Option::None,
-        };
-        let bid_depth = Depth {
-            position: Option::None,
-            price: result.bid_price.unwrap(),
-            volume: result.bid_size.unwrap(),
-            order_count: Option::None,
-        };
-
-        let timestamp = get_now_unix_timestamp();
-        Result::Ok(QuoteDepthInfo {
-            symbol: request.symbol.clone(),
-            sequence: timestamp,
-            timestamp,
-            ask_list: vec![ask_depth],
-            bid_list: vec![bid_depth],
-        })
+        let market_data = response.first().unwrap(); // TODO: eliminate this unwrap()
+        Result::Ok(Self::market_data_to_quote_depth_info(
+            request.symbol.clone(),
+            market_data,
+        ))
     }
 }
