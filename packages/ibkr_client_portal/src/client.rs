@@ -2,6 +2,7 @@ use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use reqwest_retry::{RetryPolicy, RetryTransientMiddleware};
 use std::time::Duration;
 
+#[derive(Clone)]
 pub struct IBClientPortal {
     pub account: String,
     pub host: String,

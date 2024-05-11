@@ -7,13 +7,13 @@ use crate::{
     client::IBClientPortal,
     model::order::{
         CancelOrderRequest, GetOrderStatusRequest, ModifyOrderRequest, OrderRequest,
-        PlaceOrModifyOrderResult, PlaceOrderReplyRequest, PlaceOrdersRequest, PlaceOrdersResponse,
-        PreviewOrderRequest,
+        PlaceOrdersRequest, PreviewOrderRequest,
     },
     test::{
         session::once_init_brokerage_session,
         utils::{get_test_account, CONTRACT_ID_AAPL, TEST_HOST},
     },
+    utils::reply::handle_reply_order_requests,
 };
 
 #[tokio::test]
@@ -79,56 +79,6 @@ async fn test_preview_order() {
     assert!(response_result.is_ok());
 }
 
-async fn handle_reply_order_requests(place_order_response: PlaceOrdersResponse) -> String {
-    let ib_cp_client = IBClientPortal::new(
-        get_test_account(),
-        TEST_HOST.to_owned(),
-        false,
-        ExponentialBackoff::builder().build_with_max_retries(3),
-    );
-
-    if let PlaceOrdersResponse::Ok(mut arr) = place_order_response {
-        let mut result_optional: Option<String> = Option::None;
-        for _ in 0..2 {
-            match arr[0].clone() {
-                PlaceOrModifyOrderResult::Success(detail) => {
-                    result_optional = Option::Some(detail.order_id);
-                    break;
-                }
-
-                PlaceOrModifyOrderResult::Question(question) => {
-                    let place_order_reply_response = ib_cp_client
-                        .place_order_reply(PlaceOrderReplyRequest {
-                            reply_id: question.id.clone(),
-                            confirmed: true,
-                        })
-                        .await
-                        .unwrap();
-
-                    if let PlaceOrdersResponse::Ok(next_arr) = place_order_reply_response {
-                        if let PlaceOrModifyOrderResult::Success(detail) = next_arr[0].clone() {
-                            result_optional = Option::Some(detail.order_id);
-                            break;
-                        } else {
-                            arr = next_arr;
-                        }
-                    } else {
-                        panic!("Place order failed when replying {:?}", question);
-                    }
-                }
-            }
-        }
-
-        if let Some(result_order_id) = result_optional {
-            result_order_id
-        } else {
-            panic!("Place order failed after 3 times retry");
-        }
-    } else {
-        panic!("Place order failed {:?}", place_order_response);
-    }
-}
-
 #[tokio::test]
 #[serial]
 #[cfg_attr(feature = "ci", ignore)]
@@ -184,7 +134,9 @@ async fn test_order_operations() {
 
     assert!(place_order_response_result.is_ok());
     let place_order_response = place_order_response_result.unwrap();
-    let order_id = handle_reply_order_requests(place_order_response).await;
+    let order_id = handle_reply_order_requests(ib_cp_client.clone(), place_order_response, 2i32)
+        .await
+        .unwrap();
 
     let order_status_result = ib_cp_client
         .get_order_status(GetOrderStatusRequest {
@@ -222,7 +174,9 @@ async fn test_order_operations() {
         .await;
     assert!(modify_order_response_result.is_ok());
     let modify_order_response = modify_order_response_result.unwrap();
-    handle_reply_order_requests(modify_order_response).await;
+    handle_reply_order_requests(ib_cp_client.clone(), modify_order_response, 2i32)
+        .await
+        .unwrap();
 
     let order_status_result = ib_cp_client
         .get_order_status(GetOrderStatusRequest {

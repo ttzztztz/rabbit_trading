@@ -1,15 +1,16 @@
-use anyhow::{anyhow, Context, Error};
+use anyhow::{Context, Error};
 use async_trait::async_trait;
 use ibkr_client_portal::{
     client::IBClientPortal,
     model::{
-        account::{GetAccountSummaryRequest, GetAccountSummaryResponse, Summary},
+        account::{GetAccountSummaryRequest, GetAccountSummaryResponse},
         order::{
             CancelOrderRequest as IBCancelOrderRequest, GetOrderStatusRequest, ModifyOrderRequest,
-            OrderRequest, OrderStatus, PlaceOrdersRequest, PlaceOrdersResponse,
+            OrderRequest, OrderStatus, PlaceOrdersRequest,
         },
         portfolio::GetPortfolioPositionsRequest,
     },
+    utils::reply::handle_reply_order_requests,
 };
 use rust_decimal_macros::dec;
 
@@ -245,33 +246,41 @@ impl TransactionTrait for InteractiveBrokersTransaction {
         request: SubmitOrderRequest,
     ) -> Result<SubmitOrderResponse, Error> {
         let account_id = InteractiveBrokersBroker::get_account_id(&self.config_map);
-        match self
+        let max_retry_count =
+            InteractiveBrokersBroker::get_place_order_max_reply_count(&self.config_map);
+        let place_order_response = self
             .client_portal
             .place_orders(PlaceOrdersRequest {
                 account_id,
                 orders: vec![Self::core_submit_order_request_to_ib_order(request)], // TODO
             })
-            .await
-        {
-            Result::Ok(place_order_response) => match place_order_response {
-                PlaceOrdersResponse::Ok(result) => {
-                    Result::Ok(SubmitOrderResponse { order_id: todo!() })
-                }
-                PlaceOrdersResponse::Error(e) => Result::Err(anyhow!("{:?}", e)),
-            },
-            Result::Err(e) => Result::Err(anyhow!("{:?}", e)),
-        }
+            .await?;
+        let order_id = handle_reply_order_requests(
+            self.client_portal.clone(),
+            place_order_response,
+            max_retry_count,
+        )
+        .await?;
+        Result::Ok(SubmitOrderResponse { order_id })
     }
 
     async fn edit_order(&mut self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
-        let account_id = InteractiveBrokersBroker::get_account_id(&self.config_map);
-        self.client_portal
+        let max_retry_count =
+            InteractiveBrokersBroker::get_place_order_max_reply_count(&self.config_map);
+
+        let place_order_response = self
+            .client_portal
             .modify_order(Self::core_edit_order_request_to_ib_modify_order_request(
-                request.clone(),
+                request,
             ))
-            .await
-            .map(|_| EditOrderResponse {})
-            .with_context(|| format!("Error when editing the order {:?}", request))
+            .await?;
+        handle_reply_order_requests(
+            self.client_portal.clone(),
+            place_order_response,
+            max_retry_count,
+        )
+        .await
+        .map(|_| EditOrderResponse {})
     }
 
     async fn cancel_order(

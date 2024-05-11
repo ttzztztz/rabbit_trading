@@ -24,6 +24,7 @@ pub struct InteractiveBrokersBroker {
 
 impl InteractiveBrokersBroker {
     const CONFIG_KEY_ACCOUNT: &'static str = "ibkr.cp.account";
+    const CONFIG_MAX_REPLY_COUNT: &'static str = "ibkr.cp.max.retry.count";
 
     pub(super) fn create_ib_client_portal(config_map: ConfigMap) -> IBClientPortal {
         const CONFIG_KEY_SSL: &'static str = "ibkr.cp.ssl";
@@ -49,6 +50,14 @@ impl InteractiveBrokersBroker {
 
     pub(super) fn get_account_id(config_map: &ConfigMap) -> String {
         config_map.get(Self::CONFIG_KEY_ACCOUNT).unwrap().to_owned()
+    }
+
+    pub(super) fn get_place_order_max_reply_count(config_map: &ConfigMap) -> i32 {
+        config_map
+            .get(Self::CONFIG_MAX_REPLY_COUNT)
+            .unwrap()
+            .parse()
+            .unwrap()
     }
 }
 

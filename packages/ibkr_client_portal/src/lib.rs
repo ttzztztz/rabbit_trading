@@ -2,6 +2,7 @@ pub mod client;
 #[doc(hidden)]
 pub mod endpoint;
 pub mod model;
+pub mod utils;
 
 pub use reqwest_middleware::Error;
 pub mod retry_policies {
