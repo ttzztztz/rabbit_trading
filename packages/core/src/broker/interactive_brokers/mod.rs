@@ -1,7 +1,9 @@
 pub mod broker;
+pub mod config;
 pub mod heartbeat;
 pub mod info;
 pub mod subscription;
+pub mod symbol;
 pub mod transaction;
 pub mod utils;
 pub mod worker;

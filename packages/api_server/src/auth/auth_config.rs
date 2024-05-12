@@ -13,8 +13,6 @@ impl FromStr for AuthConfig {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        const UNKNOWN_AUTH_ERROR_CODE: &'static str = "UNKNOWN_AUTH_ERROR";
-
         match s.to_lowercase().as_str() {
             "noauth" => Result::Ok(Self::NoAuth),
             "basic" | "basicauth" => Result::Ok(Self::BasicAuth),

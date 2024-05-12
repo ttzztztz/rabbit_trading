@@ -16,6 +16,7 @@ rust_decimal = { workspace = true, features = ["maths", "serde-float", "serde-wi
 rust_decimal_macros = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+serde_yaml_ng = { workspace = true }
 tempfile = { workspace = true }
 time = { workspace = true, features = ["parsing", "macros", "formatting"] }
 tokio = { workspace = true, features = ["full"] }
