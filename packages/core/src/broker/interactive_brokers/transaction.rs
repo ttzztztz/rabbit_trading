@@ -1,4 +1,4 @@
-use anyhow::{Context, Error};
+use anyhow::{anyhow, Context, Error};
 use async_trait::async_trait;
 use ibkr_client_portal::{
     client::IBClientPortal,
@@ -13,6 +13,7 @@ use ibkr_client_portal::{
     utils::reply::handle_reply_order_requests,
 };
 use rust_decimal_macros::dec;
+use std::time::SystemTime;
 
 use super::broker::InteractiveBrokersBroker;
 use crate::{
@@ -24,9 +25,10 @@ use crate::{
             currency::Currency,
             position::PositionList,
             transaction::{
-                BuyingPower, CancelOrderRequest, CancelOrderResponse, EditOrderRequest,
-                EditOrderResponse, EstimateMaxBuyingPowerRequest, OrderDetail, OrderDetailRequest,
-                SubmitOrderRequest, SubmitOrderResponse,
+                BuyingPower, CancelOrderRequest, CancelOrderResponse, Direction, EditOrderRequest,
+                EditOrderResponse, EstimateMaxBuyingPowerRequest, Expire, OrderDetail,
+                OrderDetailRequest, Price, SubmitOrderRequest, SubmitOrderResponse,
+                TrailingLimitPrice, TrailingMarketPrice,
             },
         },
     },
@@ -86,89 +88,342 @@ impl InteractiveBrokersTransaction {
         }
     }
 
-    fn ib_position_to_core_position(
-        position: ibkr_client_portal::model::portfolio::Position,
-    ) -> crate::model::trading::position::Position {
-        crate::model::trading::position::Position {
-            symbol: todo!(),
-            currency: todo!(),
-            cost_price: todo!(),
-            total_quantity: todo!(),
-            available_quantity: todo!(),
-        }
+    async fn ib_position_to_core_position(
+        position: &ibkr_client_portal::model::portfolio::Position,
+    ) -> Result<crate::model::trading::position::Position, Error> {
+        let symbol = InteractiveBrokersBroker::get_symbol_from_conid(
+            position.conid.clone().unwrap().parse().unwrap(), // TODO: eliminate the unwrap() call here
+        )
+        .await;
+        let currency =
+            InteractiveBrokersBroker::to_currency(position.currency.clone().unwrap().as_str())?;
+
+        Result::Ok(crate::model::trading::position::Position {
+            symbol,
+            currency,
+            cost_price: position.avg_cost,
+            quantity: position.position,
+        })
     }
 
-    fn ib_order_status_to_core_order_detail(order_status: OrderStatus) -> OrderDetail {
-        OrderDetail {
-            order_id: todo!(),
-            symbol: todo!(),
-            currency: todo!(),
-            quantity: todo!(),
-            executed_quantity: todo!(),
-            price: todo!(),
-            executed_price: todo!(),
-            direction: todo!(),
-            regular_trading_time: todo!(),
-            expire: todo!(),
-            created_timestamp: todo!(),
-            updated_timestamp: todo!(),
-            triggered_timestamp: todo!(),
-        }
+    async fn ib_order_status_to_core_order_detail(
+        order_status: OrderStatus,
+    ) -> Result<OrderDetail, Error> {
+        let order_id = order_status.order_id.unwrap().to_string();
+        let symbol = InteractiveBrokersBroker::get_symbol_from_conid(
+            order_status.conid.clone().unwrap(), // TODO: eliminate the unwrap() call here
+        )
+        .await;
+        let currency =
+            InteractiveBrokersBroker::to_currency(order_status.currency.clone().unwrap().as_str())?;
+        let regular_trading_time = match order_status.outside_regular_trading_hours.unwrap() {
+            true => crate::model::trading::transaction::RegularTradingTime::AllTime,
+            false => crate::model::trading::transaction::RegularTradingTime::OnlyRegularTradingTime,
+        };
+        let direction = Self::side_to_direction(order_status.side.clone().unwrap().as_str())?;
+        let expire =
+            Self::time_in_force_to_expire(order_status.time_in_force.clone().unwrap().as_str())?;
+        let price: Price = match order_status.order_type.clone().unwrap().as_str() {
+            "LMT" | "LIMIT" => Price::LimitOrder {
+                price: order_status.limit_price.unwrap().clone(),
+            },
+            "MKT" | "MARKET" => Price::MarketOrder,
+            "STP" => Price::MarketIfTouched {
+                trigger_price: order_status.stop_price.unwrap().clone(),
+            },
+            "STOP_LIMIT" => Price::LimitIfTouched {
+                submit_price: order_status.limit_price.unwrap().clone(),
+                trigger_price: order_status.stop_price.unwrap().clone(),
+            },
+            "TRAIL" | "TRAILING_STOP" => Price::TrailingMarketIfTouched {
+                trailing: match order_status.trailing_amount_unit.clone().unwrap().as_str() {
+                    "amt" => TrailingMarketPrice::Amount {
+                        trailing_amount: order_status.trailing_amount.unwrap(),
+                    },
+                    "%" => TrailingMarketPrice::Percent {
+                        trailing_percent: order_status.trailing_amount.unwrap(),
+                    },
+                    _ => Result::Err(anyhow!(
+                        "Error, unsupported trailing_amount_unit {:?}",
+                        order_status
+                    ))?,
+                },
+            },
+            "TRAILLMT" | "TRAILING_STOP_LIMIT" => Price::TrailingLimitIfTouched {
+                trailing: match order_status.trailing_amount_unit.clone().unwrap().as_str() {
+                    "amt" => TrailingLimitPrice::Amount {
+                        limit_offset: order_status.limit_price_offset.unwrap(),
+                        trailing_amount: order_status.trailing_amount.unwrap(),
+                    },
+                    "%" => TrailingLimitPrice::Percent {
+                        limit_offset: order_status.limit_price_offset.unwrap(),
+                        trailing_percent: order_status.trailing_amount.unwrap(),
+                    },
+                    _ => Result::Err(anyhow!(
+                        "Error, unsupported trailing_amount_unit {:?}",
+                        order_status
+                    ))?,
+                },
+            },
+            _ => Result::Err(anyhow!("Error, unsupported order_type {:?}", order_status))?,
+        };
+
+        Result::Ok(OrderDetail {
+            // TODO: add order_status
+            order_id,
+            symbol,
+            currency,
+            quantity: order_status.total_size.unwrap(),
+            executed_quantity: order_status.cum_fill.unwrap(),
+            price,
+            executed_price: Option::None, // TODO
+            direction,
+            regular_trading_time,
+            expire,
+            created_timestamp: order_status.order_time.unwrap().parse().unwrap(),
+            updated_timestamp: Option::None,
+            triggered_timestamp: Option::None,
+        })
     }
 
     fn core_edit_order_request_to_ib_modify_order_request(
+        account_id: String,
         request: EditOrderRequest,
     ) -> ModifyOrderRequest {
-        ModifyOrderRequest {
-            account_id_or_financial_advisors_group: todo!(),
-            order_id: todo!(),
-            account_id: todo!(),
-            conid: todo!(),
-            conidex: todo!(),
-            order_type: todo!(),
-            outside_regular_trading_hours: todo!(),
-            price: todo!(),
-            aux_price: todo!(),
-            side: todo!(),
-            listing_exchange: todo!(),
-            ticker: todo!(),
-            time_in_force: todo!(),
-            quantity: todo!(),
-            deactivated: todo!(),
-            use_adaptive: todo!(),
+        let mut modify_order_request = ModifyOrderRequest {
+            account_id_or_financial_advisors_group: account_id.clone(),
+            order_id: request.order_id.clone(),
+            account_id: Option::Some(account_id),
+            conid: Option::None,
+            conidex: Option::None, // TODO: validate
+            order_type: Option::Some("LMT".to_owned()),
+            outside_regular_trading_hours: Option::None,
+            price: Option::None,
+            aux_price: Option::None,
+            side: Option::None, // TODO: validate
+            listing_exchange: Option::None,
+            ticker: Option::None,
+            time_in_force: Option::None, // TODO: validate
+            quantity: Option::Some(request.quantity),
+            deactivated: Option::None,
+            use_adaptive: Option::Some(false),
+            limit_offset: Option::None,
+            trailing_amount: Option::None,
+            trailing_type: Option::None,
+        };
+
+        match &request.price {
+            Price::LimitOrder { price } => {
+                modify_order_request.order_type = Option::Some("LIMIT".to_owned());
+                modify_order_request.price = Option::Some(price.clone());
+            }
+
+            Price::MarketOrder => {
+                modify_order_request.order_type = Option::Some("MARKET".to_owned());
+            }
+            Price::LimitIfTouched {
+                submit_price,
+                trigger_price,
+            } => {
+                modify_order_request.order_type = Option::Some("STOP_LIMIT".to_owned());
+                modify_order_request.price = Option::Some(submit_price.clone());
+                modify_order_request.aux_price = Option::Some(trigger_price.clone());
+            }
+
+            Price::MarketIfTouched { trigger_price } => {
+                modify_order_request.order_type = Option::Some("STP".to_owned());
+                modify_order_request.price = Option::Some(trigger_price.clone());
+            }
+            Price::TrailingLimitIfTouched { trailing } => match trailing {
+                TrailingLimitPrice::Amount {
+                    limit_offset,
+                    trailing_amount,
+                } => {
+                    modify_order_request.order_type = Option::Some("TRAILING_STOP".to_owned());
+                    modify_order_request.trailing_type = Option::Some("amt".to_owned());
+                    modify_order_request.trailing_amount = Option::Some(trailing_amount.clone());
+                    modify_order_request.limit_offset = Option::Some(limit_offset.clone());
+                }
+                TrailingLimitPrice::Percent {
+                    limit_offset,
+                    trailing_percent,
+                } => {
+                    modify_order_request.order_type = Option::Some("TRAILING_STOP".to_owned());
+                    modify_order_request.trailing_type = Option::Some("%".to_owned());
+                    modify_order_request.trailing_amount = Option::Some(trailing_percent.clone());
+                    modify_order_request.limit_offset = Option::Some(limit_offset.clone());
+                }
+            },
+            Price::TrailingMarketIfTouched { trailing } => match trailing {
+                TrailingMarketPrice::Amount { trailing_amount } => {
+                    modify_order_request.order_type =
+                        Option::Some("TRAILING_STOP_LIMIT".to_owned());
+                    modify_order_request.trailing_type = Option::Some("amt".to_owned());
+                    modify_order_request.trailing_amount = Option::Some(trailing_amount.clone());
+                }
+                TrailingMarketPrice::Percent { trailing_percent } => {
+                    modify_order_request.order_type =
+                        Option::Some("TRAILING_STOP_LIMIT".to_owned());
+                    modify_order_request.trailing_type = Option::Some("%".to_owned());
+                    modify_order_request.trailing_amount = Option::Some(trailing_percent.clone());
+                }
+            },
+        };
+        modify_order_request
+    }
+
+    async fn core_submit_order_request_to_ib_order(
+        account_id: String,
+        request: SubmitOrderRequest,
+    ) -> Result<OrderRequest, Error> {
+        let conid = InteractiveBrokersBroker::get_conid_from_symbol(&request.symbol).await;
+        let outside_regular_trading_hours = match request.regular_trading_time {
+            crate::model::trading::transaction::RegularTradingTime::AllTime => true,
+            crate::model::trading::transaction::RegularTradingTime::OnlyRegularTradingTime => false,
+        };
+        let mut order_request = OrderRequest {
+            account_id: Option::Some(account_id),
+            conid: Option::None,
+            conidex: Option::Some(conid.to_string()),
+            sec_type: Option::None,
+            c_oid: Option::Some(Self::generate_customer_order_id()),
+            parent_id: Option::None,
+            order_type: "LMT".to_owned(),
+            limit_offset: Option::None,
+            listing_exchange: Option::None,
+            is_single_group: Option::None,
+            outside_regular_trading_hours,
+            price: Option::None,
+            aux_price: Option::None,
+            side: Self::direction_to_side(request.direction),
+            ticker: Option::None,
+            time_in_force: Self::expire_to_time_in_force(request.expire)?,
+            trailing_amount: Option::None,
+            trailing_type: Option::None,
+            referrer: Option::None,
+            quantity: Option::Some(request.quantity),
+            cash_quantity: Option::None,
+            fx_quantity: Option::None,
+            use_adaptive: Option::Some(false),
+            is_currency_conv: Option::None,
+            allocation_method: Option::None,
+            strategy: Option::None,
+            strategy_parameters: Option::None,
+            originator: Option::Some("Side-Order".to_owned()),
+        };
+
+        // TODO: merge into one macro
+        match &request.price {
+            Price::LimitOrder { price } => {
+                order_request.order_type = "LMT".to_owned();
+                order_request.price = Option::Some(price.clone());
+            }
+
+            Price::MarketOrder => {
+                order_request.order_type = "MKT".to_owned();
+            }
+            Price::LimitIfTouched {
+                submit_price,
+                trigger_price,
+            } => {
+                order_request.order_type = "STOP_LIMIT".to_owned();
+                order_request.price = Option::Some(submit_price.clone());
+                order_request.aux_price = Option::Some(trigger_price.clone());
+            }
+
+            Price::MarketIfTouched { trigger_price } => {
+                order_request.order_type = "STP".to_owned();
+                order_request.price = Option::Some(trigger_price.clone());
+            }
+            Price::TrailingLimitIfTouched { trailing } => match trailing {
+                TrailingLimitPrice::Amount {
+                    limit_offset,
+                    trailing_amount,
+                } => {
+                    order_request.order_type = "TRAILLMT".to_owned();
+                    order_request.trailing_type = Option::Some("amt".to_owned());
+                    order_request.trailing_amount = Option::Some(trailing_amount.clone());
+                    order_request.limit_offset = Option::Some(limit_offset.clone());
+                }
+                TrailingLimitPrice::Percent {
+                    limit_offset,
+                    trailing_percent,
+                } => {
+                    order_request.order_type = "TRAILLMT".to_owned();
+                    order_request.trailing_type = Option::Some("%".to_owned());
+                    order_request.trailing_amount = Option::Some(trailing_percent.clone());
+                    order_request.limit_offset = Option::Some(limit_offset.clone());
+                }
+            },
+            Price::TrailingMarketIfTouched { trailing } => match trailing {
+                TrailingMarketPrice::Amount { trailing_amount } => {
+                    order_request.order_type = "TRAILING_STOP".to_owned();
+                    order_request.trailing_type = Option::Some("amt".to_owned());
+                    order_request.trailing_amount = Option::Some(trailing_amount.clone());
+                }
+                TrailingMarketPrice::Percent { trailing_percent } => {
+                    order_request.order_type = "TRAILING_STOP".to_owned();
+                    order_request.trailing_type = Option::Some("%".to_owned());
+                    order_request.trailing_amount = Option::Some(trailing_percent.clone());
+                }
+            },
+        };
+        Result::Ok(order_request)
+    }
+
+    fn side_to_direction(side: &str) -> Result<Direction, Error> {
+        match side {
+            "B" => Result::Ok(Direction::Buy),
+            "S" => Result::Ok(Direction::Sell),
+            _ => Result::Err(anyhow!(
+                "Error determining the order direction for {}",
+                side
+            )),
         }
     }
 
-    fn core_submit_order_request_to_ib_order(request: SubmitOrderRequest) -> OrderRequest {
-        OrderRequest {
-            account_id: todo!(),
-            conid: todo!(),
-            conidex: todo!(),
-            sec_type: todo!(),
-            c_oid: todo!(),
-            parent_id: todo!(),
-            order_type: todo!(),
-            listing_exchange: todo!(),
-            is_single_group: todo!(),
-            outside_regular_trading_hours: todo!(),
-            price: todo!(),
-            aux_price: todo!(),
-            side: todo!(),
-            ticker: todo!(),
-            time_in_force: todo!(),
-            trailing_amount: todo!(),
-            trailing_type: todo!(),
-            referrer: todo!(),
-            quantity: todo!(),
-            cash_quantity: todo!(),
-            fx_quantity: todo!(),
-            use_adaptive: todo!(),
-            is_currency_conv: todo!(),
-            allocation_method: todo!(),
-            strategy: todo!(),
-            strategy_parameters: todo!(),
-            originator: todo!(),
+    fn direction_to_side(direction: Direction) -> String {
+        match direction {
+            Direction::Buy => "BUY".to_owned(),
+            Direction::Sell => "SELL".to_owned(),
         }
+    }
+
+    fn time_in_force_to_expire(time_in_force: &str) -> Result<Expire, Error> {
+        match time_in_force {
+            "GTC" => Result::Ok(Expire::GoodTillCancelled),
+            "OPG" => Result::Ok(Expire::OpenPriceGuarantee),
+            "DAY" => Result::Ok(Expire::Day),
+            "IOC" => Result::Ok(Expire::ImmediateOrCancel),
+            _ => Result::Err(anyhow!(
+                "Error determining the order expire for {}",
+                time_in_force
+            )),
+        }
+    }
+
+    fn expire_to_time_in_force(expire: Expire) -> Result<String, Error> {
+        match expire {
+            Expire::GoodTillCancelled => Result::Ok("GTC".to_owned()),
+            Expire::OpenPriceGuarantee => Result::Ok("OPG".to_owned()),
+            Expire::Day => Result::Ok("DAY".to_owned()),
+            Expire::ImmediateOrCancel => Result::Ok("IOC".to_owned()),
+            _ => Result::Err(anyhow!(
+                "Error determining the order time_in_force for {:?} (unsupported)",
+                expire
+            )),
+        }
+    }
+
+    fn generate_customer_order_id() -> String {
+        // TODO: modularize this function
+        format!(
+            "rt_{}",
+            SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as u64
+        )
     }
 }
 
@@ -205,12 +460,11 @@ impl TransactionTrait for InteractiveBrokersTransaction {
             .await
             .with_context(|| format!("Error when retrieve position data {}", account_id))?;
 
-        Result::Ok(
-            positions
-                .into_iter()
-                .map(Self::ib_position_to_core_position)
-                .collect(),
-        )
+        let mut position_list = vec![];
+        for position in positions.iter() {
+            position_list.push(Self::ib_position_to_core_position(position).await?);
+        }
+        Result::Ok(position_list)
     }
 
     async fn estimate_max_buying_power(
@@ -238,7 +492,7 @@ impl TransactionTrait for InteractiveBrokersTransaction {
             .await
             .with_context(|| format!("Error when order_detail {:?}", request))?;
 
-        Result::Ok(Self::ib_order_status_to_core_order_detail(order_detail))
+        Result::Ok(Self::ib_order_status_to_core_order_detail(order_detail).await?)
     }
 
     async fn submit_order(
@@ -251,8 +505,10 @@ impl TransactionTrait for InteractiveBrokersTransaction {
         let place_order_response = self
             .client_portal
             .place_orders(PlaceOrdersRequest {
-                account_id,
-                orders: vec![Self::core_submit_order_request_to_ib_order(request)], // TODO
+                account_id: account_id.clone(),
+                orders: vec![
+                    Self::core_submit_order_request_to_ib_order(account_id, request).await?,
+                ],
             })
             .await?;
         let order_id = handle_reply_order_requests(
@@ -265,13 +521,14 @@ impl TransactionTrait for InteractiveBrokersTransaction {
     }
 
     async fn edit_order(&mut self, request: EditOrderRequest) -> Result<EditOrderResponse, Error> {
+        let account_id = InteractiveBrokersBroker::get_account_id(&self.config_map);
         let max_retry_count =
             InteractiveBrokersBroker::get_place_order_max_reply_count(&self.config_map);
 
         let place_order_response = self
             .client_portal
             .modify_order(Self::core_edit_order_request_to_ib_modify_order_request(
-                request,
+                account_id, request,
             ))
             .await?;
         handle_reply_order_requests(

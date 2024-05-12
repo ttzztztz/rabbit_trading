@@ -1,12 +1,20 @@
 use anyhow::{anyhow, Error};
 
 use super::broker::InteractiveBrokersBroker;
-use crate::model::trading::{currency::Currency, symbol::Symbol};
+use crate::model::trading::{currency::Currency, market::Market, symbol::Symbol};
 
 impl InteractiveBrokersBroker {
     pub async fn get_conid_from_symbol(symbol: &Symbol) -> i64 {
         // TODO: implement this function
         265598 // Use AAPL as the placeholder
+    }
+
+    pub async fn get_symbol_from_conid(conid: i64) -> Symbol {
+        // TODO: implement this function
+        Symbol {
+            market: Market::US,
+            identifier: "AAPL".to_owned(),
+        } // Use AAPL as the placeholder
     }
 
     pub fn to_currency(currency: &str) -> Result<Currency, Error> {

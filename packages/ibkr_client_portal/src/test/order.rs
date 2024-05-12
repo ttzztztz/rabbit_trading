@@ -53,6 +53,7 @@ async fn test_preview_order() {
                 c_oid: Option::Some("c_oid".to_owned()),
                 parent_id: Option::None,
                 order_type: "LMT".to_owned(),
+                limit_offset: Option::None,
                 listing_exchange: Option::None,
                 is_single_group: Option::None,
                 outside_regular_trading_hours: false,
@@ -109,6 +110,7 @@ async fn test_order_operations() {
                 parent_id: Option::None,
                 order_type: "LMT".to_owned(),
                 listing_exchange: Option::None,
+                limit_offset: Option::None,
                 is_single_group: Option::None,
                 outside_regular_trading_hours: false,
                 price: Option::Some(dec!(99.99)),
@@ -150,7 +152,7 @@ async fn test_order_operations() {
         Option::Some(order_id.clone()),
         order_status.order_id.map(|v| v.to_string())
     );
-    assert_eq!(Option::Some("99.99".to_string()), order_status.limit_price);
+    assert_eq!(Option::Some(dec!(99.99)), order_status.limit_price);
 
     let modify_order_response_result = ib_cp_client
         .modify_order(ModifyOrderRequest {
@@ -170,6 +172,9 @@ async fn test_order_operations() {
             quantity: Option::Some(dec!(100)),
             deactivated: Option::None,
             use_adaptive: Option::Some(false),
+            limit_offset: Option::None,
+            trailing_amount: Option::None,
+            trailing_type: Option::None,
         })
         .await;
     assert!(modify_order_response_result.is_ok());
@@ -190,7 +195,7 @@ async fn test_order_operations() {
         Option::Some(order_id.clone()),
         order_status.order_id.map(|v| v.to_string())
     );
-    assert_eq!(Option::Some("88.88".to_string()), order_status.limit_price);
+    assert_eq!(Option::Some(dec!(88.88)), order_status.limit_price);
 
     let cancel_order_result = ib_cp_client
         .cancel_order(CancelOrderRequest {

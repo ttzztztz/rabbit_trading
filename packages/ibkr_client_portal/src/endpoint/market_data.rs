@@ -1,5 +1,6 @@
 // https://www.interactivebrokers.com/api/doc.html#tag/Market-Data
 
+use futures_util::FutureExt;
 use reqwest_middleware::Error;
 
 use crate::{
@@ -52,6 +53,8 @@ impl IBClientPortal {
             .send()
             .await?;
 
+        // println!("{:?}", response.text().await.unwrap());
+        // todo!("114514")
         response.error_for_status_ref()?;
         response
             .json()

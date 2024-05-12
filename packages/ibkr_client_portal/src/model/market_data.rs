@@ -248,7 +248,7 @@ pub struct MarketDataMixin {
     pub bid_price: Option<Decimal>,
     /// Ask Size - The number of contracts or shares offered at the ask price. For US stocks, the number displayed is divided by 100.
     #[serde(rename = "85")]
-    pub ask_size: Option<Decimal>,
+    pub ask_size: Option<String>,
     /// Ask Price - The lowest-priced offer on the contract.
     #[serde(rename = "86")]
     pub ask_price: Option<Decimal>,
@@ -257,7 +257,7 @@ pub struct MarketDataMixin {
     pub volume: Option<String>,
     /// Bid Size - The number of contracts or shares bid for at the bid price. For US stocks, the number displayed is divided by 100.
     #[serde(rename = "88")]
-    pub bid_size: Option<Decimal>,
+    pub bid_size: Option<String>,
     /// Exchange
     #[serde(rename = "6004")]
     pub exchange: Option<String>,

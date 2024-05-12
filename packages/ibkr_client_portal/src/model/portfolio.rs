@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{
     account::Allocation,
-    contract::{unpack_exchanges, IncrementRule},
+    contract::IncrementRule,
     definition::{AssetClass, OptionRight},
 };
 
@@ -14,43 +14,45 @@ use super::{
 pub struct Position {
     #[serde(rename = "acct_id")]
     pub account_id: String,
-    #[serde(with = "unpack_exchanges")]
-    pub all_exchanges: Vec<String>,
+    pub all_exchanges: Option<String>,
     pub asset_class: AssetClass,
     pub avg_cost: Decimal,
     pub avg_price: Decimal,
     pub base_avg_cost: Option<Decimal>,
     pub base_avg_price: Option<Decimal>,
     pub base_market_price: Option<Decimal>,
-    pub conid: Option<i64>,
+    pub conid: Option<String>,
+    pub currency: Option<String>,
+    pub description: Option<String>,
     pub exercise_style: Option<String>,
     pub expiry: Option<String>,
-    pub full_name: Vec<String>,
-    pub group: Vec<String>,
-    pub has_options: Vec<bool>,
+    pub full_name: Option<String>,
+    pub group: Option<String>,
+    pub has_options: Option<bool>,
     #[serde(skip)]
-    pub increment_rules: Vec<IncrementRule>,
-    pub is_event_contract: Vec<bool>,
+    pub increment_rules: Option<IncrementRule>,
+    pub is_event_contract: Option<bool>,
     #[serde(rename = "isUS")]
-    pub is_us: Vec<bool>,
+    pub is_us: Option<bool>,
     pub last_trading_day: Option<String>,
     pub listing_exchange: Option<String>,
     pub market_price: Decimal,
     pub market_value: Decimal,
-    pub model: Vec<String>,
+    pub model: Option<String>,
     pub multiplier: Option<Decimal>,
     pub name: Option<String>,
-    pub page_size: Vec<i64>,
+    pub page_size: Option<i64>,
     pub position: Decimal,
     pub put_or_call: Option<OptionRight>,
     pub realized_pnl: Decimal,
-    pub sector: Vec<String>,
+    pub sec_type: Option<String>,
+    pub sector: Option<String>,
     pub sector_group: Option<String>,
-    pub strike: Vec<Decimal>,
-    pub ticker: Vec<String>,
-    pub time: Vec<i64>,
+    pub strike: Option<Decimal>,
+    pub ticker: Option<String>,
+    pub timestamp: Option<i64>,
     #[serde(rename = "type")]
-    pub _type: Vec<String>,
+    pub _type: Option<String>,
     #[serde(rename = "undComp")]
     pub underlying_comp: Option<String>,
     #[serde(rename = "undConid")]

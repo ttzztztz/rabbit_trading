@@ -83,7 +83,7 @@ async fn test_get_contract_detail() {
     assert!(response_result.is_ok());
     let response = response_result.unwrap();
     assert_eq!("QQQ", response.symbol.unwrap());
-    assert!(response.valid_exchanges.len() > 0);
+    assert!(response.valid_exchanges.unwrap().len() > 0);
 }
 
 #[tokio::test]

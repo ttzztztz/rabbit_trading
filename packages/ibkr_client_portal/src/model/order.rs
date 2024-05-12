@@ -47,7 +47,11 @@ pub struct OrderTicket {
     /// This is the  underlying symbol for the contract.
     #[serde(rename = "ticker")]
     pub ticker: Option<String>,
-    /// The Time-In-Force determines how long the order remains active on the market.   * GTC - use Good-Till-Cancel for orders to remain active until it executes or cancelled.   * OPG - use Open-Price-Guarantee for Limit-On-Open (LOO) or Market-On-Open (MOO) orders.   * DAY - if not executed a Day order will automatically cancel at the end of the markets regular trading hours.   * IOC - any portion of an Immediate-or-Cancel order that is not filled as soon as it becomes available in the market is cancelled.
+    /// The Time-In-Force determines how long the order remains active on the market.
+    /// * GTC - use Good-Till-Cancel for orders to remain active until it executes or cancelled.
+    /// * OPG - use Open-Price-Guarantee for Limit-On-Open (LOO) or Market-On-Open (MOO) orders.
+    /// * DAY - if not executed a Day order will automatically cancel at the end of the markets regular trading hours.
+    /// * IOC - any portion of an Immediate-or-Cancel order that is not filled as soon as it becomes available in the market is cancelled.
     #[serde(rename = "tif")]
     pub time_in_force: Option<String>,
     /// optional if order is TRAIL, or TRAILLMT. When trailingType is amt, this is the trailing amount, when trailingType is %, it means percentage. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
@@ -230,7 +234,7 @@ pub struct OrderStatus {
     pub size: Option<String>,
     /// Total quantity
     #[serde(rename = "total_size")]
-    pub total_size: Option<String>,
+    pub total_size: Option<Decimal>,
     /// Contract traded currency
     #[serde(rename = "currency")]
     pub currency: Option<String>,
@@ -242,14 +246,20 @@ pub struct OrderStatus {
     pub order_type: Option<String>,
     /// Limit price
     #[serde(rename = "limit_price")]
-    pub limit_price: Option<String>,
+    pub limit_price: Option<Decimal>,
     /// Stop price
     #[serde(rename = "stop_price")]
-    pub stop_price: Option<String>,
+    pub stop_price: Option<Decimal>,
     /// Cumulative fill
     #[serde(rename = "cum_fill")]
-    pub cum_fill: Option<String>,
-    /// *  PendingSubmit - Indicates the order was sent, but confirmation has not been received that it has been received by the destination.                    Occurs most commonly if an exchange is closed. *  PendingCancel - Indicates that a request has been sent to cancel an order but confirmation has not been received of its cancellation. *  PreSubmitted - Indicates that a simulated order type has been accepted by the IBKR system and that this order has yet to be elected.                   The order is held in the IBKR system until the election criteria are met. At that time the order is transmitted to the order destination as specified. *  Submitted - Indicates that the order has been accepted at the order destination and is working. *  Cancelled - Indicates that the balance of the order has been confirmed cancelled by the IB system.                This could occur unexpectedly when IB or the destination has rejected the order. *  Filled - Indicates that the order has been completely filled. *  Inactive - Indicates the order is not working, for instance if the order was invalid and triggered an error message,               or if the order was to short a security and shares have not yet been located.
+    pub cum_fill: Option<Decimal>,
+    /// *  PendingSubmit - Indicates the order was sent, but confirmation has not been received that it has been received by the destination. Occurs most commonly if an exchange is closed.
+    /// *  PendingCancel - Indicates that a request has been sent to cancel an order but confirmation has not been received of its cancellation.
+    /// *  PreSubmitted - Indicates that a simulated order type has been accepted by the IBKR system and that this order has yet to be elected. The order is held in the IBKR system until the election criteria are met. At that time the order is transmitted to the order destination as specified.
+    /// *  Submitted - Indicates that the order has been accepted at the order destination and is working.
+    /// *  Cancelled - Indicates that the balance of the order has been confirmed cancelled by the IB system. This could occur unexpectedly when IB or the destination has rejected the order.
+    /// *  Filled - Indicates that the order has been completely filled.
+    /// *  Inactive - Indicates the order is not working, for instance if the order was invalid and triggered an error message, or if the order was to short a security and shares have not yet been located.
     #[serde(rename = "order_status")]
     pub order_status: Option<String>,
     /// Description of the order status
@@ -320,6 +330,10 @@ pub struct OrderStatus {
     /// only exists for oca orders, oca orders in same group will have same id
     #[serde(rename = "oca_group_id")]
     pub oca_group_id: Option<String>,
+    pub trailing_amount: Option<Decimal>,
+    pub trailing_amount_unit: Option<String>,
+    #[serde(rename = "limit_price_Offset")]
+    pub limit_price_offset: Option<Decimal>,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -369,7 +383,15 @@ pub struct OrderRequest {
     /// Only specify for child orders when placing bracket orders. The parentId for the child order(s) must be equal to the cOId (customer order id) of the parent.
     #[serde(rename = "parentId", skip_serializing_if = "Option::is_none")]
     pub parent_id: Option<String>,
-    /// The order-type determines what type of order you want to send.   * LMT - A limit order is an order to buy or sell at the specified price or better.   * MKT - A market order is an order to buy or sell at the markets current NBBO.   * STP - A stop order becomes a market order once the specified stop price is attained or penetrated.   * STOP_LIMIT - A stop limit order becomes a limit order once the specified stop price is attained or penetrated.   * MIDPRICE - A MidPrice order attempts to fill at the current midpoint of the NBBO or better.   * TRAIL - A sell trailing stop order sets the stop price at a fixed amount below the market price with an attached \"trailing\" amount. See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=605   * TRAILLMT - A trailing stop limit order is designed to allow an investor to specify a limit on the maximum possible loss, without setting a limit on the maximum possible gain.     See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=606
+    /// The order-type determines what type of order you want to send.
+    /// * LMT - A limit order is an order to buy or sell at the specified price or better.
+    /// * MKT - A market order is an order to buy or sell at the markets current NBBO.
+    /// * STP - A stop order becomes a market order once the specified stop price is attained or penetrated.
+    /// * STOP_LIMIT - A stop limit order becomes a limit order once the specified stop price is attained or penetrated.
+    /// * MIDPRICE - A MidPrice order attempts to fill at the current midpoint of the NBBO or better.
+    /// * TRAIL - A sell trailing stop order sets the stop price at a fixed amount below the market price with an attached \"trailing\" amount. See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=605
+    /// * TRAILLMT - A trailing stop limit order is designed to allow an investor to specify a limit on the maximum possible loss, without setting a limit on the maximum possible gain.
+    /// See more details here: https://ndcdyn.interactivebrokers.com/en/index.php?f=606
     #[serde(rename = "orderType")]
     pub order_type: String,
     /// listingExchange is optional. By default we use \"SMART\" routing. Possible values are available via the endpoint: /iserver/contract/{conid}/info, see **valid_exchange** e.g: SMART,AMEX,NYSE,CBOE,ISE,CHX,ARCA,ISLAND,DRCTEDGE,BEX,BATS,EDGEA,CSFBALGO,JE FFALGO,BYX,IEX,FOXRIVER,TPLUS1,NYSENAT,PSX
@@ -386,7 +408,9 @@ pub struct OrderRequest {
     pub price: Option<Decimal>,
     /// optional if order is STOP_LIMIT|TRAILLMT, this is the stop price. You must specify both price and auxPrice for STOP_LIMIT|TRAILLMT orders.
     #[serde(rename = "auxPrice", skip_serializing_if = "Option::is_none")]
-    pub aux_price: Option<Value>,
+    pub aux_price: Option<Decimal>,
+    #[serde(rename = "lmtOffset", skip_serializing_if = "Option::is_none")]
+    pub limit_offset: Option<Decimal>,
     /// SELL or BUY
     #[serde(rename = "side")]
     pub side: String,
@@ -585,6 +609,14 @@ pub struct ModifyOrderRequest {
     pub deactivated: Option<bool>,
     #[serde(rename = "useAdaptive", skip_serializing_if = "Option::is_none")]
     pub use_adaptive: Option<bool>,
+    #[serde(rename = "lmtOffset", skip_serializing_if = "Option::is_none")]
+    pub limit_offset: Option<Decimal>,
+    /// optional if order is TRAIL, or TRAILLMT. When trailingType is amt, this is the trailing amount, when trailingType is %, it means percentage. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
+    #[serde(rename = "trailingAmt", skip_serializing_if = "Option::is_none")]
+    pub trailing_amount: Option<Decimal>,
+    /// This is the trailing type for trailing amount. We only support two types here: amt or %. You must specify both trailingType and trailingAmt for TRAIL and TRAILLMT order
+    #[serde(rename = "trailingType", skip_serializing_if = "Option::is_none")]
+    pub trailing_type: Option<String>,
 }
 
 pub type ModifyOrderResponse = PlaceOrdersResponse;

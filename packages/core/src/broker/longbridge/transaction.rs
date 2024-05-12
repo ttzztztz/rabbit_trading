@@ -53,21 +53,22 @@ impl LongBridgeTransaction {
         }
     }
 
-    fn to_time_in_force(expire: &Expire) -> TimeInForceType {
+    fn to_time_in_force(expire: &Expire) -> Result<TimeInForceType, Error> {
         match expire {
-            Expire::Day => TimeInForceType::Day,
-            Expire::GoodTillDate { .. } => TimeInForceType::GoodTilDate,
-            Expire::GoodTillCancelled => TimeInForceType::GoodTilCanceled,
+            Expire::Day => Result::Ok(TimeInForceType::Day),
+            Expire::GoodTillDate { .. } => Result::Ok(TimeInForceType::GoodTilDate),
+            Expire::GoodTillCancelled => Result::Ok(TimeInForceType::GoodTilCanceled),
+            _ => Result::Err(anyhow!("Unsupported order type")),
         }
     }
 
-    fn to_submit_order_options(request: &SubmitOrderRequest) -> SubmitOrderOptions {
+    fn to_submit_order_options(request: &SubmitOrderRequest) -> Result<SubmitOrderOptions, Error> {
         let mut submit_order_options_builder = SubmitOrderOptions::new(
             request.symbol.to_string(),
             Self::to_order_type(&request.price),
             Self::to_order_side(&request.direction),
             request.quantity.to_i64().unwrap(),
-            Self::to_time_in_force(&request.expire),
+            Self::to_time_in_force(&request.expire)?,
         );
 
         submit_order_options_builder = match request.expire {
@@ -122,7 +123,7 @@ impl LongBridgeTransaction {
             },
         };
 
-        submit_order_options_builder
+        Result::Ok(submit_order_options_builder)
     }
 
     fn to_replace_order_options(request: &EditOrderRequest) -> ReplaceOrderOptions {
@@ -224,8 +225,7 @@ impl LongBridgeTransaction {
             symbol,
             currency,
             cost_price: longbridge_position.cost_price,
-            total_quantity: longbridge_position.quantity.into(),
-            available_quantity: longbridge_position.available_quantity.into(),
+            quantity: longbridge_position.available_quantity.into(),
         })
     }
 
@@ -348,7 +348,7 @@ impl TransactionTrait for LongBridgeTransaction {
     ) -> Result<SubmitOrderResponse, Error> {
         self.get_longbridge_trade_context()
             .await
-            .submit_order(Self::to_submit_order_options(&request))
+            .submit_order(Self::to_submit_order_options(&request)?)
             .await
             .map(Self::to_submit_order_response)
             .with_context(|| format!("Error when calling submit_order, request: {:?}", request))

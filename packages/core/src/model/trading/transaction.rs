@@ -20,6 +20,8 @@ pub enum Expire {
     Day,
     GoodTillDate { year: i32, month: i32, day: i32 },
     GoodTillCancelled,
+    OpenPriceGuarantee,
+    ImmediateOrCancel,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]

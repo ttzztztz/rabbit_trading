@@ -89,13 +89,25 @@ impl IBQuoteDepthInfoSubscriptionWorker {
         let ask_depth = Depth {
             position: Option::None,
             price: data.ask_price.unwrap(),
-            volume: data.ask_size.unwrap(),
+            volume: data
+                .ask_size
+                .clone()
+                .unwrap()
+                .replace(",", "")
+                .parse()
+                .unwrap(), // TODO: handle the logics here
             order_count: Option::None,
         };
         let bid_depth = Depth {
             position: Option::None,
             price: data.bid_price.unwrap(),
-            volume: data.bid_size.unwrap(),
+            volume: data
+                .bid_size
+                .clone()
+                .unwrap()
+                .replace(",", "")
+                .parse()
+                .unwrap(), // TODO: handle the logics here
             order_count: Option::None,
         };
         QuoteDepthInfo {

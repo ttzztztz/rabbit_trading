@@ -17,8 +17,7 @@ pub struct SecurityDefinitions {
 #[serde(rename_all = "camelCase")]
 pub struct Contract {
     /// List of exchanges and venues contract trades.
-    #[serde(with = "unpack_exchanges", alias = "exchange")]
-    pub all_exchanges: Vec<String>,
+    pub all_exchanges: Option<String>,
     /// Group of financial instruments which have similar financial characteristics and behave similar in the marketplace.
     pub asset_class: Option<AssetClass>,
     /// HTML encoded company description in Chinese.
@@ -79,32 +78,6 @@ pub struct Contract {
     pub underlying_symbol: Option<String>,
 }
 
-pub mod unpack_exchanges {
-    use serde::{self, Deserialize, Deserializer, Serializer};
-
-    pub fn serialize<S>(exchanges: &[String], serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let s = exchanges
-            .iter()
-            .map(|e| e.to_string())
-            .collect::<Vec<String>>()
-            .join(",");
-        serializer.serialize_str(&s)
-    }
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        let exchanges: Vec<String> = s.split(',').map(|e| e.trim().to_string()).collect();
-
-        Ok(exchanges)
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IncrementRule {
@@ -141,8 +114,7 @@ pub struct ContractDetail {
     pub underlying_conid: Option<i64>,
     pub underlying_issuer: Option<String>,
     pub trading_class: Option<String>,
-    #[serde(with = "unpack_exchanges")]
-    pub valid_exchanges: Vec<String>,
+    pub valid_exchanges: Option<String>,
     pub allow_sell_long: Option<bool>,
     pub is_zero_commission_security: Option<bool>,
     pub contract_clarification_type: Option<String>,
