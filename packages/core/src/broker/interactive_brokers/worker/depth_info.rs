@@ -16,7 +16,9 @@ use tokio::sync::mpsc::Sender;
 use crate::{
     broker::{
         common::subscription::{SubscriptionController, SubscriptionWorker},
-        interactive_brokers::broker::InteractiveBrokersBroker,
+        interactive_brokers::{
+            broker::InteractiveBrokersBroker, config::IBConfig, symbol::IBSymbolHelper,
+        },
     },
     model::{
         common::types::ConfigMap,
@@ -34,6 +36,7 @@ pub struct IBQuoteDepthInfoSubscriptionWorker {
     sys_sender: Sender<QuoteDepthInfo>,
     local_stopped_indicator: Arc<AtomicBool>,
     global_stopped_indicator: Arc<AtomicBool>,
+    ib_symbol_helper: IBSymbolHelper,
 }
 
 impl IBQuoteDepthInfoSubscriptionWorker {
@@ -44,12 +47,16 @@ impl IBQuoteDepthInfoSubscriptionWorker {
         local_stopped_indicator: Arc<AtomicBool>,
         global_stopped_indicator: Arc<AtomicBool>,
     ) -> Self {
+        let ib_config = IBConfig::new(&config_map).unwrap();
+        let ib_symbol_helper = IBSymbolHelper::new(ib_config);
+
         IBQuoteDepthInfoSubscriptionWorker {
             config_map,
             symbol,
             sys_sender,
             local_stopped_indicator,
             global_stopped_indicator,
+            ib_symbol_helper,
         }
     }
 
@@ -123,7 +130,7 @@ impl IBQuoteDepthInfoSubscriptionWorker {
 #[async_trait]
 impl SubscriptionWorker for IBQuoteDepthInfoSubscriptionWorker {
     async fn start(mut self) -> Result<(), Error> {
-        let conid = InteractiveBrokersBroker::get_conid_from_symbol(&self.symbol).await;
+        let conid = self.ib_symbol_helper.get_conid(&self.symbol).unwrap();
         let client_portal =
             InteractiveBrokersBroker::create_ib_client_portal(self.config_map.clone());
         let (sender, receiver) = client_portal.connect_to_websocket().await.unwrap();

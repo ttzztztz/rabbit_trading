@@ -12,7 +12,7 @@ use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use std::str::FromStr;
 
-use super::broker::InteractiveBrokersBroker;
+use super::{broker::InteractiveBrokersBroker, config::IBConfig, symbol::IBSymbolHelper};
 use crate::{
     broker::common::info::InfoTrait,
     model::{
@@ -27,6 +27,7 @@ use crate::{
 
 pub struct InteractiveBrokersInfo {
     client_portal: IBClientPortal,
+    ib_symbol_helper: IBSymbolHelper,
 }
 
 impl InteractiveBrokersInfo {
@@ -111,12 +112,18 @@ impl InteractiveBrokersInfo {
 #[async_trait]
 impl InfoTrait for InteractiveBrokersInfo {
     fn new(config_map: ConfigMap) -> Self {
-        let client_portal = InteractiveBrokersBroker::create_ib_client_portal(config_map);
-        InteractiveBrokersInfo { client_portal }
+        let client_portal = InteractiveBrokersBroker::create_ib_client_portal(config_map.clone());
+        let ib_config = IBConfig::new(&config_map).unwrap();
+        let ib_symbol_helper = IBSymbolHelper::new(ib_config);
+
+        InteractiveBrokersInfo {
+            client_portal,
+            ib_symbol_helper,
+        }
     }
 
     async fn query_basic_info(&self, request: QueryInfoRequest) -> Result<QuoteBasicInfo, Error> {
-        let conid = InteractiveBrokersBroker::get_conid_from_symbol(&request.symbol).await;
+        let conid = self.ib_symbol_helper.get_conid(&request.symbol).unwrap();
         let contract_detail = self
             .client_portal
             .get_contract_detail(GetContractDetailRequest { conid })
@@ -132,7 +139,7 @@ impl InfoTrait for InteractiveBrokersInfo {
         &self,
         request: QueryInfoRequest,
     ) -> Result<QuoteRealTimeInfo, Error> {
-        let conid = InteractiveBrokersBroker::get_conid_from_symbol(&request.symbol).await;
+        let conid = self.ib_symbol_helper.get_conid(&request.symbol).unwrap();
         let response = self
             .client_portal
             .get_market_data(GetMarketDataRequest {
@@ -158,7 +165,7 @@ impl InfoTrait for InteractiveBrokersInfo {
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
         log::warn!("IBKR only supports 1 level depth data at this time"); // TODO: supports more
 
-        let conid = InteractiveBrokersBroker::get_conid_from_symbol(&request.symbol).await;
+        let conid = self.ib_symbol_helper.get_conid(&request.symbol).unwrap();
         let response = self
             .client_portal
             .get_market_data(GetMarketDataRequest {

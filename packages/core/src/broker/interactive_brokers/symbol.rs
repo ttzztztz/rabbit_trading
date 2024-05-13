@@ -25,7 +25,7 @@ impl IBSymbolHelper {
         }
     }
 
-    pub fn get_conid(&self, symbol: Symbol) -> Option<i64> {
+    pub fn get_conid(&self, symbol: &Symbol) -> Option<i64> {
         let symbol_string = symbol.to_string();
         self.symbol_to_conid
             .get(&symbol_string)

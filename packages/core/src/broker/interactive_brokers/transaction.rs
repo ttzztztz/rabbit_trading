@@ -15,7 +15,7 @@ use ibkr_client_portal::{
 use rust_decimal_macros::dec;
 use std::time::SystemTime;
 
-use super::broker::InteractiveBrokersBroker;
+use super::{broker::InteractiveBrokersBroker, config::IBConfig, symbol::IBSymbolHelper};
 use crate::{
     broker::common::transaction::TransactionTrait,
     model::{
@@ -37,6 +37,7 @@ use crate::{
 pub struct InteractiveBrokersTransaction {
     config_map: ConfigMap,
     client_portal: IBClientPortal,
+    ib_symbol_helper: IBSymbolHelper,
 }
 
 impl InteractiveBrokersTransaction {
@@ -89,12 +90,15 @@ impl InteractiveBrokersTransaction {
     }
 
     async fn ib_position_to_core_position(
+        &self,
         position: &ibkr_client_portal::model::portfolio::Position,
     ) -> Result<crate::model::trading::position::Position, Error> {
-        let symbol = InteractiveBrokersBroker::get_symbol_from_conid(
-            position.conid.clone().unwrap().parse().unwrap(), // TODO: eliminate the unwrap() call here
-        )
-        .await;
+        let symbol = self
+            .ib_symbol_helper
+            .get_symbol(
+                position.conid.clone().unwrap().parse().unwrap(), // TODO: eliminate the unwrap() call here
+            )
+            .unwrap();
         let currency =
             InteractiveBrokersBroker::to_currency(position.currency.clone().unwrap().as_str())?;
 
@@ -107,13 +111,16 @@ impl InteractiveBrokersTransaction {
     }
 
     async fn ib_order_status_to_core_order_detail(
+        &self,
         order_status: OrderStatus,
     ) -> Result<OrderDetail, Error> {
         let order_id = order_status.order_id.unwrap().to_string();
-        let symbol = InteractiveBrokersBroker::get_symbol_from_conid(
-            order_status.conid.clone().unwrap(), // TODO: eliminate the unwrap() call here
-        )
-        .await;
+        let symbol = self
+            .ib_symbol_helper
+            .get_symbol(
+                order_status.conid.clone().unwrap(), // TODO: eliminate the unwrap() call here
+            )
+            .unwrap();
         let currency =
             InteractiveBrokersBroker::to_currency(order_status.currency.clone().unwrap().as_str())?;
         let regular_trading_time = match order_status.outside_regular_trading_hours.unwrap() {
@@ -273,10 +280,11 @@ impl InteractiveBrokersTransaction {
     }
 
     async fn core_submit_order_request_to_ib_order(
+        &self,
         account_id: String,
         request: SubmitOrderRequest,
     ) -> Result<OrderRequest, Error> {
-        let conid = InteractiveBrokersBroker::get_conid_from_symbol(&request.symbol).await;
+        let conid = self.ib_symbol_helper.get_conid(&request.symbol).unwrap();
         let outside_regular_trading_hours = match request.regular_trading_time {
             crate::model::trading::transaction::RegularTradingTime::AllTime => true,
             crate::model::trading::transaction::RegularTradingTime::OnlyRegularTradingTime => false,
@@ -431,9 +439,13 @@ impl InteractiveBrokersTransaction {
 impl TransactionTrait for InteractiveBrokersTransaction {
     fn new(config_map: ConfigMap) -> Self {
         let client_portal = InteractiveBrokersBroker::create_ib_client_portal(config_map.clone());
+        let ib_config = IBConfig::new(&config_map).unwrap();
+        let ib_symbol_helper = IBSymbolHelper::new(ib_config);
+
         InteractiveBrokersTransaction {
             config_map,
             client_portal,
+            ib_symbol_helper,
         }
     }
 
@@ -462,7 +474,7 @@ impl TransactionTrait for InteractiveBrokersTransaction {
 
         let mut position_list = vec![];
         for position in positions.iter() {
-            position_list.push(Self::ib_position_to_core_position(position).await?);
+            position_list.push(self.ib_position_to_core_position(position).await?);
         }
         Result::Ok(position_list)
     }
@@ -492,7 +504,10 @@ impl TransactionTrait for InteractiveBrokersTransaction {
             .await
             .with_context(|| format!("Error when order_detail {:?}", request))?;
 
-        Result::Ok(Self::ib_order_status_to_core_order_detail(order_detail).await?)
+        Result::Ok(
+            self.ib_order_status_to_core_order_detail(order_detail)
+                .await?,
+        )
     }
 
     async fn submit_order(
@@ -507,7 +522,8 @@ impl TransactionTrait for InteractiveBrokersTransaction {
             .place_orders(PlaceOrdersRequest {
                 account_id: account_id.clone(),
                 orders: vec![
-                    Self::core_submit_order_request_to_ib_order(account_id, request).await?,
+                    self.core_submit_order_request_to_ib_order(account_id, request)
+                        .await?,
                 ],
             })
             .await?;

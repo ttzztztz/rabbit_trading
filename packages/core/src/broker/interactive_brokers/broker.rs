@@ -23,21 +23,22 @@ pub struct InteractiveBrokersBroker {
 }
 
 impl InteractiveBrokersBroker {
-    const CONFIG_KEY_ACCOUNT: &'static str = "ibkr.cp.account";
-    const CONFIG_MAX_REPLY_COUNT: &'static str = "ibkr.cp.max.retry.count";
+    pub const CONFIG_KEY_ACCOUNT: &'static str = "ibkr.cp.account";
+    pub const CONFIG_MAX_REPLY_COUNT: &'static str = "ibkr.cp.max.retry.count";
+    pub const CONFIG_KEY_SSL: &'static str = "ibkr.cp.ssl";
+    pub const CONFIG_KEY_HOST: &'static str = "ibkr.cp.host";
+    pub const CONFIG_KEY_YAML_PATH: &'static str = "ibkr.cp.yaml.path";
+    pub const CONFIG_VALUE_DEFAULT_HOST: &'static str = "localhost:5000";
+    pub const CONFIG_VALUE_DEFAULT_YAML_PATH: &'static str = "./ib.yaml";
 
     pub(super) fn create_ib_client_portal(config_map: ConfigMap) -> IBClientPortal {
-        const CONFIG_KEY_SSL: &'static str = "ibkr.cp.ssl";
-        const CONFIG_KEY_HOST: &'static str = "ibkr.cp.host";
-        const CONFIG_DEFAULT_HOST: &'static str = "localhost:5000";
-
         let host = config_map
-            .get(CONFIG_KEY_HOST)
+            .get(Self::CONFIG_KEY_HOST)
             .map(|val| val.clone())
-            .unwrap_or(CONFIG_DEFAULT_HOST.to_owned());
+            .unwrap_or(Self::CONFIG_VALUE_DEFAULT_HOST.to_owned());
         let account = config_map.get(Self::CONFIG_KEY_ACCOUNT).unwrap().clone();
         let listen_ssl = config_map
-            .get(CONFIG_KEY_SSL)
+            .get(Self::CONFIG_KEY_SSL)
             .map(|ssl| ssl == "true")
             .unwrap_or(true);
         IBClientPortal::new(
