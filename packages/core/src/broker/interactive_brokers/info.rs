@@ -8,9 +8,7 @@ use ibkr_client_portal::{
         market_data::{GetMarketDataRequest, MarketData},
     },
 };
-use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
-use std::str::FromStr;
 
 use super::{broker::InteractiveBrokersBroker, config::IBConfig, symbol::IBSymbolHelper};
 use crate::{
@@ -63,8 +61,9 @@ impl InteractiveBrokersInfo {
             symbol,
             sequence,
             timestamp,
-            // todo: Handle C and H prefix
-            current_price: Decimal::from_str(market_data.last_price.clone().unwrap().as_str())?, // TODO: eliminate this unwrap()
+            current_price: InteractiveBrokersBroker::parse_last_price(
+                market_data.last_price.clone(),
+            )?,
             volume: market_data.volume_long,
             low_price: market_data.low_price,
             high_price: market_data.high_price,

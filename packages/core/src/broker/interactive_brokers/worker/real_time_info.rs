@@ -7,13 +7,9 @@ use ibkr_client_portal::model::{
         SubscribeMarketDataRequest, ToStructuredRequest, UnsubscribeMarketDataRequest,
     },
 };
-use rust_decimal::Decimal;
-use std::{
-    str::FromStr,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
-    },
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
 };
 use tokio::sync::mpsc::Sender;
 
@@ -93,15 +89,14 @@ impl IBQuoteRealTimeInfoSubscriptionWorker {
     fn market_data_response_to_quote_real_time_info(
         symbol: Symbol,
         data: MarketDataResponse,
-    ) -> QuoteRealTimeInfo {
+    ) -> Result<QuoteRealTimeInfo, Error> {
         let sequence = get_now_unix_timestamp();
         let timestamp = data.updated.map(|val| val as u64).unwrap_or(sequence);
-        QuoteRealTimeInfo {
+        Result::Ok(QuoteRealTimeInfo {
             symbol,
             sequence,
             timestamp,
-            // todo: Handle C and H prefix
-            current_price: Decimal::from_str(data.last_price.clone().unwrap().as_str()).unwrap(), // TODO: eliminate this unwrap()
+            current_price: InteractiveBrokersBroker::parse_last_price(data.last_price)?,
             volume: data.volume_long,
             low_price: data.low_price,
             high_price: data.high_price,
@@ -109,7 +104,7 @@ impl IBQuoteRealTimeInfoSubscriptionWorker {
             prev_close: data.prior_close,
             turnover: Option::None, // TODO: fill in this field
             extra: Option::None,
-        }
+        })
     }
 }
 
@@ -145,21 +140,29 @@ impl SubscriptionWorker for IBQuoteRealTimeInfoSubscriptionWorker {
             }
 
             match receiver.receive().await {
-                Ok(streaming_data) => match streaming_data {
-                    StreamingDataResponse::MarketData(data) => {
-                        if let Err(send_err) = self
-                            .sys_sender
-                            .send(Self::market_data_response_to_quote_real_time_info(
+                Ok(streaming_data) => {
+                    match streaming_data {
+                        StreamingDataResponse::MarketData(data) => {
+                            match Self::market_data_response_to_quote_real_time_info(
                                 self.symbol.clone(),
                                 data,
-                            ))
-                            .await
-                        {
-                            log::warn!("Error when sending message {:?}", send_err);
+                            ) {
+                                Err(err) => {
+                                    log::warn!("Error when market_data_response_to_quote_real_time_info {:?}", err);
+                                    continue;
+                                }
+                                Ok(realtime_quote_info) => {
+                                    if let Err(send_err) =
+                                        self.sys_sender.send(realtime_quote_info).await
+                                    {
+                                        log::warn!("Error when sending message {:?}", send_err);
+                                    }
+                                }
+                            }
                         }
+                        _ => continue,
                     }
-                    _ => continue,
-                },
+                }
                 Err(streaming_err) => {
                     log::warn!("Streaming Error {:?}", streaming_err);
                 }
