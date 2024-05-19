@@ -94,10 +94,11 @@ impl IBQuoteRealTimeInfoSubscriptionWorker {
         symbol: Symbol,
         data: MarketDataResponse,
     ) -> QuoteRealTimeInfo {
-        let timestamp = get_now_unix_timestamp();
+        let sequence = get_now_unix_timestamp();
+        let timestamp = data.updated.map(|val| val as u64).unwrap_or(sequence);
         QuoteRealTimeInfo {
             symbol,
-            sequence: timestamp,
+            sequence,
             timestamp,
             // todo: Handle C and H prefix
             current_price: Decimal::from_str(data.last_price.clone().unwrap().as_str()).unwrap(), // TODO: eliminate this unwrap()

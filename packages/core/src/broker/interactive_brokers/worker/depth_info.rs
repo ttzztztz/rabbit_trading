@@ -92,7 +92,6 @@ impl IBQuoteDepthInfoSubscriptionWorker {
         data: MarketDataResponse,
     ) -> QuoteDepthInfo {
         // TODO: use the macro to unify the codes
-        let timestamp = get_now_unix_timestamp();
         let ask_depth = Depth {
             position: Option::None,
             price: data.ask_price.unwrap(),
@@ -105,9 +104,12 @@ impl IBQuoteDepthInfoSubscriptionWorker {
             volume: InteractiveBrokersBroker::depth_size_to_volume(data.bid_size),
             order_count: Option::None,
         };
+
+        let sequence = get_now_unix_timestamp();
+        let timestamp = data.updated.map(|val| val as u64).unwrap_or(sequence);
         QuoteDepthInfo {
             symbol,
-            sequence: timestamp,
+            sequence,
             timestamp,
             ask_list: vec![ask_depth],
             bid_list: vec![bid_depth],

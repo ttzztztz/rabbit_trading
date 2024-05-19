@@ -53,10 +53,15 @@ impl InteractiveBrokersInfo {
         symbol: Symbol,
         market_data: &MarketData,
     ) -> Result<QuoteRealTimeInfo, Error> {
-        let timestamp = get_now_unix_timestamp();
+        let sequence = get_now_unix_timestamp();
+        let timestamp = market_data
+            .updated
+            .map(|val| val as u64)
+            .unwrap_or(sequence);
+
         Result::Ok(QuoteRealTimeInfo {
             symbol,
-            sequence: timestamp,
+            sequence,
             timestamp,
             // todo: Handle C and H prefix
             current_price: Decimal::from_str(market_data.last_price.clone().unwrap().as_str())?, // TODO: eliminate this unwrap()
@@ -94,10 +99,14 @@ impl InteractiveBrokersInfo {
             order_count: Option::None,
         };
 
-        let timestamp = get_now_unix_timestamp();
+        let sequence = get_now_unix_timestamp();
+        let timestamp = market_data
+            .updated
+            .map(|val| val as u64)
+            .unwrap_or(sequence);
         Result::Ok(QuoteDepthInfo {
             symbol,
-            sequence: timestamp,
+            sequence,
             timestamp,
             ask_list: vec![ask_depth],
             bid_list: vec![bid_depth],
