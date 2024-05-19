@@ -26,4 +26,11 @@ fn test_new_ib_symbol_helper() {
             })
             .unwrap()
     );
+
+    assert!(ib_symbol_helper
+        .get_conid(&Symbol {
+            market: Market::US,
+            identifier: "FAKE_ID".to_owned(),
+        })
+        .is_none());
 }
