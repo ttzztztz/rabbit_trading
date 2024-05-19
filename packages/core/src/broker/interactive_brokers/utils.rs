@@ -5,8 +5,18 @@ use super::broker::InteractiveBrokersBroker;
 use crate::model::trading::currency::Currency;
 
 impl InteractiveBrokersBroker {
-    pub fn depth_size_to_volume(size_optional: Option<String>) -> Option<Decimal> {
-        size_optional.map(|size| size.replace(",", "").parse().ok())?
+    pub fn depth_size_to_volume(size_optional: Option<String>) -> Result<Decimal, Error> {
+        size_optional
+            .clone()
+            .with_context(|| {
+                format!(
+                    "Error when retrieving size from size_optional {:?}",
+                    size_optional
+                )
+            })?
+            .replace(",", "")
+            .parse()
+            .with_context(|| format!("Error when parsing string to decimal {:?}", size_optional))
     }
 
     pub fn parse_currency_from_optional_string(

@@ -88,13 +88,15 @@ impl InteractiveBrokersInfo {
         let ask_depth = Depth {
             position: Option::None,
             price: ask_price,
-            volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.ask_size.clone()),
+            volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.ask_size.clone())
+                .ok(),
             order_count: Option::None,
         };
         let bid_depth = Depth {
             position: Option::None,
             price: bid_price,
-            volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.bid_size.clone()),
+            volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.bid_size.clone())
+                .ok(),
             order_count: Option::None,
         };
 

@@ -95,13 +95,13 @@ impl IBQuoteDepthInfoSubscriptionWorker {
         let ask_depth = Depth {
             position: Option::None,
             price: data.ask_price.unwrap(),
-            volume: InteractiveBrokersBroker::depth_size_to_volume(data.ask_size),
+            volume: InteractiveBrokersBroker::depth_size_to_volume(data.ask_size).ok(),
             order_count: Option::None,
         };
         let bid_depth = Depth {
             position: Option::None,
             price: data.bid_price.unwrap(),
-            volume: InteractiveBrokersBroker::depth_size_to_volume(data.bid_size),
+            volume: InteractiveBrokersBroker::depth_size_to_volume(data.bid_size).ok(),
             order_count: Option::None,
         };
 
