@@ -219,8 +219,8 @@ impl LongBridgeTransaction {
     fn to_stock_position(
         longbridge_position: &StockPosition,
     ) -> Result<crate::model::trading::position::Position, Error> {
-        let symbol = LongBridgeBroker::to_symbol(&longbridge_position.symbol)?;
-        let currency = LongBridgeBroker::to_currency(&longbridge_position.currency)?;
+        let symbol = longbridge_position.symbol.parse()?;
+        let currency = longbridge_position.currency.parse()?;
         Result::Ok(crate::model::trading::position::Position {
             symbol,
             currency,
@@ -240,8 +240,8 @@ impl LongBridgeTransaction {
     fn to_order_detail_response(
         longbridge_order_detail: longbridge::trade::OrderDetail,
     ) -> Result<OrderDetail, Error> {
-        let symbol = LongBridgeBroker::to_symbol(&longbridge_order_detail.symbol)?;
-        let currency = LongBridgeBroker::to_currency(&longbridge_order_detail.currency)?;
+        let symbol = longbridge_order_detail.symbol.parse()?;
+        let currency = longbridge_order_detail.currency.parse()?;
         let direction = Self::to_order_direction(longbridge_order_detail.side)?;
         let regular_trading_time = match longbridge_order_detail
             .outside_rth
@@ -413,7 +413,7 @@ impl TransactionTrait for LongBridgeTransaction {
                     .into_iter()
                     .map(|account_balance| {
                         (
-                            LongBridgeBroker::to_currency(account_balance.currency.as_str()),
+                            account_balance.currency.parse(),
                             Self::to_balance_detail(&account_balance),
                         )
                     })

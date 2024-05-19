@@ -40,7 +40,7 @@ impl LongBridgeInfo {
     ) -> QuoteBasicInfo {
         QuoteBasicInfo {
             symbol,
-            currency: LongBridgeBroker::to_currency(&security_static_info.currency).ok(),
+            currency: security_static_info.currency.parse().ok(),
             lot_size: security_static_info.lot_size,
             total_shares: security_static_info.total_shares.into(),
             circulating_shares: security_static_info.circulating_shares.into(),

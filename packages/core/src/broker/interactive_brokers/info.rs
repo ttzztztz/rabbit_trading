@@ -63,12 +63,12 @@ impl InteractiveBrokersInfo {
             current_price: Decimal::from_str(market_data.last_price.clone().unwrap().as_str())
                 .unwrap(), // TODO: eliminate this unwrap()
             volume: market_data.volume_long.unwrap(), // TODO: eliminate this unwrap()
-            low_price: market_data.low_price,         // TODO: eliminate this unwrap()
-            high_price: market_data.high_price,       // TODO: eliminate this unwrap()
-            open_price: market_data.open,             // TODO: eliminate this unwrap()
-            prev_close: market_data.prior_close,      // TODO: eliminate this unwrap()
+            low_price: market_data.low_price,
+            high_price: market_data.high_price,
+            open_price: market_data.open,
+            prev_close: market_data.prior_close,
             turnover: Option::None,                   // TODO: eliminate this unwrap()
-            extra: Option::None,                      // TODO: eliminate this unwrap()
+            extra: Option::None,
         }
     }
 

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use super::config::IBConfig;
 use crate::model::trading::symbol::Symbol;
@@ -34,6 +34,6 @@ impl IBSymbolHelper {
 
     pub fn get_symbol(&self, conid: i64) -> Option<Symbol> {
         let symbol_string_option = self.conid_to_symbol.get(&conid).map(|val| val.clone());
-        symbol_string_option.map(|_| todo!("parse symbol string to symbol")) // TODO
+        symbol_string_option.map(|str| Symbol::from_str(str.as_str()).ok())?
     }
 }
