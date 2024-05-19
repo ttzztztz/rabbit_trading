@@ -35,11 +35,10 @@ impl InteractiveBrokersInfo {
         symbol: Symbol,
         contract_detail: ContractDetail,
     ) -> Result<QuoteBasicInfo, Error> {
+        let currency = contract_detail.currency.parse().ok();
         Result::Ok(QuoteBasicInfo {
-            symbol, // TODO
-            currency: Option::Some(InteractiveBrokersBroker::to_currency(
-                &contract_detail.currency,
-            )?),
+            symbol,
+            currency,
             lot_size: 0,                 // TODO
             total_shares: dec!(0),       // TODO
             circulating_shares: dec!(0), // TODO

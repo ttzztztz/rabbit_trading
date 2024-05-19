@@ -93,14 +93,22 @@ impl InteractiveBrokersTransaction {
         &self,
         position: &ibkr_client_portal::model::portfolio::Position,
     ) -> Result<crate::model::trading::position::Position, Error> {
-        let symbol = self
-            .ib_symbol_helper
-            .get_symbol(
-                position.conid.clone().unwrap().parse().unwrap(), // TODO: eliminate the unwrap() call here
-            )
-            .unwrap();
-        let currency =
-            InteractiveBrokersBroker::to_currency(position.currency.clone().unwrap().as_str())?;
+        let conid: i64 = position
+            .conid
+            .clone()
+            .with_context(|| {
+                format!(
+                    "Error conid not exists in the ibkr_client_portal::model::portfolio::Position"
+                )
+            })
+            .and_then(|str| {
+                str.parse()
+                    .with_context(|| format!("Error when paring String into i64"))
+            })?;
+        let symbol = self.ib_symbol_helper.get_symbol(conid).unwrap();
+        let currency = InteractiveBrokersBroker::parse_currency_from_optional_string(
+            position.currency.clone(),
+        )?;
 
         Result::Ok(crate::model::trading::position::Position {
             symbol,
@@ -121,8 +129,9 @@ impl InteractiveBrokersTransaction {
                 order_status.conid.clone().unwrap(), // TODO: eliminate the unwrap() call here
             )
             .unwrap();
-        let currency =
-            InteractiveBrokersBroker::to_currency(order_status.currency.clone().unwrap().as_str())?;
+        let currency = InteractiveBrokersBroker::parse_currency_from_optional_string(
+            order_status.currency.clone(),
+        )?;
         let regular_trading_time = match order_status.outside_regular_trading_hours.unwrap() {
             true => crate::model::trading::transaction::RegularTradingTime::AllTime,
             false => crate::model::trading::transaction::RegularTradingTime::OnlyRegularTradingTime,
