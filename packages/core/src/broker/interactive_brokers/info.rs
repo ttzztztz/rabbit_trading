@@ -1,4 +1,4 @@
-use anyhow::Error;
+use anyhow::{anyhow, Context, Error};
 use async_trait::async_trait;
 use ibkr_client_portal::{
     client::IBClientPortal,
@@ -53,15 +53,14 @@ impl InteractiveBrokersInfo {
     fn market_data_to_quote_real_time_info(
         symbol: Symbol,
         market_data: &MarketData,
-    ) -> QuoteRealTimeInfo {
+    ) -> Result<QuoteRealTimeInfo, Error> {
         let timestamp = get_now_unix_timestamp();
-        QuoteRealTimeInfo {
+        Result::Ok(QuoteRealTimeInfo {
             symbol,
             sequence: timestamp,
             timestamp,
             // todo: Handle C and H prefix
-            current_price: Decimal::from_str(market_data.last_price.clone().unwrap().as_str())
-                .unwrap(), // TODO: eliminate this unwrap()
+            current_price: Decimal::from_str(market_data.last_price.clone().unwrap().as_str())?, // TODO: eliminate this unwrap()
             volume: market_data.volume_long,
             low_price: market_data.low_price,
             high_price: market_data.high_price,
@@ -69,31 +68,41 @@ impl InteractiveBrokersInfo {
             prev_close: market_data.prior_close,
             turnover: Option::None, // TODO: fill in this field
             extra: Option::None,
-        }
+        })
     }
 
-    fn market_data_to_quote_depth_info(symbol: Symbol, market_data: &MarketData) -> QuoteDepthInfo {
+    fn market_data_to_quote_depth_info(
+        symbol: Symbol,
+        market_data: &MarketData,
+    ) -> Result<QuoteDepthInfo, Error> {
+        let ask_price = market_data
+            .ask_price
+            .with_context(|| format!("Error when retrieving ask_price for symbol {:?}", symbol))?;
+        let bid_price = market_data
+            .bid_price
+            .with_context(|| format!("Error when retrieving bid_price for symbol {:?}", symbol))?;
+
         let ask_depth = Depth {
             position: Option::None,
-            price: market_data.ask_price.unwrap(),
+            price: ask_price,
             volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.ask_size.clone()),
             order_count: Option::None,
         };
         let bid_depth = Depth {
             position: Option::None,
-            price: market_data.bid_price.unwrap(),
+            price: bid_price,
             volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.bid_size.clone()),
             order_count: Option::None,
         };
 
         let timestamp = get_now_unix_timestamp();
-        QuoteDepthInfo {
+        Result::Ok(QuoteDepthInfo {
             symbol,
             sequence: timestamp,
             timestamp,
             ask_list: vec![ask_depth],
             bid_list: vec![bid_depth],
-        }
+        })
     }
 }
 
@@ -143,11 +152,17 @@ impl InfoTrait for InteractiveBrokersInfo {
                 ]),
             })
             .await?;
-        let market_data = response.first().unwrap(); // TODO: eliminate this unwrap()
-        Result::Ok(Self::market_data_to_quote_real_time_info(
-            request.symbol.clone(),
-            market_data,
-        ))
+
+        match response.first() {
+            Some(market_data) => Result::Ok(Self::market_data_to_quote_real_time_info(
+                request.symbol.clone(),
+                market_data,
+            )?),
+            None => Result::Err(anyhow!(
+                "Error when retrieving the real_time_info of the security {:?}",
+                request
+            )),
+        }
     }
 
     async fn query_depth(&self, request: QueryInfoRequest) -> Result<QuoteDepthInfo, Error> {
@@ -167,10 +182,16 @@ impl InfoTrait for InteractiveBrokersInfo {
                 ]),
             })
             .await?;
-        let market_data = response.first().unwrap(); // TODO: eliminate this unwrap()
-        Result::Ok(Self::market_data_to_quote_depth_info(
-            request.symbol.clone(),
-            market_data,
-        ))
+
+        match response.first() {
+            Some(market_data) => Result::Ok(Self::market_data_to_quote_depth_info(
+                request.symbol.clone(),
+                market_data,
+            )?),
+            None => Result::Err(anyhow!(
+                "Error when retrieving the depth of the security {:?}",
+                request
+            )),
+        }
     }
 }
