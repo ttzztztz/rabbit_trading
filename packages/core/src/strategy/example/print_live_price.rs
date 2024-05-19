@@ -57,7 +57,7 @@ impl StrategyTrait for PrintLivePriceStrategy {
                     match result {
                         Some(quote_info) => {
                             log::info!(
-                                "[{}] ({}), Price: {}, Vol: {}",
+                                "[{}] ({}), Price: {}, Vol: {:?}",
                                 quote_info.symbol.to_string(),
                                 OffsetDateTime::from_unix_timestamp(quote_info.timestamp as i64)
                                     .unwrap()

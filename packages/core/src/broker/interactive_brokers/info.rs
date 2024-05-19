@@ -62,12 +62,12 @@ impl InteractiveBrokersInfo {
             // todo: Handle C and H prefix
             current_price: Decimal::from_str(market_data.last_price.clone().unwrap().as_str())
                 .unwrap(), // TODO: eliminate this unwrap()
-            volume: market_data.volume_long.unwrap(), // TODO: eliminate this unwrap()
+            volume: market_data.volume_long,
             low_price: market_data.low_price,
             high_price: market_data.high_price,
             open_price: market_data.open,
             prev_close: market_data.prior_close,
-            turnover: Option::None,                   // TODO: eliminate this unwrap()
+            turnover: Option::None, // TODO: fill in this field
             extra: Option::None,
         }
     }
@@ -76,25 +76,13 @@ impl InteractiveBrokersInfo {
         let ask_depth = Depth {
             position: Option::None,
             price: market_data.ask_price.unwrap(),
-            volume: market_data
-                .ask_size
-                .clone()
-                .unwrap()
-                .replace(",", "")
-                .parse()
-                .unwrap(), // TODO: handle the logics here
+            volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.ask_size.clone()),
             order_count: Option::None,
         };
         let bid_depth = Depth {
             position: Option::None,
             price: market_data.bid_price.unwrap(),
-            volume: market_data
-                .bid_size
-                .clone()
-                .unwrap()
-                .replace(",", "")
-                .parse()
-                .unwrap(), // TODO: handle the logics here
+            volume: InteractiveBrokersBroker::depth_size_to_volume(market_data.bid_size.clone()),
             order_count: Option::None,
         };
 

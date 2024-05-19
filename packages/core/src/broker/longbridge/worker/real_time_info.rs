@@ -63,7 +63,7 @@ impl LongBridgeQuoteRealTimeInfoSubscriptionWorker {
             high_price: Option::Some(longbridge_quote.high),
             open_price: Option::Some(longbridge_quote.open),
             prev_close: Option::None,
-            volume: longbridge_quote.volume.into(),
+            volume: Option::Some(longbridge_quote.volume.into()),
             turnover: Option::Some(longbridge_quote.turnover),
             extra: Option::None,
         }

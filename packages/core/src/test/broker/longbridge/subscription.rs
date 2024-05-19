@@ -1,7 +1,6 @@
-use std::sync::{atomic::AtomicBool, Arc};
-
 use log;
 use rust_decimal_macros::dec;
+use std::sync::{atomic::AtomicBool, Arc};
 use tokio::time::{sleep, Duration};
 
 use crate::{
@@ -40,7 +39,7 @@ async fn test_quote_real_time_info() {
             log::warn!("quote_info: {quote_info:?}");
             assert_eq!("0700.HK", quote_info.symbol.to_string());
             assert!(quote_info.current_price > dec!(0.0));
-            assert!(quote_info.volume > dec!(0.0));
+            assert!(quote_info.volume.unwrap() > dec!(0.0));
             assert!(quote_info.timestamp > 0u64);
         },
         _ = sleep(Duration::from_millis(3000))=> {
@@ -78,7 +77,7 @@ async fn test_quote_depth_info() {
                     assert!(depth.order_count.unwrap() >= dec!(0.0));
                     assert!(depth.position.unwrap() > dec!(0.0));
                     assert!(depth.price > dec!(0.0));
-                    assert!(depth.volume > dec!(0.0));
+                    assert!(depth.volume.unwrap() > dec!(0.0));
                 });
         },
         _ = sleep(Duration::from_millis(3000))=> {

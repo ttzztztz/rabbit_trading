@@ -101,13 +101,13 @@ impl IBQuoteRealTimeInfoSubscriptionWorker {
             timestamp,
             // todo: Handle C and H prefix
             current_price: Decimal::from_str(data.last_price.clone().unwrap().as_str()).unwrap(), // TODO: eliminate this unwrap()
-            volume: data.volume.clone().unwrap().parse().unwrap(), // TODO: eliminate this unwrap()
-            low_price: data.low_price,                             // TODO: eliminate this unwrap()
-            high_price: data.high_price,                           // TODO: eliminate this unwrap()
-            open_price: data.open,                                 // TODO: eliminate this unwrap()
-            prev_close: data.prior_close,                          // TODO: eliminate this unwrap()
-            turnover: Option::None,                                // TODO: eliminate this unwrap()
-            extra: Option::None,                                   // TODO: eliminate this unwrap()
+            volume: data.volume_long,
+            low_price: data.low_price,
+            high_price: data.high_price,
+            open_price: data.open,
+            prev_close: data.prior_close,
+            turnover: Option::None, // TODO: fill in this field
+            extra: Option::None,
         }
     }
 }

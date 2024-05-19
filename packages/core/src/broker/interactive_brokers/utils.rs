@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Error};
+use longbridge::Decimal;
 
 use super::broker::InteractiveBrokersBroker;
 use crate::model::trading::currency::Currency;
@@ -14,5 +15,9 @@ impl InteractiveBrokersBroker {
                 currency
             )),
         }
+    }
+
+    pub fn depth_size_to_volume(size_optional: Option<String>) -> Option<Decimal> {
+        size_optional.map(|size| size.replace(",", "").parse().ok())?
     }
 }

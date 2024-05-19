@@ -11,7 +11,7 @@ pub struct QuoteRealTimeInfo {
     pub sequence: u64,
     pub timestamp: u64,
     pub current_price: Decimal,
-    pub volume: Decimal,
+    pub volume: Option<Decimal>,
     pub low_price: Option<Decimal>,
     pub high_price: Option<Decimal>,
     pub open_price: Option<Decimal>,
@@ -37,7 +37,7 @@ pub struct QuoteBasicInfo {
 pub struct Depth {
     pub position: Option<Decimal>,
     pub price: Decimal,
-    pub volume: Decimal,
+    pub volume: Option<Decimal>,
     pub order_count: Option<Decimal>,
 }
 

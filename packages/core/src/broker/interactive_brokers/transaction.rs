@@ -176,7 +176,6 @@ impl InteractiveBrokersTransaction {
         };
 
         Result::Ok(OrderDetail {
-            // TODO: add order_status
             order_id,
             symbol,
             currency,

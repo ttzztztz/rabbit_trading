@@ -57,13 +57,12 @@ async fn test_query_real_time_info() {
     log::warn!("quote_real_time_info: {quote_real_time_info:?}");
     assert_eq!("0700.HK", quote_real_time_info.symbol.to_string());
     assert!(quote_real_time_info.current_price > dec!(0.0));
-    assert!(quote_real_time_info.volume > dec!(0.0));
+    assert!(quote_real_time_info.volume.unwrap() > dec!(0.0));
     assert!(quote_real_time_info.high_price.unwrap() > dec!(0.0));
     assert!(quote_real_time_info.low_price.unwrap() > dec!(0.0));
     assert!(quote_real_time_info.open_price.unwrap() > dec!(0.0));
     assert!(quote_real_time_info.prev_close.unwrap() > dec!(0.0));
     assert!(quote_real_time_info.turnover.unwrap() > dec!(0.0));
-    assert!(quote_real_time_info.volume > dec!(0.0));
     assert!(quote_real_time_info.timestamp > 0);
 }
 
@@ -91,6 +90,6 @@ async fn test_query_depth() {
             assert!(depth.order_count.unwrap() >= dec!(0.0));
             assert!(depth.position.unwrap() > dec!(0.0));
             assert!(depth.price > dec!(0.0));
-            assert!(depth.volume > dec!(0.0));
+            assert!(depth.volume.unwrap() > dec!(0.0));
         });
 }

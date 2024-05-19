@@ -28,7 +28,7 @@ impl LongBridgeInfo {
             high_price: Option::Some(security_quote.high),
             open_price: Option::Some(security_quote.open),
             prev_close: Option::Some(security_quote.prev_close),
-            volume: security_quote.volume.into(),
+            volume: Option::Some(security_quote.volume.into()),
             turnover: Option::Some(security_quote.turnover),
             extra: Option::None,
         }
@@ -55,7 +55,7 @@ impl LongBridgeInfo {
         crate::model::trading::quote::Depth {
             position: Option::Some(depth.position.into()),
             price: depth.price,
-            volume: depth.volume.into(),
+            volume: Option::Some(depth.volume.into()),
             order_count: Option::Some(depth.order_num.into()),
         }
     }
