@@ -319,7 +319,9 @@ impl LongBridgeTransaction {
             direction,
             regular_trading_time,
             expire,
-            created_timestamp: longbridge_order_detail.submitted_at.unix_timestamp() as u64,
+            created_timestamp: Option::Some(
+                longbridge_order_detail.submitted_at.unix_timestamp() as u64
+            ),
             updated_timestamp: longbridge_order_detail
                 .updated_at
                 .map(|timestamp| timestamp.unix_timestamp() as u64),

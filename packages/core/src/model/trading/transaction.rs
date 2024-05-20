@@ -102,7 +102,10 @@ pub struct CancelOrderResponse {}
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EditOrderRequest {
     pub order_id: String,
+    pub symbol: Symbol,
     pub quantity: Decimal,
+    pub direction: Direction,
+    pub expire: Expire,
     pub price: Price,
 }
 
@@ -126,7 +129,7 @@ pub struct OrderDetail {
     pub direction: Direction,
     pub regular_trading_time: RegularTradingTime,
     pub expire: Expire,
-    pub created_timestamp: u64,
+    pub created_timestamp: Option<u64>,
     pub updated_timestamp: Option<u64>,
     pub triggered_timestamp: Option<u64>,
 }

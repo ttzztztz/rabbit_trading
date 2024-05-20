@@ -24,7 +24,7 @@ pub struct InteractiveBrokersBroker {
 
 impl InteractiveBrokersBroker {
     pub const CONFIG_KEY_ACCOUNT: &'static str = "ibkr.cp.account";
-    pub const CONFIG_MAX_REPLY_COUNT: &'static str = "ibkr.cp.max.retry.count";
+    pub const CONFIG_KEY_MAX_REPLY_COUNT: &'static str = "ibkr.cp.max.reply.count";
     pub const CONFIG_KEY_SSL: &'static str = "ibkr.cp.ssl";
     pub const CONFIG_KEY_HOST: &'static str = "ibkr.cp.host";
     pub const CONFIG_KEY_YAML_PATH: &'static str = "ibkr.cp.yaml.path";
@@ -55,7 +55,7 @@ impl InteractiveBrokersBroker {
 
     pub(super) fn get_place_order_max_reply_count(config_map: &ConfigMap) -> i32 {
         config_map
-            .get(Self::CONFIG_MAX_REPLY_COUNT)
+            .get(Self::CONFIG_KEY_MAX_REPLY_COUNT)
             .unwrap()
             .parse()
             .unwrap()

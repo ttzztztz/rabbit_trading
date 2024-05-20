@@ -284,7 +284,7 @@ pub struct OrderStatus {
     #[serde(rename = "cannot_cancel_order")]
     pub cannot_cancel_order: Option<bool>,
     /// If true order trades outside regular trading hours
-    #[serde(rename = "outside_regular_trading_hours")]
+    #[serde(rename = "outside_rth")]
     pub outside_regular_trading_hours: Option<bool>,
     /// If true order is de-activated
     #[serde(rename = "deactivate_order")]

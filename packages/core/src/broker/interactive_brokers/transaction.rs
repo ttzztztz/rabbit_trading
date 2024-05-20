@@ -105,7 +105,10 @@ impl InteractiveBrokersTransaction {
                 str.parse()
                     .with_context(|| format!("Error when paring String into i64"))
             })?;
-        let symbol = self.ib_symbol_helper.get_symbol(conid).unwrap();
+        let symbol = self
+            .ib_symbol_helper
+            .get_symbol(conid)
+            .with_context(|| format!("Error when get symbol from conid {}", conid))?;
         let currency = InteractiveBrokersBroker::parse_currency_from_optional_string(
             position.currency.clone(),
         )?;
@@ -122,42 +125,87 @@ impl InteractiveBrokersTransaction {
         &self,
         order_status: OrderStatus,
     ) -> Result<OrderDetail, Error> {
-        let order_id = order_status.order_id.unwrap().to_string();
+        let order_id = order_status
+            .order_id
+            .with_context(|| format!("Error order_id not exists in the response"))?
+            .to_string();
+        let conid = order_status
+            .conid
+            .with_context(|| format!("Error conid not exists in the response"))?;
         let symbol = self
             .ib_symbol_helper
-            .get_symbol(
-                order_status.conid.clone().unwrap(), // TODO: eliminate the unwrap() call here
-            )
-            .unwrap();
+            .get_symbol(conid)
+            .with_context(|| format!("Error symbol not found"))?;
         let currency = InteractiveBrokersBroker::parse_currency_from_optional_string(
             order_status.currency.clone(),
         )?;
-        let regular_trading_time = match order_status.outside_regular_trading_hours.unwrap() {
+
+        let outside_regular_trading_hours = order_status
+            .outside_regular_trading_hours
+            .with_context(|| {
+                format!("Error outside_regular_trading_hours not exists in the response")
+            })?;
+        let regular_trading_time = match outside_regular_trading_hours {
             true => crate::model::trading::transaction::RegularTradingTime::AllTime,
             false => crate::model::trading::transaction::RegularTradingTime::OnlyRegularTradingTime,
         };
-        let direction = Self::side_to_direction(order_status.side.clone().unwrap().as_str())?;
-        let expire =
-            Self::time_in_force_to_expire(order_status.time_in_force.clone().unwrap().as_str())?;
-        let price: Price = match order_status.order_type.clone().unwrap().as_str() {
+        let direction = Self::side_to_direction(
+            order_status
+                .side
+                .clone()
+                .with_context(|| format!("Error side not exists in the response"))?
+                .as_str(),
+        )?;
+        let expire = Self::time_in_force_to_expire(
+            order_status
+                .time_in_force
+                .clone()
+                .with_context(|| format!("Error time_in_force not exists in the response"))?
+                .as_str(),
+        )?;
+        let price: Price = match order_status
+            .order_type
+            .clone()
+            .with_context(|| format!("Error order_type not exists in the response"))?
+            .as_str()
+        {
             "LMT" | "LIMIT" => Price::LimitOrder {
-                price: order_status.limit_price.unwrap().clone(),
+                price: order_status
+                    .limit_price
+                    .with_context(|| format!("Error limit_price not exists in the response"))?,
             },
             "MKT" | "MARKET" => Price::MarketOrder,
             "STP" => Price::MarketIfTouched {
-                trigger_price: order_status.stop_price.unwrap().clone(),
+                trigger_price: order_status
+                    .stop_price
+                    .with_context(|| format!("Error stop_price not exists in the response"))?,
             },
             "STOP_LIMIT" => Price::LimitIfTouched {
-                submit_price: order_status.limit_price.unwrap().clone(),
-                trigger_price: order_status.stop_price.unwrap().clone(),
+                submit_price: order_status
+                    .limit_price
+                    .with_context(|| format!("Error limit_price not exists in the response"))?,
+                trigger_price: order_status
+                    .stop_price
+                    .with_context(|| format!("Error stop_price not exists in the response"))?,
             },
             "TRAIL" | "TRAILING_STOP" => Price::TrailingMarketIfTouched {
-                trailing: match order_status.trailing_amount_unit.clone().unwrap().as_str() {
+                trailing: match order_status
+                    .trailing_amount_unit
+                    .clone()
+                    .with_context(|| {
+                        format!("Error trailing_amount_unit not exists in the response")
+                    })?
+                    .as_str()
+                {
                     "amt" => TrailingMarketPrice::Amount {
-                        trailing_amount: order_status.trailing_amount.unwrap(),
+                        trailing_amount: order_status.trailing_amount.with_context(|| {
+                            format!("Error trailing_amount not exists in the response")
+                        })?,
                     },
                     "%" => TrailingMarketPrice::Percent {
-                        trailing_percent: order_status.trailing_amount.unwrap(),
+                        trailing_percent: order_status.trailing_amount.with_context(|| {
+                            format!("Error trailing_amount not exists in the response")
+                        })?,
                     },
                     _ => Result::Err(anyhow!(
                         "Error, unsupported trailing_amount_unit {:?}",
@@ -166,14 +214,29 @@ impl InteractiveBrokersTransaction {
                 },
             },
             "TRAILLMT" | "TRAILING_STOP_LIMIT" => Price::TrailingLimitIfTouched {
-                trailing: match order_status.trailing_amount_unit.clone().unwrap().as_str() {
+                trailing: match order_status
+                    .trailing_amount_unit
+                    .clone()
+                    .with_context(|| {
+                        format!("Error trailing_amount_unit not exists in the response")
+                    })?
+                    .as_str()
+                {
                     "amt" => TrailingLimitPrice::Amount {
-                        limit_offset: order_status.limit_price_offset.unwrap(),
-                        trailing_amount: order_status.trailing_amount.unwrap(),
+                        limit_offset: order_status.limit_price_offset.with_context(|| {
+                            format!("Error limit_price_offset not exists in the response")
+                        })?,
+                        trailing_amount: order_status.trailing_amount.with_context(|| {
+                            format!("Error trailing_amount not exists in the response")
+                        })?,
                     },
                     "%" => TrailingLimitPrice::Percent {
-                        limit_offset: order_status.limit_price_offset.unwrap(),
-                        trailing_percent: order_status.trailing_amount.unwrap(),
+                        limit_offset: order_status.limit_price_offset.with_context(|| {
+                            format!("Error limit_price_offset not exists in the response")
+                        })?,
+                        trailing_percent: order_status.trailing_amount.with_context(|| {
+                            format!("Error trailing_amount not exists in the response")
+                        })?,
                     },
                     _ => Result::Err(anyhow!(
                         "Error, unsupported trailing_amount_unit {:?}",
@@ -183,42 +246,61 @@ impl InteractiveBrokersTransaction {
             },
             _ => Result::Err(anyhow!("Error, unsupported order_type {:?}", order_status))?,
         };
+        let quantity = order_status
+            .total_size
+            .with_context(|| format!("Error total_size not exists in the response"))?;
+        let executed_quantity = order_status
+            .cum_fill
+            .with_context(|| format!("Error cum_fill not exists in the response"))?;
+        let created_timestamp = order_status
+            .order_time
+            .and_then(|order_time| order_time.parse::<u64>().ok());
 
         Result::Ok(OrderDetail {
             order_id,
             symbol,
             currency,
-            quantity: order_status.total_size.unwrap(),
-            executed_quantity: order_status.cum_fill.unwrap(),
+            quantity,
+            executed_quantity,
             price,
             executed_price: Option::None, // TODO
             direction,
             regular_trading_time,
             expire,
-            created_timestamp: order_status.order_time.unwrap().parse().unwrap(),
+            created_timestamp,
             updated_timestamp: Option::None,
             triggered_timestamp: Option::None,
         })
     }
 
     fn core_edit_order_request_to_ib_modify_order_request(
+        &self,
         account_id: String,
         request: EditOrderRequest,
-    ) -> ModifyOrderRequest {
+    ) -> Result<ModifyOrderRequest, Error> {
+        let conid = self
+            .ib_symbol_helper
+            .get_conid(&request.symbol)
+            .with_context(|| {
+                format!(
+                    "Error when get conid from symbol {:?}",
+                    request.symbol.to_string()
+                )
+            })?;
         let mut modify_order_request = ModifyOrderRequest {
             account_id_or_financial_advisors_group: account_id.clone(),
             order_id: request.order_id.clone(),
             account_id: Option::Some(account_id),
             conid: Option::None,
-            conidex: Option::None, // TODO: validate
+            conidex: Option::Some(conid.to_string()),
             order_type: Option::Some("LMT".to_owned()),
             outside_regular_trading_hours: Option::None,
             price: Option::None,
             aux_price: Option::None,
-            side: Option::None, // TODO: validate
+            side: Option::Some(Self::direction_to_side(request.direction)),
             listing_exchange: Option::None,
             ticker: Option::None,
-            time_in_force: Option::None, // TODO: validate
+            time_in_force: Option::Some(Self::expire_to_time_in_force(request.expire)?),
             quantity: Option::Some(request.quantity),
             deactivated: Option::None,
             use_adaptive: Option::Some(false),
@@ -284,7 +366,7 @@ impl InteractiveBrokersTransaction {
                 }
             },
         };
-        modify_order_request
+        Result::Ok(modify_order_request)
     }
 
     async fn core_submit_order_request_to_ib_order(
@@ -292,7 +374,15 @@ impl InteractiveBrokersTransaction {
         account_id: String,
         request: SubmitOrderRequest,
     ) -> Result<OrderRequest, Error> {
-        let conid = self.ib_symbol_helper.get_conid(&request.symbol).unwrap();
+        let conid = self
+            .ib_symbol_helper
+            .get_conid(&request.symbol)
+            .with_context(|| {
+                format!(
+                    "Error when get conid from symbol {:?}",
+                    request.symbol.to_string()
+                )
+            })?;
         let outside_regular_trading_hours = match request.regular_trading_time {
             crate::model::trading::transaction::RegularTradingTime::AllTime => true,
             crate::model::trading::transaction::RegularTradingTime::OnlyRegularTradingTime => false,
@@ -551,9 +641,9 @@ impl TransactionTrait for InteractiveBrokersTransaction {
 
         let place_order_response = self
             .client_portal
-            .modify_order(Self::core_edit_order_request_to_ib_modify_order_request(
-                account_id, request,
-            ))
+            .modify_order(
+                self.core_edit_order_request_to_ib_modify_order_request(account_id, request)?,
+            )
             .await?;
         handle_reply_order_requests(
             self.client_portal.clone(),
