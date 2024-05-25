@@ -1,5 +1,5 @@
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
-use reqwest_retry::{RetryPolicy, RetryTransientMiddleware};
+use reqwest_retry::{policies::ExponentialBackoff, RetryPolicy, RetryTransientMiddleware};
 use std::time::Duration;
 
 #[derive(Clone)]
@@ -9,6 +9,17 @@ pub struct IBClientPortal {
     pub listen_ssl: bool,
 
     pub client: ClientWithMiddleware,
+}
+
+impl Default for IBClientPortal {
+    fn default() -> Self {
+        Self::new(
+            Default::default(),
+            Default::default(),
+            false,
+            ExponentialBackoff::builder().build_with_max_retries(3),
+        )
+    }
 }
 
 impl IBClientPortal {

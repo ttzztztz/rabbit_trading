@@ -8,7 +8,6 @@ use ibkr_client_portal::{
         market_data::{GetMarketDataRequest, MarketData},
     },
 };
-use rust_decimal_macros::dec;
 
 use super::{broker::InteractiveBrokersBroker, config::IBConfig, symbol::IBSymbolHelper};
 use crate::{
@@ -30,21 +29,10 @@ pub struct InteractiveBrokersInfo {
 
 impl InteractiveBrokersInfo {
     fn ib_contract_detail_to_quote_basic_info(
-        symbol: Symbol,
-        contract_detail: ContractDetail,
+        _symbol: Symbol,
+        _contract_detail: ContractDetail,
     ) -> Result<QuoteBasicInfo, Error> {
-        let currency = contract_detail.currency.parse().ok();
-        Result::Ok(QuoteBasicInfo {
-            symbol,
-            currency,
-            lot_size: 0,                 // TODO
-            total_shares: dec!(0),       // TODO
-            circulating_shares: dec!(0), // TODO
-            eps: dec!(0),                // TODO
-            eps_ttm: dec!(0),            // TODO
-            bps: dec!(0),                // TODO
-            dividend_yield: dec!(0),     // TODO
-        })
+        todo!()
     }
 
     fn market_data_to_quote_real_time_info(
