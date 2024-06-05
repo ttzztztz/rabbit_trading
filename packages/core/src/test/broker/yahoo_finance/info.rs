@@ -14,6 +14,7 @@ use crate::{
 };
 
 #[tokio::test]
+#[cfg_attr(feature = "ci", ignore)]
 async fn test_query_quote_info() {
     let yahoo_finance_info = YahooFinanceInfo::new(ConfigMap::new());
 

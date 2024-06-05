@@ -19,6 +19,7 @@ use crate::{
 };
 
 #[tokio::test]
+#[cfg_attr(feature = "ci", ignore)]
 async fn test_subscribe_quote_real_time_info() {
     let yahoo_finance_subscription =
         YahooFinanceSubscription::new(ConfigMap::new(), Arc::new(AtomicBool::new(false)));
